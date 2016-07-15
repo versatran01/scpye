@@ -7,7 +7,6 @@ from collections import namedtuple
 
 from sklearn.base import TransformerMixin, BaseEstimator
 from sklearn.preprocessing import StandardScaler
-from scipy.ndimage import maximum_filter
 
 from scpye.bounding_box import extract_bbox
 

@@ -5,15 +5,15 @@ from scpye.training import make_image_pipeline, train_image_classifier
 from scpye.testing import test_image_classifier
 
 # %%
-base_dir = '/home/chao/Workspace/bag'
-color = 'green'
+base_dir = '/home/chao/Workspace/dataset/agriculture'
+color = 'red'
 mode = 'slow_flash'
 side = 'north'
 
 # %%
-train = False
-save = True
-test = True
+train = True
+save = False
+test = False
 
 # %% 
 # Parameters
