@@ -9,8 +9,8 @@ from scpye.image_pipeline import ImagePipeline, FeatureUnion
 from scpye.data_reader import DataReader
 
 
-def make_image_pipeline(ccw=-1, bbox=None, k=0.5, v_min=25, cspace=None,
-                        use_loc=True):
+def create_image_pipeline(ccw=-1, bbox=None, k=0.5, v_min=25, cspace=None,
+                          use_loc=True):
     """
     Factory function for making an image pipeline
     :param ccw: rotate image by ccw
@@ -22,7 +22,7 @@ def make_image_pipeline(ccw=-1, bbox=None, k=0.5, v_min=25, cspace=None,
     :return: image pipeline
     :rtype: ImagePipeline
     """
-    features = make_image_features(cspace, use_loc)
+    features = create_image_features(cspace, use_loc)
 
     img_ppl = ImagePipeline([
         ('rotate_image', ImageRotator(ccw)),
@@ -35,9 +35,9 @@ def make_image_pipeline(ccw=-1, bbox=None, k=0.5, v_min=25, cspace=None,
     return img_ppl
 
 
-def make_image_features(cspace=None, use_loc=True):
+def create_image_features(cspace=None, use_loc=True):
     """
-    Factory function for making a feature unin
+    Factory function for making a feature union
     :param cspace: features - colorspace
     :param use_loc: features - pixel location
     :return: feature union

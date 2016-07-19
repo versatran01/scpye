@@ -18,9 +18,9 @@ def points_inside_image(points, image, b=4):
     return (px >= b) & (px < w - b) & (py >= b) & (py < h - b)
 
 
-def _prepare_points(points):
+def _prepare_points_cv(points):
     """
-    Prepare points for opencv
+    Prepare points for opencv, convert dtype to np.float32 and add extra dimension
     :param points:
     :return:
     """
@@ -34,16 +34,16 @@ def _prepare_points(points):
 def calc_optical_flow(gray1, gray2, points1, points2, win_size, max_level):
     """
     Thin wrapper around opencv's calcOpticalFlowPyrLK
-    :param gray1:
-    :param gray2:
-    :param points1:
-    :param points2:
-    :param win_size:
-    :param max_level:
-    :return:
+    :param gray1: previous image
+    :param gray2: current image
+    :param points1: points in previous image
+    :param points2: points in current image
+    :param win_size: window size
+    :param max_level: max pyramid level
+    :return: (points1, points2, status)
     """
-    points1 = _prepare_points(points1)
-    points2 = _prepare_points(points2)
+    points1 = _prepare_points_cv(points1)
+    points2 = _prepare_points_cv(points2)
 
     criteria = (cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 10, 0.03)
     klt_params = dict(winSize=(win_size, win_size),

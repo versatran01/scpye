@@ -1,7 +1,7 @@
 # %%
 import numpy as np
 from scpye.data_reader import DataReader
-from scpye.training import make_image_pipeline, train_image_classifier
+from scpye.training import create_image_pipeline, train_image_classifier
 from scpye.testing import test_image_classifier
 
 # %%
@@ -30,7 +30,7 @@ else:
 if color == 'red':
     bbox = np.array([350, 0, 500, 1440])
     use_loc = True
-    method = 'lr'
+    method = 'svm'
     cspace = ['hsv', 'lab']
 else:
     bbox = np.array([350, 240, 500, 1440])
@@ -42,8 +42,8 @@ else:
 # DataReader
 drd = DataReader(base_dir, color=color, mode=mode, side=side)
 if train:
-    img_ppl = make_image_pipeline(bbox=bbox, k=k, v_min=v_min, cspace=cspace,
-                                  use_loc=use_loc)
+    img_ppl = create_image_pipeline(bbox=bbox, k=k, v_min=v_min, cspace=cspace,
+                                    use_loc=use_loc)
     img_clf = train_image_classifier(drd, train_inds, img_ppl, method=method)
 
     if save:

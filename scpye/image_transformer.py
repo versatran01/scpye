@@ -28,7 +28,7 @@ class ImageTransformer(BaseEstimator, TransformerMixin):
         def func_wrapper(self, X, y=None):
             if y is None:
                 if isinstance(X, list):
-                    return [func(self, _X) for _X in X]
+                    return [func(self, each_X) for each_X in X]
                 else:
                     return func(self, X)
             else:
@@ -37,8 +37,8 @@ class ImageTransformer(BaseEstimator, TransformerMixin):
                     assert isinstance(y, list) and len(X) == len(y)
                     Xts = []
                     yts = []
-                    for _X, _y in zip(X, y):
-                        Xt, yt = func(self, _X, _y)
+                    for each_X, each_y in zip(X, y):
+                        Xt, yt = func(self, each_X, each_y)
                         Xts.append(Xt)
                         yts.append(yt)
                     return Xts, yts
@@ -219,7 +219,7 @@ class CspaceTransformer(FeatureTransformer):
         elif self.cspace == 'bgr':
             des = src
         else:
-            raise ValueError("{0} not supported".format(self.cspace))
+            raise ValueError("Colorspace {0} not supported".format(self.cspace))
 
         return np.squeeze(des)
 
@@ -250,6 +250,7 @@ class CspaceTransformer(FeatureTransformer):
 
 def xy_from_array(m):
     """
+    Get locations of non-zero pixels in array
     :param m: array
     :type m: numpy.ndarray
     :return: n x 2 matrix of [x, y]
