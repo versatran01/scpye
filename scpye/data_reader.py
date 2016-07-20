@@ -6,6 +6,8 @@ from sklearn.externals import joblib
 import rosbag
 from cv_bridge import CvBridge, CvBridgeError
 
+from scpye.exception import ImageNotFoundError
+
 
 class DataReader(object):
     def __init__(self, base_dir='/home/chao/Workspace/bag', fruit='apple',
@@ -45,7 +47,7 @@ class DataReader(object):
             flag = cv2.IMREAD_GRAYSCALE
         image = cv2.imread(filename, flag)
         if image is None:
-            raise ValueError('{0} not found'.format(filename))
+            raise ImageNotFoundError(filename)
         return image
 
     def load_image(self, index):

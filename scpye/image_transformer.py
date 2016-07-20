@@ -4,11 +4,13 @@ import cv2
 import numpy as np
 from functools import partial
 from collections import namedtuple
+from itertools import izip
 
 from sklearn.base import TransformerMixin, BaseEstimator
 from sklearn.preprocessing import StandardScaler
 
 from scpye.bounding_box import extract_bbox
+from scpye.exception import FeatureNotSupportedError
 
 __all__ = ['ImageRotator', 'ImageCropper', 'ImageResizer', 'DarkRemover',
            'CspaceTransformer', 'MaskLocator', 'StandardScaler']
@@ -32,12 +34,17 @@ class ImageTransformer(BaseEstimator, TransformerMixin):
                 else:
                     return func(self, X)
             else:
-                # Hopefully the input of y won't be a list of None
                 if isinstance(X, list):
-                    assert isinstance(y, list) and len(X) == len(y)
-                    Xts = []
-                    yts = []
-                    for each_X, each_y in zip(X, y):
+                    # Make sure y corresponds to X
+                    if not isinstance(y, list):
+                        raise TypeError('y is not a list')
+                    if len(X) != len(y):
+                        raise ValueError('X and y not same length')
+
+                    Xts, yts = [], []
+                    for each_X, each_y in izip(X, y):
+                        if each_y is None:
+                            raise ValueError('y is None')
                         Xt, yt = func(self, each_X, each_y)
                         Xts.append(Xt)
                         yts.append(yt)
@@ -48,6 +55,7 @@ class ImageTransformer(BaseEstimator, TransformerMixin):
         return func_wrapper
 
     def fit_transform(self, X, y=None, **fit_params):
+        # Because fit returns self, here fit does nothing
         if y is None:
             # fit method of arity 1 (unsupervised transformation)
             return self.fit(X, **fit_params).transform(X)
@@ -59,7 +67,7 @@ class ImageTransformer(BaseEstimator, TransformerMixin):
         return self
 
     def transform(self, X, y=None):
-        assert False
+        raise NotImplementedError
 
 
 class ImageRotator(ImageTransformer):
@@ -101,6 +109,7 @@ class ImageCropper(ImageTransformer):
         func = partial(extract_bbox, bbox=self.bbox)
 
         Xt = func(X)
+
         if y is None:
             return Xt
         else:
@@ -123,6 +132,7 @@ class ImageResizer(ImageTransformer):
                        interpolation=cv2.INTER_NEAREST)
 
         Xt = func(cv2.GaussianBlur(X, (5, 5), 1))
+
         if y is None:
             return Xt
         else:
@@ -130,7 +140,7 @@ class ImageResizer(ImageTransformer):
             return Xt, yt
 
 
-def split_label01(label):
+def split_label(label):
     """
     :param label:
     :return: split label
@@ -168,16 +178,17 @@ class DarkRemover(ImageTransformer):
         if y is None:
             return MaskedData(X=X, m=self.mask)
 
-        neg, pos = split_label01(y)
+        neg, pos = split_label(y)
 
         neg_mask = self.mask & neg
         pos_mask = self.mask & pos
 
-        y_pos = np.ones(np.count_nonzero(pos_mask))
         y_neg = np.zeros(np.count_nonzero(neg_mask))
+        y_pos = np.ones(np.count_nonzero(pos_mask))
 
         self.label = np.dstack((neg_mask, pos_mask))
         yt = np.hstack((y_neg, y_pos))
+
         return MaskedData(X=X, m=self.label), yt
 
 
@@ -192,7 +203,7 @@ class FeatureTransformer(ImageTransformer):
 
         def func_wrapper(self, X, y=None):
             if isinstance(X, list):
-                return np.vstack([func(self, _X) for _X in X])
+                return np.vstack([func(self, each_X) for each_X in X])
             else:
                 return func(self, X)
 
@@ -219,7 +230,7 @@ class CspaceTransformer(FeatureTransformer):
         elif self.cspace == 'bgr':
             des = src
         else:
-            raise ValueError("Colorspace {0} not supported".format(self.cspace))
+            raise FeatureNotSupportedError(self.cspace)
 
         return np.squeeze(des)
 
@@ -233,14 +244,16 @@ class CspaceTransformer(FeatureTransformer):
         """
         bgr = X.X
         mask = X.m
+        # Testing case, mask is 2D
         if np.ndim(mask) == 2:
             Xt = self.cspace_transform(bgr[mask])
             image = np.zeros_like(bgr)
             image[mask] = Xt
             # if y is None:
             #     self.image = image
+        # Training case, mask is 3D
         else:
-            neg, pos = split_label01(mask)
+            neg, pos = split_label(mask)
             Xt_neg = self.cspace_transform(bgr[neg])
             Xt_pos = self.cspace_transform(bgr[pos])
             Xt = np.vstack((Xt_neg, Xt_pos))
@@ -268,7 +281,7 @@ class MaskLocator(FeatureTransformer):
         if np.ndim(mask) == 2:
             Xt = xy_from_array(mask)
         else:
-            neg, pos = split_label01(mask)
+            neg, pos = split_label(mask)
             xy_neg = xy_from_array(neg)
             xy_pos = xy_from_array(pos)
             Xt = np.vstack((xy_neg, xy_pos))

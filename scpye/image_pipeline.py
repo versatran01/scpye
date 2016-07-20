@@ -6,6 +6,10 @@ from sklearn.utils.metaestimators import if_delegate_has_method
 __all__ = ['ImagePipeline', 'FeatureUnion']
 
 
+def is_tuple_of_two(tup):
+    return type(tup) == tuple and len(tup) == 2
+
+
 class ImagePipeline(Pipeline):
     def _pre_transform_Xy(self, X, y=None, **fit_params):
         """
@@ -25,8 +29,8 @@ class ImagePipeline(Pipeline):
         for pname, pval in six.iteritems(fit_params):
             step, param = pname.split_blob('__', 1)
             fit_params_steps[step][param] = pval
-        Xt = X
-        yt = y
+
+        Xt, yt = X, y
 
         for name, transform in self.steps[:-1]:
             if hasattr(transform, "fit_transform"):
@@ -36,10 +40,12 @@ class ImagePipeline(Pipeline):
                     .transform(Xt, yt)
 
             # Handle transforms that only return X, because X could be a
-            # namedTuple, we have to check type explicitly
+            # namedTuple (tuple), we have to check its type explicitly
             # If a transformer also transforms y to yt, it will return a tuple,
             # thus we extract it from Xyt and update yt
-            if type(Xyt) == tuple and len(Xyt) == 2:
+            # Otherwise, we don't modify yt, so that it inherits value from the
+            # previous iteration
+            if is_tuple_of_two(Xyt):
                 Xt, yt = Xyt
             else:
                 Xt = Xyt
@@ -50,7 +56,7 @@ class ImagePipeline(Pipeline):
     def _transform_X(X, steps):
         """
         Transform only X according to steps
-        Because transform only take X as input, it should only return X
+        Because transform only takes X as input, it should only return X
         :param X:
         :param steps:
         :return: X transformed
@@ -76,11 +82,12 @@ class ImagePipeline(Pipeline):
         yt = y
         for name, transform in steps:
             if isinstance(transform, FeatureUnion):
-                # FeatureUnion's transform only takes X, so we need to handle it
+                # FeatureUnion's transform function only takes X as input,
+                # so we need to handle it separately
                 Xt = transform.transform(Xt)
             else:
                 Xyt = transform.transform(Xt, yt)
-                if type(Xyt) == tuple and len(Xyt) == 2:
+                if is_tuple_of_two(Xyt):
                     Xt, yt = Xyt
                 else:
                     Xt = Xyt
@@ -93,7 +100,7 @@ class ImagePipeline(Pipeline):
         :param Xy: X or (X, y)
         :return:
         """
-        if type(Xy) == tuple and len(Xy) == 2:
+        if is_tuple_of_two(Xy):
             Xt, _ = Xy
         else:
             Xt = Xy
@@ -161,7 +168,7 @@ class ImagePipeline(Pipeline):
         # Most of the time fit_transform will just return Xt because our last
         # step will always be StandardScaler
         # This cannot be abstracted to a function since we need yt?
-        if type(Xyt) == tuple and len(Xyt) == 2:
+        if is_tuple_of_two(Xyt):
             Xt, yt = Xyt
         else:
             Xt = Xyt
