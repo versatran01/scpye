@@ -4,7 +4,9 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.grid_search import GridSearchCV
 from sklearn.cross_validation import train_test_split
 from sklearn.metrics import classification_report
-from scpye.image_transformer import *
+from scpye.image_transformer import (ImageRotator, ImageCropper, ImageResizer,
+                                     DarkRemover, MaskLocator,
+                                     CspaceTransformer, StandardScaler)
 from scpye.image_pipeline import ImagePipeline, FeatureUnion
 from scpye.data_reader import DataReader
 
@@ -44,7 +46,7 @@ def create_image_features(cspace=None, use_loc=True):
     :rtype: FeatureUnion
     """
     if cspace is None:
-        cspace = ['hsv']
+        cspace = ["hsv"]
     transformer_list = [(cs, CspaceTransformer(cs)) for cs in cspace]
     if use_loc:
         transformer_list.append(('mask_location', MaskLocator()))
@@ -55,7 +57,6 @@ def create_image_features(cspace=None, use_loc=True):
 
 def tune_image_classifier(X, y, method='svm', test_size=0.3, report=True):
     """
-
     :param X:
     :param y:
     :param method:

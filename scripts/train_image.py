@@ -30,7 +30,7 @@ else:
 if color == 'red':
     bbox = np.array([350, 0, 500, 1440])
     use_loc = True
-    method = 'svm'
+    method = 'lr'
     cspace = ['hsv', 'lab']
 else:
     bbox = np.array([350, 240, 500, 1440])

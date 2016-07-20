@@ -2,6 +2,8 @@ from __future__ import (absolute_import, division, print_function)
 
 import cv2
 import numpy as np
+
+from enum import Enum
 from functools import partial
 from collections import namedtuple
 from itertools import izip
@@ -223,11 +225,11 @@ class CspaceTransformer(FeatureTransformer):
         if np.ndim(src) == 2:
             src = np.expand_dims(src, 1)
 
-        if self.cspace == 'hsv':
+        if self.cspace == "hsv":
             des = cv2.cvtColor(src, cv2.COLOR_BGR2HSV)
-        elif self.cspace == 'lab':
+        elif self.cspace == "lab":
             des = cv2.cvtColor(src, cv2.COLOR_BGR2LAB)
-        elif self.cspace == 'bgr':
+        elif self.cspace == "bgr":
             des = src
         else:
             raise FeatureNotSupportedError(self.cspace)
@@ -287,3 +289,9 @@ class MaskLocator(FeatureTransformer):
             Xt = np.vstack((xy_neg, xy_pos))
         # Change to float to suppress warning
         return np.array(Xt, np.float64)
+
+
+class ImagePatch(FeatureTransformer):
+    @FeatureTransformer.stack_list_input
+    def transform(self, X, y=None):
+        pass
