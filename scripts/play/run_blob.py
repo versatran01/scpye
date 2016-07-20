@@ -32,18 +32,17 @@ for cnt in cs:
     m = cv2.moments(cnt)
     area = m['m00']
     if area >= 25:
-        
         bbox = np.array(cv2.boundingRect(cnt))
-#        draw_bbox(disp, bbox)
+        #        draw_bbox(disp, bbox)
 
         bbox_area = bbox[-1] * bbox[-2]
         extent = area / bbox_area
         equiv_diameter = np.sqrt(4 * area / np.pi)
 
         # Cricle
-#        center, radius = cv2.minEnclosingCircle(cnt)
-#        circle = np.hstack((center, radius))
-#        draw_circle(disp, circle)
+        #        center, radius = cv2.minEnclosingCircle(cnt)
+        #        circle = np.hstack((center, radius))
+        #        draw_circle(disp, circle)
 
         # Convex
         cvx_hull = cv2.convexHull(cnt)
@@ -61,5 +60,5 @@ for cnt in cs:
         eccen = np.sqrt(1 - (min_axes / maj_axes) ** 2)
         draw_contour(disp, cnt)
         draw_text(disp, solidity * 100, center)
-        
+
 imshow(disp, figsize=(15, 15))

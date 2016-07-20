@@ -102,7 +102,7 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=.5,
 
 # Run classifier
 classifier = OneVsRestClassifier(svm.SVC(kernel='linear', probability=True,
-                                 random_state=random_state))
+                                         random_state=random_state))
 y_score = classifier.fit(X_train, y_train).decision_function(X_test)
 
 # Compute Precision-Recall and plot curve
@@ -116,7 +116,7 @@ for i in range(n_classes):
 
 # Compute micro-average ROC curve and ROC area
 precision["micro"], recall["micro"], _ = precision_recall_curve(y_test.ravel(),
-    y_score.ravel())
+                                                                y_score.ravel())
 average_precision["micro"] = average_precision_score(y_test, y_score,
                                                      average="micro")
 

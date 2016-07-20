@@ -50,7 +50,7 @@ if train:
         print('Saving pipeline and classifier')
         drd.save_model(img_ppl, 'img_ppl')
         drd.save_model(img_clf, 'img_clf')
-        
+
 # %%
 if test:
     img_ppl = drd.load_model('img_ppl')

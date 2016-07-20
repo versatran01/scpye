@@ -33,7 +33,7 @@ fd = FruitDetector.from_pickle(dr.model_dir)
 I = dr.load_image(index)
 bw = fd.detect(I)
 
-#cv2.imwrite(os.path.join(save_dir, color + '_raw.png'), fd.color)
+# cv2.imwrite(os.path.join(save_dir, color + '_raw.png'), fd.color)
 
 # %%
 # Raw classifier detection results
@@ -51,8 +51,8 @@ draw_contours(disp_left, cntrs, color=(0, 0, 255))
 draw_bboxes(disp_right, blobs['bbox'], color=(0, 0, 255))
 
 imshow2(disp_left, disp_right)
-#cv2.imwrite(os.path.join(save_dir, color + '_cntr.png'), disp_left)
-#cv2.imwrite(os.path.join(save_dir, color + '_bbox.png'), disp_right)
+# cv2.imwrite(os.path.join(save_dir, color + '_cntr.png'), disp_left)
+# cv2.imwrite(os.path.join(save_dir, color + '_bbox.png'), disp_right)
 
 # %%
 # Find what is likely to be multiple fruits
@@ -74,7 +74,7 @@ for blob, cntr in zip(blobs, cntrs):
         draw_contour(disp, cntr, color=(0, 0, 255))
         cntrs_single.append(cntr)
 imshow(disp)
-#cv2.imwrite(os.path.join(save_dir, color + '_multi.png'), disp)
+# cv2.imwrite(os.path.join(save_dir, color + '_multi.png'), disp)
 
 # %%
 # For each candidate find max points and split the blob
@@ -101,7 +101,7 @@ for blob, cntr in zip(blobs_multi, cntrs_multi):
         for i in np.arange(1, n + 1):
             mask = np.array(label == i, np.uint8)
             cs = find_contours(mask)
-#            draw_contour(bgr, cs[0], color=(0, 255, 255))            
+        #            draw_contour(bgr, cs[0], color=(0, 255, 255))
         draw_points(bgr, points, radius=2, color=(0, 255, 255))
         fig = plt.figure(figsize=(12, 12))
         ax = fig.add_subplot(121)
@@ -115,4 +115,4 @@ for blob, cntr in zip(blobs_multi, cntrs_multi):
         plt.savefig('/home/chao/Desktop/' + color + '/split{0}.png'.format(i))
         i += 1
 imshow(disp_left)
-#cv2.imwrite(os.path.join(save_dir, color + '_split.png'), disp_left)
+# cv2.imwrite(os.path.join(save_dir, color + '_split.png'), disp_left)

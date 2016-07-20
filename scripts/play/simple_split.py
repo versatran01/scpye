@@ -1,10 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Mon Feb  8 20:45:49 2016
-
-@author: chao
-"""
-
 # %%
 from __future__ import division
 from scpye.bounding_box import extract_bbox
@@ -29,7 +22,7 @@ img_clf = drd.load_model('img_clf')
 Is, Ls = drd.load_image_label_list(test_indices)
 
 # %%
-#for I, L in zip(Is, Ls):
+# for I, L in zip(Is, Ls):
 #    B = get_prediction_bw(img_ppl, img_clf, I)
 #    B = gray_from_bw(B)   
 #    B = clean_bw(B)
@@ -76,17 +69,17 @@ blb_anl = BlobAnalyzer(split=True)
 
 for I, L in zip(Is, Ls):
     B = get_prediction_bw(img_ppl, img_clf, I)
-    B = gray_from_bw(B)   
+    B = gray_from_bw(B)
     B = clean_bw(B)
 
     blobs, cntrs = region_props_bw(B, min_area=5)
     B = fill_bw(B, cntrs)
-    
+
     disp_bgr = img_ppl.named_steps['remove_dark'].image.copy()
-    v = img_ppl.named_features['hsv'].image[:,:,-1]
-    
+    v = img_ppl.named_features['hsv'].image[:, :, -1]
+
     fruits = blb_anl.analyze(B, v)
     disp_bgr = img_ppl.named_steps['remove_dark'].image.copy()
     draw_bboxes(disp_bgr, fruits[:, :4])
-    
+
 imshow(disp_bgr, figsize=(17, 17))

@@ -13,22 +13,25 @@ base_dir = '/home/chao/Workspace/bag'
 color = 'green'
 mode = 'slow_flash'
 
+
 # %%
 def load_counts(base_dir, color, mode, side, index):
     dr = DataReader(base_dir, color=color, mode=mode, side=side)
     return dr.load_count(index)
 
+
 def counts_per_tree(counts, num_trees):
     counts = counts[2:]
     counts_per_tree = np.array_split(counts, num_trees)
     return np.array([sum(e) for e in counts_per_tree])
-    
+
+
 # %%
 # Read ground truth counts
 dr = DataReader(base_dir, color=color, mode=mode)
 frame1_counts_gt = dr.load_ground_truth()
 frame1_total_gt = np.sum(frame1_counts_gt)
-num_trees = len(frame1_counts_gt) 
+num_trees = len(frame1_counts_gt)
 frame_trees = np.arange(1, num_trees + 1)
 
 k_north = 0.75
@@ -50,28 +53,28 @@ for i, ax in enumerate(axarr.ravel()):
         # Get factor k
         k = frame1_total_gt / (k_north * north_total + k_south * south_total)
         ax.plot(frame_trees, frame1_counts_gt, color='b', label='truth')
-    
+
     north_counts_per_tree = counts_per_tree(north_counts, num_trees)
     south_counts_per_tree = counts_per_tree(south_counts, num_trees)
     calib_counts_per_tree = (k_north * north_counts_per_tree + \
-                             k_south * south_counts_per_tree) * k  
-    
+                             k_south * south_counts_per_tree) * k
+
     calib_total = (k_north * north_total + k_south * south_total) * k
-    
+
     ax.plot(frame_trees, calib_counts_per_tree, color='g', label='calib')
     ax.set_xlabel('trees')
     ax.set_ylabel('fruits')
     ax.set_title('{0} rep {1}'.format(color, n_frame))
     ax.grid(True)
     ax.set_xlim([0, num_trees + 1])
-    
+
     if i == 0:
         ax.legend(ncol=2, mode='expand')
     north_totals.append(north_total)
     south_totals.append(south_total)
     calib_totals.append(calib_total)
 
-north_totals = np.array(north_totals, np.int)   
+north_totals = np.array(north_totals, np.int)
 south_totals = np.array(south_totals, np.int)
 calib_totals = np.array(calib_totals, np.int)
 
@@ -93,7 +96,9 @@ rects_south = ax.bar(x + bar_width, south_totals, bar_width, color='y')
 rects_calib = ax.bar(x + bar_width * 2, calib_totals, bar_width)
 for rect in rects_calib:
     height = rect.get_height()
-    ax.text(rect.get_x() + rect.get_width() / 2, 1.01 * height, '%d' % int(height),
+    ax.text(rect.get_x() + rect.get_width() / 2, 1.01 * height,
+            '%d' % int(height),
             ha='center', va='bottom')
-ax.legend((rects_north[0], rects_south[0], rects_calib), ('North', 'South', 'Calib'),
+ax.legend((rects_north[0], rects_south[0], rects_calib),
+          ('North', 'South', 'Calib'),
           mode='expand', ncol=3)

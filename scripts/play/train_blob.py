@@ -35,7 +35,7 @@ for I, L in zip(Is, Ls):
     bw_pos = get_positive_bw(img_ppl, I, L)
     bw_clf = get_prediction_bw(img_ppl, img_clf, I)
 
-    bw_pos = gray_from_bw(bw_pos)   
+    bw_pos = gray_from_bw(bw_pos)
     bw_clf = gray_from_bw(bw_clf)
 
     bw_clf = clean_bw(bw_clf)
@@ -51,15 +51,15 @@ for I, L in zip(Is, Ls):
         bbox = blob['bbox']
         bw_clf_bbox = extract_bbox(bw_clf, bbox)
         bw_pos_bbox = extract_bbox(bw_tp, bbox)
-    
+
         l, n = label(bw_pos_bbox, return_num=True)
         area_pos = np.count_nonzero(l)
         area_clf = blob['prop'][0]
-        
+
         if n == 1 or area_clf / area_pos > 10:
             # Not apple
             ys.append(0)
-        elif n == 2 :
+        elif n == 2:
             # Single apple
             ys.append(1)
         else:
@@ -93,13 +93,13 @@ for I, L in zip(Is, Ls):
 
     bgr = img_ppl.named_steps['remove_dark'].image
     disp_bgr = bgr.copy()
-    
+
     X = blobs['prop']
     Xt = scaler.transform(X)
     y_clf = grid.predict(Xt)
-    
+
     blobs = blobs[blobs['prop'][:, 0] >= 8]
-    
+
     for blob, r in zip(blobs, y_clf):
         bbox = blob['bbox']
         if r == 0:
@@ -108,6 +108,5 @@ for I, L in zip(Is, Ls):
             draw_bboxes(disp_bgr, bbox, color=(0, 255, 0))
         else:
             draw_bboxes(disp_bgr, bbox, color=(0, 0, 255))
-    
+
     imshow2(disp_bgr, bw_clf, figsize=(17, 17))
-        
