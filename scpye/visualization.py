@@ -21,26 +21,26 @@ class Colors:
         pass
 
 
-def imshow(image, figsize=(10, 10)):
+def imshow(*images, **options):
+    """
+    A helper function to show multiple images in one row
+    :param images:
+    :param options:
+    :return: fig, axarr
+    """
+    naxes = len(images)
+    figsize = options.pop('figsize', (10, 10))
+    interp = options.pop('interp', None)
+    cmap = options.pop('cmap', None)
+
     fig = plt.figure(figsize=figsize)
-    ax = fig.add_subplot(111)
-    ax.imshow(image)
-    return ax
+    axarr = np.empty(naxes, dtype=object)
 
+    for i, image in enumerate(images):
+        axarr[i] = fig.add_subplot(1, naxes, i + 1)
+        axarr[i].imshow(image, interpolation=interp, cmap=cmap)
 
-def imshow2(image1, image2, figsize=(10, 10)):
-    fig = plt.figure(figsize=figsize)
-    ax1 = fig.add_subplot(121).imshow(image1)
-    ax2 = fig.add_subplot(122).imshow(image2)
-    return ax1, ax2
-
-
-def imshow3(image1, image2, image3, figsize=(10, 10)):
-    fig = plt.figure(figsize=figsize)
-    ax1 = fig.add_subplot(131).imshow(image1, interpolation='none')
-    ax2 = fig.add_subplot(132).imshow(image2, interpolation='none')
-    ax3 = fig.add_subplot(133).imshow(image3, interpolation='none')
-    return ax1, ax2, ax3
+    return fig, axarr
 
 
 def draw_bboxes(image, bboxes, color=(255, 0, 0), thickness=1):

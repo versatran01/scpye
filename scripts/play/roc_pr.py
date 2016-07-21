@@ -1,4 +1,6 @@
 import numpy as np
+import matplotlib.pyplot as plt
+
 from scpye.data_reader import DataReader
 from scpye.training import create_image_pipeline, train_image_classifier
 from scpye.testing import test_image_classifier
@@ -6,6 +8,7 @@ from scpye.visualization import imshow
 from sklearn.linear_model import LogisticRegression
 from sklearn.grid_search import GridSearchCV
 from sklearn.cross_validation import train_test_split
+
 
 # %%
 base_dir = '/home/chao/Workspace/dataset/agriculture'
@@ -45,7 +48,15 @@ grid.fit(X_t, y_t)
 # %%
 I, L = drd.load_image_label(2)
 X = img_ppl.transform(I)
-y = grid.predict_proba(X)
-bw = img_ppl.named_steps['remove_dark'].mask
+y = grid.predict(X)
+y_proba = grid.predict_proba(X)
+bw = img_ppl.named_steps['remove_dark'].mask.copy()
+bw[bw > 0] = y
 proba = np.array(bw, dtype=np.float)
 proba[proba > 0] = y[:, 1]
+
+
+# %%
+# Plot pr curve
+
+# Plot roc/auc curve
