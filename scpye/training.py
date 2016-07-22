@@ -15,21 +15,6 @@ from scpye.feature_transformer import (CspaceTransformer, MaskLocator,
                                        PatchCreator)
 
 
-# def create_image_pipeline(ccw=-1, bbox=None, k=0.5, v_min=25, cspace=None,
-#                           use_loc=True):
-#     features = create_image_features(cspace, use_loc)
-#
-#     img_ppl = ImagePipeline([
-#         ('rotate_image', ImageRotator(ccw)),
-#         ('crop_image', ImageCropper(bbox)),
-#         ('resize_image', ImageResizer(k)),
-#         ('remove_dark', DarkRemover(v_min)),
-#         ('features', features),
-#         ('scale', StandardScaler()),
-#     ])
-#     return img_ppl
-
-
 def create_image_pipeline(ccw=-1, bbox=None, k=0.5):
     """
     Create an image pipeline to do image space transform
@@ -49,17 +34,17 @@ def create_image_pipeline(ccw=-1, bbox=None, k=0.5):
     return img_ppl
 
 
-def create_feature_pipeline(v_min=25, cspace=None, loc=True):
+def create_feature_pipeline(pmin=25, cspace=None, loc=True):
     """
     Create a feature pipeline to generate features from
-    :param v_min:
+    :param pmin:
     :param cspace:
     :param loc:
     :return:
     """
     features = create_image_features(cspace, loc)
 
-    ftr_ppl = ImagePipeline([('remove_dark', DarkRemover(v_min)),
+    ftr_ppl = ImagePipeline([('remove_dark', DarkRemover(pmin)),
                              ('features', features),
                              ('scale', StandardScaler())])
     return ftr_ppl

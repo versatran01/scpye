@@ -171,13 +171,13 @@ class DarkRemover(ImageTransformer):
         self.bgr = None
         self.gray = None
         self.mask = None
-        self.label = None
+        self.labels = None
 
     def _pre_transform(self, X, y=None):
         self.bgr = X
         self.gray = cv2.cvtColor(X, cv2.COLOR_BGR2GRAY)
         self.mask = self.gray > self.v_min
-        self.label = None  # clean label during each transform
+        self.labels = None  # clean label during each transform
 
     def _transform_X(self, X):
         return MaskedData(data=X, mask=self.mask)
@@ -190,7 +190,7 @@ class DarkRemover(ImageTransformer):
         y_neg = np.zeros(np.count_nonzero(neg_mask))
         y_pos = np.ones(np.count_nonzero(pos_mask))
 
-        self.label = np.dstack((neg_mask, pos_mask))
+        self.labels = np.dstack((neg_mask, pos_mask))
         yt = np.hstack((y_neg, y_pos))
 
-        return MaskedData(data=X, mask=self.label), yt
+        return MaskedData(data=X, mask=self.labels), yt

@@ -37,7 +37,7 @@ method = 'lr'
 # %%
 drd = DataReader(base_dir, color=color, mode=mode, side=side)
 img_ppl = create_image_pipeline(bbox=bbox, k=k)
-ftr_ppl = create_feature_pipeline(v_min=v_min, cspace=cspace, loc=loc)
+ftr_ppl = create_feature_pipeline(pmin=v_min, cspace=cspace, loc=loc)
 
 Is, Ls = drd.load_image_label_list(train_inds)
 Its, Lts = img_ppl.transform(Is, Ls)
