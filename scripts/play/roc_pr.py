@@ -8,6 +8,8 @@ from sklearn.cross_validation import train_test_split
 from sklearn.metrics import precision_recall_curve
 
 from scpye.data_reader import DataReader
+from scpye.image_transformer import ImageRotator
+from scpye.image_pipeline import ImagePipeline
 from scpye.training import (create_image_pipeline, create_feature_pipeline,
                             train_image_classifier)
 from scpye.testing import test_image_classifier
@@ -69,9 +71,9 @@ proba[proba > 0] = y_proba[:, 1]
 
 # %%
 # Plot pr curve
-y_true = y.ravel() 
-probas_pred = proba.ravel()
-precision, recall, thresholds = precision_recall_curve(y_true, probas_pred,
-                                                       pos_label=1)
-plt.plot(recall, precision)
+#y_true = y.ravel()
+#probas_pred = proba.ravel()
+#precision, recall, thresholds = precision_recall_curve(y_true, probas_pred,
+#                                                       pos_label=1)
+#plt.plot(recall, precision)
 # Plot roc/auc curve

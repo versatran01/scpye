@@ -1,15 +1,33 @@
 from __future__ import (print_function, absolute_import, division)
 
 from sklearn.svm import SVC
-from sklearn.linear_model import LogisticRegression
-from sklearn.grid_search import GridSearchCV
-from sklearn.cross_validation import train_test_split
 from sklearn.metrics import classification_report
-from scpye.image_transformer import (ImageRotator, ImageCropper, ImageResizer,
-                                     ImageSmoother, DarkRemover, MaskLocator,
-                                     CspaceTransformer, StandardScaler)
-from scpye.image_pipeline import ImagePipeline, FeatureUnion
+from sklearn.grid_search import GridSearchCV
+from sklearn.linear_model import LogisticRegression
+from sklearn.preprocessing import StandardScaler
+from sklearn.cross_validation import train_test_split
+
 from scpye.data_reader import DataReader
+from scpye.image_pipeline import ImagePipeline, FeatureUnion
+from scpye.image_transformer import (ImageRotator, ImageCropper, ImageResizer,
+                                     ImageSmoother, DarkRemover)
+from scpye.feature_transformer import (CspaceTransformer, MaskLocator,
+                                       PatchCreator)
+
+
+# def create_image_pipeline(ccw=-1, bbox=None, k=0.5, v_min=25, cspace=None,
+#                           use_loc=True):
+#     features = create_image_features(cspace, use_loc)
+#
+#     img_ppl = ImagePipeline([
+#         ('rotate_image', ImageRotator(ccw)),
+#         ('crop_image', ImageCropper(bbox)),
+#         ('resize_image', ImageResizer(k)),
+#         ('remove_dark', DarkRemover(v_min)),
+#         ('features', features),
+#         ('scale', StandardScaler()),
+#     ])
+#     return img_ppl
 
 
 def create_image_pipeline(ccw=-1, bbox=None, k=0.5):
@@ -45,21 +63,6 @@ def create_feature_pipeline(v_min=25, cspace=None, loc=True):
                              ('features', features),
                              ('scale', StandardScaler())])
     return ftr_ppl
-
-
-# def create_image_pipeline(ccw=-1, bbox=None, k=0.5, v_min=25, cspace=None,
-#                           use_loc=True):
-#     features = create_image_features(cspace, use_loc)
-#
-#     img_ppl = ImagePipeline([
-#         ('rotate_image', ImageRotator(ccw)),
-#         ('crop_image', ImageCropper(bbox)),
-#         ('resize_image', ImageResizer(k)),
-#         ('remove_dark', DarkRemover(v_min)),
-#         ('features', features),
-#         ('scale', StandardScaler()),
-#     ])
-#     return img_ppl
 
 
 def create_image_features(cspace=None, loc=True):
