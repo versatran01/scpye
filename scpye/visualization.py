@@ -28,12 +28,12 @@ def imshow(*images, **options):
     :param options:
     :return: fig, axarr
     """
-    naxes = len(images)
     figsize = options.pop('figsize', (10, 10))
     interp = options.pop('interp', None)
     cmap = options.pop('cmap', None)
 
     fig = plt.figure(figsize=figsize)
+    naxes = len(images)
     axarr = np.empty(naxes, dtype=object)
 
     for i, image in enumerate(images):

@@ -14,15 +14,15 @@ from sklearn.preprocessing import StandardScaler
 from scpye.bounding_box import extract_bbox
 from scpye.exception import FeatureNotSupportedError
 
-__all__ = ['ImageRotator', 'ImageCropper', 'ImageResizer', 'DarkRemover',
-           'CspaceTransformer', 'MaskLocator', 'StandardScaler']
+__all__ = ['ImageRotator', 'ImageCropper', 'ImageResizer', 'ImageSmoother',
+           'DarkRemover', 'CspaceTransformer', 'MaskLocator', 'StandardScaler']
 
 MaskedData = namedtuple('MaskedData', ['X', 'm'])
 
 
 class ImageTransformer(BaseEstimator, TransformerMixin):
     @staticmethod
-    def forward_list_input(func):
+    def forward_list(func):
         """
         Decorator that output a list if input is list
         Currently only handles class member function
@@ -80,7 +80,7 @@ class ImageRotator(ImageTransformer):
         """
         self.ccw = ccw
 
-    @ImageTransformer.forward_list_input
+    @ImageTransformer.forward_list
     def transform(self, X, y=None):
         """
         :param X: image
@@ -88,8 +88,8 @@ class ImageRotator(ImageTransformer):
         :return: rotated image and label
         """
         func = partial(np.rot90, k=self.ccw)
-
         Xt = func(X)
+
         if y is None:
             return Xt
         else:
@@ -101,7 +101,7 @@ class ImageCropper(ImageTransformer):
     def __init__(self, bbox=None):
         self.bbox = bbox
 
-    @ImageTransformer.forward_list_input
+    @ImageTransformer.forward_list
     def transform(self, X, y=None):
         """
         :param X: image
@@ -109,7 +109,6 @@ class ImageCropper(ImageTransformer):
         :return: region of image and label
         """
         func = partial(extract_bbox, bbox=self.bbox)
-
         Xt = func(X)
 
         if y is None:
@@ -123,7 +122,7 @@ class ImageResizer(ImageTransformer):
     def __init__(self, k=0.5):
         self.k = k
 
-    @ImageTransformer.forward_list_input
+    @ImageTransformer.forward_list
     def transform(self, X, y=None):
         """
         :param X: image
@@ -132,14 +131,33 @@ class ImageResizer(ImageTransformer):
         """
         func = partial(cv2.resize, dsize=None, fx=self.k, fy=self.k,
                        interpolation=cv2.INTER_NEAREST)
-
-        Xt = func(cv2.GaussianBlur(X, (5, 5), 1))
+        Xt = func(X)
 
         if y is None:
             return Xt
         else:
             yt = func(y)
             return Xt, yt
+
+
+class ImageSmoother(ImageTransformer):
+    def __init__(self, ksize=5, sigma=1):
+        """
+        :param ksize: kernel size
+        :param sigma: sigma
+        """
+        self.ksize = ksize
+        self.sigma = sigma
+
+    @ImageTransformer.forward_list
+    def transform(self, X, y=None):
+        Xt = cv2.GaussianBlur(X, (self.ksize, self.ksize), self.sigma)
+
+        if y is None:
+            return Xt
+        else:
+            # Do not smooth label
+            return Xt, y
 
 
 def split_label(label):
@@ -165,7 +183,7 @@ class DarkRemover(ImageTransformer):
         self.label = None
         self.v_min = v_min
 
-    @ImageTransformer.forward_list_input
+    @ImageTransformer.forward_list
     def transform(self, X, y=None):
         """
         :param X: image
@@ -196,7 +214,7 @@ class DarkRemover(ImageTransformer):
 
 class FeatureTransformer(ImageTransformer):
     @staticmethod
-    def stack_list_input(func):
+    def stack_list(func):
         """
         Decorator that stack the output if input is a list
         Currently only handles class member function
@@ -236,7 +254,7 @@ class CspaceTransformer(FeatureTransformer):
 
         return np.squeeze(des)
 
-    @FeatureTransformer.stack_list_input
+    @FeatureTransformer.stack_list
     def transform(self, X, y=None):
         """
         :param X: tuple of bgr image and mask
@@ -277,7 +295,7 @@ def xy_from_array(m):
 
 
 class MaskLocator(FeatureTransformer):
-    @FeatureTransformer.stack_list_input
+    @FeatureTransformer.stack_list
     def transform(self, X, y=None):
         mask = X.m
         if np.ndim(mask) == 2:
@@ -292,6 +310,6 @@ class MaskLocator(FeatureTransformer):
 
 
 class ImagePatch(FeatureTransformer):
-    @FeatureTransformer.stack_list_input
+    @FeatureTransformer.stack_list
     def transform(self, X, y=None):
         pass

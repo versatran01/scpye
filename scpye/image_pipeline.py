@@ -78,8 +78,7 @@ class ImagePipeline(Pipeline):
         :param steps:
         :return: X and y transformed
         """
-        Xt = X
-        yt = y
+        Xt, yt = X, y
         for name, transform in steps:
             if isinstance(transform, FeatureUnion):
                 # FeatureUnion's transform function only takes X as input,

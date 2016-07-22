@@ -6,50 +6,76 @@ from sklearn.grid_search import GridSearchCV
 from sklearn.cross_validation import train_test_split
 from sklearn.metrics import classification_report
 from scpye.image_transformer import (ImageRotator, ImageCropper, ImageResizer,
-                                     DarkRemover, MaskLocator,
+                                     ImageSmoother, DarkRemover, MaskLocator,
                                      CspaceTransformer, StandardScaler)
 from scpye.image_pipeline import ImagePipeline, FeatureUnion
 from scpye.data_reader import DataReader
 
 
-def create_image_pipeline(ccw=-1, bbox=None, k=0.5, v_min=25, cspace=None,
-                          use_loc=True):
+def create_image_pipeline(ccw=-1, bbox=None, k=0.5):
     """
-    Factory function for making an image pipeline
-    :param ccw: rotate image by ccw
-    :param bbox: crop image by bbox
-    :param k: resize image by k
-    :param v_min: remove dark pixels < v_min
-    :param cspace: features - colorspace
-    :param use_loc: features - pixel location
+    Create an image pipeline to do image space transform
+    Includes rotation, cropping, resize, smoothing
+    :param ccw: rotation, counter-clockwise 90 degrees is -1
+    :param bbox: bounding box of image
+    :param k: scale of image
     :return: image pipeline
     :rtype: ImagePipeline
     """
-    features = create_image_features(cspace, use_loc)
-
     img_ppl = ImagePipeline([
         ('rotate_image', ImageRotator(ccw)),
         ('crop_image', ImageCropper(bbox)),
         ('resize_image', ImageResizer(k)),
-        ('remove_dark', DarkRemover(v_min)),
-        ('features', features),
-        ('scale', StandardScaler()),
+        ('smooth_image', ImageSmoother())
     ])
     return img_ppl
 
 
-def create_image_features(cspace=None, use_loc=True):
+def create_feature_pipeline(v_min=25, cspace=None, loc=True):
+    """
+    Create a feature pipeline to generate features from
+    :param v_min:
+    :param cspace:
+    :param loc:
+    :return:
+    """
+    features = create_image_features(cspace, loc)
+
+    ftr_ppl = ImagePipeline([('remove_dark', DarkRemover(v_min)),
+                             ('features', features),
+                             ('scale', StandardScaler())])
+    return ftr_ppl
+
+
+# def create_image_pipeline(ccw=-1, bbox=None, k=0.5, v_min=25, cspace=None,
+#                           use_loc=True):
+#     features = create_image_features(cspace, use_loc)
+#
+#     img_ppl = ImagePipeline([
+#         ('rotate_image', ImageRotator(ccw)),
+#         ('crop_image', ImageCropper(bbox)),
+#         ('resize_image', ImageResizer(k)),
+#         ('remove_dark', DarkRemover(v_min)),
+#         ('features', features),
+#         ('scale', StandardScaler()),
+#     ])
+#     return img_ppl
+
+
+def create_image_features(cspace=None, loc=True):
     """
     Factory function for making a feature union
     :param cspace: features - colorspace
-    :param use_loc: features - pixel location
+    :param loc: features - pixel location
     :return: feature union
     :rtype: FeatureUnion
     """
     if cspace is None:
         cspace = ["hsv"]
+
     transformer_list = [(cs, CspaceTransformer(cs)) for cs in cspace]
-    if use_loc:
+
+    if loc:
         transformer_list.append(('mask_location', MaskLocator()))
 
     # Unfortunately, cannot do a parallel feature extraction
@@ -57,14 +83,6 @@ def create_image_features(cspace=None, use_loc=True):
 
 
 def tune_image_classifier(X, y, method='svm', test_size=0.3, report=True):
-    """
-    :param X:
-    :param y:
-    :param method:
-    :param test_size:
-    :param report:
-    :return:
-    """
     param_grid = [{'C': [0.1, 1, 10]}]
     if method == 'svm':
         clf = SVC()

@@ -28,7 +28,7 @@ class BinaryDenoiser(ImageTransformer):
         self.ksize = ksize
         self.bw = None
 
-    @ImageTransformer.forward_list_input
+    @ImageTransformer.forward_list
     def transform(self, X, y=None):
         # assume X is grayscale
         Xt = clean_bw(X, ksize=self.ksize, iters=self.iters)
@@ -49,7 +49,7 @@ class BlobFinder(ImageTransformer):
         self.blobs = None
         self.cntrs = None
 
-    @ImageTransformer.forward_list_input
+    @ImageTransformer.forward_list
     def transform(self, X, y=None):
         blobs, cntrs = region_props_bw(X, min_area=self.min_area)
         self.blobs = blobs
@@ -98,7 +98,7 @@ class BlobFinder(ImageTransformer):
 
 
 class StackTransformer(FeatureTransformer):
-    @FeatureTransformer.stack_list_input
+    @FeatureTransformer.stack_list
     def transform(self, X, y=None):
         return X
 
