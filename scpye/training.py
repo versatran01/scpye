@@ -1,15 +1,18 @@
 from __future__ import (print_function, absolute_import, division)
 
 from sklearn.svm import SVC
-from sklearn.linear_model import LogisticRegression
-from sklearn.grid_search import GridSearchCV
-from sklearn.cross_validation import train_test_split
 from sklearn.metrics import classification_report
-from scpye.image_transformer import (ImageRotator, ImageCropper, ImageResizer,
-                                     ImageSmoother, DarkRemover, MaskLocator,
-                                     CspaceTransformer, StandardScaler)
-from scpye.image_pipeline import ImagePipeline, FeatureUnion
+from sklearn.grid_search import GridSearchCV
+from sklearn.linear_model import LogisticRegression
+from sklearn.preprocessing import StandardScaler
+from sklearn.cross_validation import train_test_split
+
 from scpye.data_reader import DataReader
+from scpye.image_pipeline import ImagePipeline, FeatureUnion
+from scpye.image_transformer import (ImageRotator, ImageCropper, ImageResizer,
+                                     ImageSmoother, DarkRemover)
+from scpye.feature_transformer import (CspaceTransformer, MaskLocator,
+                                       PatchCreator)
 
 
 def create_image_pipeline(ccw=-1, bbox=None, k=0.5):
@@ -31,42 +34,29 @@ def create_image_pipeline(ccw=-1, bbox=None, k=0.5):
     return img_ppl
 
 
-def create_feature_pipeline(v_min=25, cspace=None, loc=True):
+def create_feature_pipeline(pmin=25, cspace=None, loc=True, patch=True):
     """
     Create a feature pipeline to generate features from
-    :param v_min:
+    :param pmin:
     :param cspace:
     :param loc:
+    :param patch:
     :return:
     """
-    features = create_image_features(cspace, loc)
+    features = create_image_features(cspace, loc, patch)
 
-    ftr_ppl = ImagePipeline([('remove_dark', DarkRemover(v_min)),
+    ftr_ppl = ImagePipeline([('remove_dark', DarkRemover(pmin)),
                              ('features', features),
                              ('scale', StandardScaler())])
     return ftr_ppl
 
 
-# def create_image_pipeline(ccw=-1, bbox=None, k=0.5, v_min=25, cspace=None,
-#                           use_loc=True):
-#     features = create_image_features(cspace, use_loc)
-#
-#     img_ppl = ImagePipeline([
-#         ('rotate_image', ImageRotator(ccw)),
-#         ('crop_image', ImageCropper(bbox)),
-#         ('resize_image', ImageResizer(k)),
-#         ('remove_dark', DarkRemover(v_min)),
-#         ('features', features),
-#         ('scale', StandardScaler()),
-#     ])
-#     return img_ppl
-
-
-def create_image_features(cspace=None, loc=True):
+def create_image_features(cspace=None, loc=True, patch=True):
     """
     Factory function for making a feature union
     :param cspace: features - colorspace
     :param loc: features - pixel location
+    :param patch: features - patch around pixel
     :return: feature union
     :rtype: FeatureUnion
     """
@@ -77,6 +67,9 @@ def create_image_features(cspace=None, loc=True):
 
     if loc:
         transformer_list.append(('mask_location', MaskLocator()))
+
+    if patch:
+        transformer_list.append(('create_patch', PatchCreator()))
 
     # Unfortunately, cannot do a parallel feature extraction
     return FeatureUnion(transformer_list)
