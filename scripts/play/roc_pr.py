@@ -5,18 +5,14 @@ import matplotlib.pyplot as plt
 from sklearn.linear_model import LogisticRegression
 from sklearn.grid_search import GridSearchCV
 from sklearn.cross_validation import train_test_split
-from sklearn.metrics import precision_recall_curve
 from sklearn.svm import SVC
 from sklearn.naive_bayes import GaussianNB
+from sklearn.ensemble import RandomForestClassifier, VotingClassifier
 
 from scpye.data_reader import DataReader
-from scpye.image_transformer import ImageRotator
-from scpye.image_pipeline import ImagePipeline
 from scpye.training import (create_image_pipeline, create_feature_pipeline,
                             train_image_classifier)
-from scpye.testing import test_image_classifier
 from scpye.visualization import imshow
-from scpye.bounding_box import extract_bbox
 
 # %%
 base_dir = '/home/chao/Workspace/dataset/agriculture'
@@ -26,12 +22,12 @@ side = 'north'
 
 # %%
 
-train_inds = range(0, 12, 3) + range(1, 12, 3)
-test_inds = range(2, 12, 3)
+train_inds = range(2, 12, 3) + range(1, 12, 3)
+test_inds = range(0, 12, 3)
 
 k = 0.5
 pmin = 28
-bbox = np.array([350, 0, 500, 1440])
+bbox = np.array([300, 0, 600, 1440])
 loc = True
 cspace = ["hsv", "lab"]
 method = 'lr'
@@ -48,17 +44,24 @@ Xt, yt = ftr_ppl.fit_transform(Its, Lts)
 
 # %%
 # Train a logistic regression classifier
-X_t, X_v, y_t, y_v = train_test_split(Xt, yt, test_size=0.2)
+X_t, X_v, y_t, y_v = train_test_split(Xt, yt, test_size=0.3)
 #param_grid = [{'C': [0.1, 1, 10, 100]}]
-#clf = LogisticRegression(class_weight='balanced')
-#clf = SVC()
-#grid = GridSearchCV(estimator=clf, param_grid=param_grid, cv=4, verbose=5,
-#                    scoring="f1_weighted")
-#grid = GaussianNB()
+#param_grid = [{'n_estimators': [10, 30, 50]}]
+param_grid = {'lr__C': [50, 200], 'rf__n_estimators': [20, 50],
+              'svc__C': [50, 200]}
+clf1 = RandomForestClassifier()
+clf2 = LogisticRegression()
+clf3 = SVC(probability=True)
+#clf4 = GaussianNB()
+eclf = VotingClassifier(estimators=[('rf', clf1),
+                                    ('lr', clf2),
+                                    ('svc', clf3)], voting='soft')
+grid = GridSearchCV(estimator=eclf, param_grid=param_grid, cv=4, verbose=5,
+                    scoring="f1_weighted")
 grid.fit(X_t, y_t)
 
 # %%
-I, L = drd.load_image_label(8)
+I, L = drd.load_image_label(3)
 
 X = img_ppl.transform(I)
 X = ftr_ppl.transform(X)
