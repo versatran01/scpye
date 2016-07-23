@@ -8,6 +8,8 @@ image = np.arange(0, 16).reshape((4, 4))
 mask = np.eye(4, dtype=bool)
 reflect = cv2.copyMakeBorder(image, b, b, b, b, cv2.BORDER_REFLECT)
 patches = extract_patches_2d(reflect, (p, p))
+# %%
 patches = np.reshape(patches, (4, 4, -1))
+a = patches[mask]
 
 # %%

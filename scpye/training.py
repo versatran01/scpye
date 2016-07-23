@@ -34,15 +34,16 @@ def create_image_pipeline(ccw=-1, bbox=None, k=0.5):
     return img_ppl
 
 
-def create_feature_pipeline(pmin=25, cspace=None, loc=True):
+def create_feature_pipeline(pmin=25, cspace=None, loc=True, patch=True):
     """
     Create a feature pipeline to generate features from
     :param pmin:
     :param cspace:
     :param loc:
+    :param patch:
     :return:
     """
-    features = create_image_features(cspace, loc)
+    features = create_image_features(cspace, loc, patch)
 
     ftr_ppl = ImagePipeline([('remove_dark', DarkRemover(pmin)),
                              ('features', features),
@@ -50,11 +51,12 @@ def create_feature_pipeline(pmin=25, cspace=None, loc=True):
     return ftr_ppl
 
 
-def create_image_features(cspace=None, loc=True):
+def create_image_features(cspace=None, loc=True, patch=True):
     """
     Factory function for making a feature union
     :param cspace: features - colorspace
     :param loc: features - pixel location
+    :param patch: features - patch around pixel
     :return: feature union
     :rtype: FeatureUnion
     """
@@ -65,6 +67,9 @@ def create_image_features(cspace=None, loc=True):
 
     if loc:
         transformer_list.append(('mask_location', MaskLocator()))
+
+    if patch:
+        transformer_list.append(('create_patch', PatchCreator()))
 
     # Unfortunately, cannot do a parallel feature extraction
     return FeatureUnion(transformer_list)

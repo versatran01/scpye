@@ -28,7 +28,7 @@ train_inds = range(0, 12, 3) + range(1, 12, 3)
 test_inds = range(2, 12, 3)
 
 k = 0.5
-v_min = 28
+pmin = 28
 bbox = np.array([350, 0, 500, 1440])
 loc = True
 cspace = ["hsv", "lab"]
@@ -37,7 +37,8 @@ method = 'lr'
 # %%
 drd = DataReader(base_dir, color=color, mode=mode, side=side)
 img_ppl = create_image_pipeline(bbox=bbox, k=k)
-ftr_ppl = create_feature_pipeline(pmin=v_min, cspace=cspace, loc=loc)
+ftr_ppl = create_feature_pipeline(pmin=pmin, cspace=cspace, loc=loc,
+                                  patch=True)
 
 Is, Ls = drd.load_image_label_list(train_inds)
 Its, Lts = img_ppl.transform(Is, Ls)
@@ -53,7 +54,7 @@ grid = GridSearchCV(estimator=clf, param_grid=param_grid, cv=4, verbose=5,
 grid.fit(X_t, y_t)
 
 # %%
-I, L = drd.load_image_label(5)
+I, L = drd.load_image_label(8)
 
 X = img_ppl.transform(I)
 X = ftr_ppl.transform(X)

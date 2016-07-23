@@ -114,14 +114,33 @@ class MaskLocator(FeatureTransformer):
 
 
 class PatchCreator(FeatureTransformer):
-    def __init__(self, size):
-        self.size = size
+    def __init__(self, border=1):
+        self.border = border
+        self.size = 2 * self.border + 1
 
-    @stack_list
-    def transform(self, X, y=None):
-        bgr, mask = X.data, X.mask
+    @staticmethod
+    def make_border(image, border):
+        padded = cv2.copyMakeBorder(image, border, border, border, border,
+                                    cv2.BORDER_REFLECT)
+        return padded
 
-        if np.ndim(mask) == 2:
-            pass
-        else:
-            pass
+    def extract_patches(self, image):
+        gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+        padded = self.make_border(gray, self.border)
+        patches = extract_patches_2d(padded, (self.size, self.size))
+        r, c, _ = image.shape
+        reshaped_patches = np.reshape(patches, (r, c, -1))
+        return reshaped_patches
+
+    def _transform_mask(self, X):
+        patches = self.extract_patches(X.data)
+        Xt = patches[X.mask]
+        return Xt
+
+    def _transform_labels(self, X):
+        patches = self.extract_patches(X.data)
+        neg, pos = split_label(X.mask)
+        patches_neg = patches[neg]
+        patches_pos = patches[pos]
+        Xt = np.vstack((patches_neg, patches_pos))
+        return Xt
