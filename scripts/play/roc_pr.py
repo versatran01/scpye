@@ -6,6 +6,8 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.grid_search import GridSearchCV
 from sklearn.cross_validation import train_test_split
 from sklearn.metrics import precision_recall_curve
+from sklearn.svm import SVC
+from sklearn.naive_bayes import GaussianNB
 
 from scpye.data_reader import DataReader
 from scpye.image_transformer import ImageRotator
@@ -47,10 +49,12 @@ Xt, yt = ftr_ppl.fit_transform(Its, Lts)
 # %%
 # Train a logistic regression classifier
 X_t, X_v, y_t, y_v = train_test_split(Xt, yt, test_size=0.2)
-param_grid = [{'C': [0.1, 1, 10, 100]}]
-clf = LogisticRegression(class_weight='balanced')
-grid = GridSearchCV(estimator=clf, param_grid=param_grid, cv=4, verbose=5,
-                    scoring="f1_weighted")
+#param_grid = [{'C': [0.1, 1, 10, 100]}]
+#clf = LogisticRegression(class_weight='balanced')
+#clf = SVC()
+#grid = GridSearchCV(estimator=clf, param_grid=param_grid, cv=4, verbose=5,
+#                    scoring="f1_weighted")
+#grid = GaussianNB()
 grid.fit(X_t, y_t)
 
 # %%
