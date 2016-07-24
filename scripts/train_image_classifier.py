@@ -62,14 +62,14 @@ mode = 'slow_flash'
 side = 'north'
 
 # %%
-do_train = False
+do_train = True
 do_save = True
 do_test = True
 
 # %%
 if side == 'north':
-    train_inds = range(1, 12, 3) + range(2, 12, 3)
-    test_inds = range(0, 12, 3)
+    train_inds = range(4) + range(8, 12)
+    test_inds = np.arange(4, 8)
 else:
     train_inds = range(12, 16)
     test_inds = range(12, 16)
@@ -98,11 +98,6 @@ if do_train:
     if do_save:
         print('saving all models')
         dmg.save_all_models(img_ppl, ftr_ppl, img_clf)
-
-
-def get_dark_remover(feature_pipeline):
-    return feature_pipeline.named_steps['remove_dark']
-
 
 if do_test:
     print('loading all models')
