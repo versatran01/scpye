@@ -17,3 +17,11 @@ class FeatureNotSupportedError(Error):
     def __init__(self, feature):
         self.feature = feature
         self.message = "Feature {0} not supported".format(feature)
+
+
+class ClassifierNotSupportedError(Error):
+    """Raised when a classifier is not supported"""
+
+    def __init__(self, classifier):
+        self.classifier = classifier
+        self.message = "Classifier {0} not supported".format(classifier)

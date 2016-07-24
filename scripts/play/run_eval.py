@@ -31,7 +31,7 @@ test_inds = range(1, 12, 3)
 save = True
 load = False
 
-drd = DataReader(base_dir=base_dir, color=color, mode=mode)
+drd = DataManager(base_dir=base_dir, color=color, mode=mode)
 img_ppl_pkl = os.path.join(drd.model_dir, 'img_ppl.pkl')
 img_clf_pkl = os.path.join(drd.model_dir, 'img_clf.pkl')
 

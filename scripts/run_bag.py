@@ -1,4 +1,4 @@
-from scpye.data_reader import DataReader
+from scpye.data_manager import DataManager
 from scpye.fruit_detector import FruitDetector
 from scpye.blob_analyzer import BlobAnalyzer
 from scpye.fruit_tracker import FruitTracker
@@ -11,7 +11,7 @@ side = 'south'
 bag_ind = 4
 min_area = 12
 
-dr = DataReader(base_dir, color=color, mode=mode, side=side)
+dr = DataManager(base_dir, color=color, mode=mode, side=side)
 fd = FruitDetector.from_pickle(dr.model_dir)
 ba = BlobAnalyzer(split=False, min_area=min_area)
 ft = FruitTracker(min_age=3, max_level=4)
@@ -26,4 +26,3 @@ for image in dr.load_bag(bag_ind):
 
 ft.finish()
 print(ft.total_counts)
-dr.save_count(bag_ind, ft.frame_counts)

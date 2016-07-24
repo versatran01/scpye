@@ -1,115 +1,77 @@
 from __future__ import (print_function, absolute_import, division)
 
+from collections import namedtuple
+
 from sklearn.svm import SVC
-from sklearn.metrics import classification_report
-from sklearn.grid_search import GridSearchCV
 from sklearn.linear_model import LogisticRegression
-from sklearn.preprocessing import StandardScaler
+from sklearn.grid_search import GridSearchCV
+from sklearn.ensemble import (RandomForestClassifier, VotingClassifier)
 from sklearn.cross_validation import train_test_split
+from sklearn.metrics import classification_report
 
-from scpye.data_reader import DataReader
-from scpye.image_pipeline import ImagePipeline, FeatureUnion
-from scpye.image_transformer import (ImageRotator, ImageCropper, ImageResizer,
-                                     ImageSmoother, DarkRemover)
-from scpye.feature_transformer import (CspaceTransformer, MaskLocator,
-                                       PatchCreator)
+from scpye.data_manager import DataManager
+from scpye.exception import ClassifierNotSupportedError
 
 
-def create_image_pipeline(ccw=-1, bbox=None, k=0.5):
+def create_single_classifier(clf_name='svc'):
     """
-    Create an image pipeline to do image space transform
-    Includes rotation, cropping, resize, smoothing
-    :param ccw: rotation, counter-clockwise 90 degrees is -1
-    :param bbox: bounding box of image
-    :param k: scale of image
-    :return: image pipeline
-    :rtype: ImagePipeline
+    Creates a single classifier
+    :param clf_name: short name of classifier
     """
-    img_ppl = ImagePipeline([
-        ('rotate_image', ImageRotator(ccw)),
-        ('crop_image', ImageCropper(bbox)),
-        ('resize_image', ImageResizer(k)),
-        ('smooth_image', ImageSmoother())
-    ])
-    return img_ppl
-
-
-def create_feature_pipeline(pmin=25, cspace=None, loc=True, patch=True):
-    """
-    Create a feature pipeline to generate features from
-    :param pmin:
-    :param cspace:
-    :param loc:
-    :param patch:
-    :return:
-    """
-    features = create_image_features(cspace, loc, patch)
-
-    ftr_ppl = ImagePipeline([('remove_dark', DarkRemover(pmin)),
-                             ('features', features),
-                             ('scale', StandardScaler())])
-    return ftr_ppl
-
-
-def create_image_features(cspace=None, loc=True, patch=True):
-    """
-    Factory function for making a feature union
-    :param cspace: features - colorspace
-    :param loc: features - pixel location
-    :param patch: features - patch around pixel
-    :return: feature union
-    :rtype: FeatureUnion
-    """
-    if cspace is None:
-        cspace = ["hsv"]
-
-    transformer_list = [(cs, CspaceTransformer(cs)) for cs in cspace]
-
-    if loc:
-        transformer_list.append(('mask_location', MaskLocator()))
-
-    if patch:
-        transformer_list.append(('create_patch', PatchCreator()))
-
-    # Unfortunately, cannot do a parallel feature extraction
-    return FeatureUnion(transformer_list)
-
-
-def tune_image_classifier(X, y, method='svm', test_size=0.3, report=True):
-    param_grid = [{'C': [0.1, 1, 10]}]
-    if method == 'svm':
+    if clf_name == 'svc':
         clf = SVC()
-    elif method == 'lr':
+        params = {'C': [20, 200]}
+    elif clf_name == 'lr':
         clf = LogisticRegression()
+        params = {'C': [20, 200]}
+    elif clf_name == 'rf':
+        clf = RandomForestClassifier()
+        params = {'n_estimators': [20, 50]}
     else:
-        raise ValueError('Unsupported method')
+        raise ClassifierNotSupportedError(clf_name)
 
-    X_t, X_v, y_t, y_v = train_test_split(X, y, test_size=test_size)
-    grid = GridSearchCV(estimator=clf, param_grid=param_grid, cv=4,
-                        verbose=5)
-    grid.fit(X_t, y_t)
-
-    if report:
-        print_grid_search_report(grid)
-        print_validation_report(grid, X_v, y_v)
-
-    return grid
+    return clf, params
 
 
-def train_image_classifier(data_reader, image_indices, image_pipeline,
-                           method='svm'):
+def create_voting_classifier(voting='hard', classifiers=('svc', 'lr', 'rf')):
     """
-    :type data_reader: DataReader
-    :param image_indices: list of indices
-    :type image_pipeline: ImagePipeline
-    :param method:
+    Creates a voting classifier
+    :param voting: hard or soft, hard is much faster
+    :param classifiers: tuple of classifiers
+    :rtype: tuple(VotingClassifier, dict)
+    """
+    if voting == 'soft':
+        raise NotImplementedError
+
+    estimators = []
+    param_grid = {}
+
+    for clf_name in classifiers:
+        clf, params = create_single_classifier(clf_name)
+        estimators.append((clf_name, clf))
+        # add params to param_grid
+        for k, v in params.items():
+            k = clf_name + '__' + k
+            param_grid[k] = v
+
+    eclf = VotingClassifier(estimators=estimators, voting=voting)
+    return eclf, param_grid
+
+
+def cross_validate_classifier(X, y, clf, param_grid, test_size=0.3,
+                              report=True):
+    """
     :rtype: GridSearchCV
     """
-    Is, Ls = data_reader.load_image_label_list(image_indices)
-    X_train, y_train = image_pipeline.fit_transform(Is, Ls)
-    clf = tune_image_classifier(X_train, y_train, method=method)
+    X_t, X_v, y_t, y_v = train_test_split(X, y, test_size=test_size)
+    grid = GridSearchCV(estimator=clf, param_grid=param_grid, cv=4, verbose=5,
+                        scoring="f1_weighted")
+    grid.fit(X_t, y_t)
+    if report:
+        print_grid_search_report(grid)
+        print_validation_report(X_v, y_v, grid)
 
-    return clf
+    return grid
 
 
 def print_grid_search_report(grid):
@@ -129,16 +91,16 @@ def print_grid_search_report(grid):
     print("")
 
 
-def print_validation_report(clf, X, y, target_names=None):
+def print_validation_report(X, y, clf, target_names=None):
     """
     Print classification report
+    :type X: np.ndarray
+    :type y: np.ndarray
     :type clf: GridSearchCV
-    :type X: numpy.ndarray
-    :type y: numpy.ndarray
     :param target_names:
     """
     if target_names is None:
         target_names = ['Non-apple', 'Apple']
-    y_p = clf.predict(X)
-    report = classification_report(y, y_p, target_names=target_names)
+    y_pred = clf.predict(X)
+    report = classification_report(y, y_pred, target_names=target_names)
     print(report)

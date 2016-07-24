@@ -7,7 +7,7 @@ Created on Sat Feb 13 12:43:40 2016
 from __future__ import division
 import numpy as np
 import matplotlib.pyplot as plt
-from scpye.data_reader import DataReader
+from scpye.data_manager import DataManager
 
 base_dir = '/home/chao/Workspace/bag'
 color = 'green'
@@ -16,7 +16,7 @@ mode = 'slow_flash'
 
 # %%
 def load_counts(base_dir, color, mode, side, index):
-    dr = DataReader(base_dir, color=color, mode=mode, side=side)
+    dr = DataManager(base_dir, color=color, mode=mode, side=side)
     return dr.load_count(index)
 
 
@@ -28,7 +28,7 @@ def counts_per_tree(counts, num_trees):
 
 # %%
 # Read ground truth counts
-dr = DataReader(base_dir, color=color, mode=mode)
+dr = DataManager(base_dir, color=color, mode=mode)
 frame1_counts_gt = dr.load_ground_truth()
 frame1_total_gt = np.sum(frame1_counts_gt)
 num_trees = len(frame1_counts_gt)

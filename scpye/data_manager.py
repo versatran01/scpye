@@ -1,15 +1,19 @@
 import os
+
 import cv2
 import numpy as np
-from sklearn.externals import joblib
-
 import rosbag
 from cv_bridge import CvBridge, CvBridgeError
+from sklearn.externals import joblib
 
 from scpye.exception import ImageNotFoundError
 
 
-class DataReader(object):
+def make_binary(data):
+    return np.array(data > 0, dtype='uint8')
+
+
+class DataManager(object):
     def __init__(self, base_dir='/home/chao/Workspace/bag', fruit='apple',
                  color='red', mode='fast_flash', side='north', bag='rect_fixed',
                  filename='frame{0:04d}_{1}.png', bagname='frame{0}.bag'):
@@ -27,7 +31,6 @@ class DataReader(object):
         self.train_dir = os.path.join(self.data_dir, 'train')
         self.model_dir = os.path.join(self.data_dir, 'model')
         self.image_dir = os.path.join(self.data_dir, 'image')
-        self.count_dir = os.path.join(self.data_dir, 'count')
         self.bag_dir = os.path.join(self.data_dir, bag)
 
     def _read_image(self, index, suffix, color=True):
@@ -67,7 +70,7 @@ class DataReader(object):
         neg = self._read_image(index, 'neg', color=False)
         pos = self._read_image(index, 'pos', color=False)
         label = np.dstack((neg, pos))
-        return label
+        return make_binary(label)
 
     def load_image_label(self, index):
         """
@@ -78,16 +81,22 @@ class DataReader(object):
         label = self.load_label(index)
         return image, label
 
-    def save_model(self, model, name):
+    def save_model(self, model, name, compress=3):
         """
         Save model to model directory
         :param model:
         :param name:
+        :param compress: compression level, 3 is recommended
         :return:
         """
         model_pickle = os.path.join(self.model_dir, name + '.pkl')
-        joblib.dump(model, model_pickle)
+        joblib.dump(model, model_pickle, compress=compress)
         print('{0} saved to {1}'.format(name, model_pickle))
+
+    def save_all_models(self, img_ppl, ftr_ppl, img_clf):
+        self.save_model(img_ppl, 'img_ppl')
+        self.save_model(ftr_ppl, 'ftr_ppl')
+        self.save_model(img_clf, 'img_clf')
 
     def load_model(self, name):
         """
@@ -100,18 +109,22 @@ class DataReader(object):
         print('{0} load from {1}'.format(name, model_pickle))
         return model
 
+    def load_all_models(self):
+        img_ppl = self.load_model('img_ppl')
+        ftr_ppl = self.load_model('ftr_ppl')
+        img_clf = self.load_model('img_clf')
+        return img_ppl, ftr_ppl, img_clf
+
     def load_image_label_list(self, image_indices):
         """
         Load image and label in separate lists
         :param image_indices:
         """
-
         # image_indices has to be a list
         if np.isscalar(image_indices):
             image_indices = [image_indices]
 
-        Is = []
-        Ls = []
+        Is, Ls = [], []
         for ind in image_indices:
             I, L = self.load_image_label(ind)
             Is.append(I)
@@ -138,17 +151,3 @@ class DataReader(object):
                     print(e)
                     continue
                 yield image
-
-    def load_ground_truth(self):
-        truth_file = os.path.join(self.color_dir, 'ground_truth.txt')
-        return np.loadtxt(truth_file)
-
-    def save_count(self, bag_ind, frame_counts):
-        count_file = os.path.join(self.count_dir,
-                                  'frame{0}.txt'.format(bag_ind))
-        np.savetxt(count_file, frame_counts, fmt='%u')
-
-    def load_count(self, bag_ind):
-        count_file = os.path.join(self.count_dir,
-                                  'frame{0}.txt'.format(bag_ind))
-        return np.loadtxt(count_file)

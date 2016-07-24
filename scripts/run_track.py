@@ -6,7 +6,7 @@ Created on Mon Feb 15 13:03:10 2016
 """
 
 import cv2
-from scpye.data_reader import DataReader
+from scpye.data_manager import DataManager
 from scpye.fruit_detector import FruitDetector
 from scpye.blob_analyzer import BlobAnalyzer
 from scpye.fruit_tracker import FruitTracker
@@ -19,7 +19,7 @@ side = 'north'
 bag_ind = 1
 min_area = 12
 
-dr = DataReader(base_dir, color=color, mode=mode, side=side)
+dr = DataManager(base_dir, color=color, mode=mode, side=side)
 fd = FruitDetector.from_pickle(dr.model_dir)
 ba = BlobAnalyzer(split=False, min_area=min_area)
 ft = FruitTracker(min_age=3, max_level=4)
