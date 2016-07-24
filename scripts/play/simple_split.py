@@ -72,7 +72,7 @@ for I, L in zip(Is, Ls):
     B = gray_from_bw(B)
     B = clean_bw(B)
 
-    blobs, cntrs = region_props_bw(B, min_area=5)
+    blobs, cntrs = analyze_contours_bw(B, min_area=5)
     B = fill_bw(B, cntrs)
 
     disp_bgr = img_ppl.named_steps['remove_dark'].image.copy()

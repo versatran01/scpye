@@ -10,7 +10,7 @@ http://docs.opencv.org/trunk/d3/d05/tutorial_py_table_of_contents_contours.html#
 blob_dtype = [('bbox', np.int, 4), ('prop', np.float, 4)]
 
 
-def region_props_bw(bw, min_area=0):
+def analyze_contours_bw(bw, min_area=4):
     """
     Same as matlab regionprops but implemented in opencv
     Prefer using this than skimage's regionprops because this return a numpy
@@ -20,10 +20,10 @@ def region_props_bw(bw, min_area=0):
     :return: a structured array of blobs
     """
     contours = find_contours(bw)
-    return region_props(contours, min_area=min_area)
+    return analyze_contours(contours, min_area=min_area)
 
 
-def region_props(contours, min_area=0):
+def analyze_contours(contours, min_area):
     """
     :param contours:
     :param min_area:
@@ -49,16 +49,15 @@ def region_props(contours, min_area=0):
     return blobs, cntrs
 
 
-def find_contours(bw, method=cv2.CHAIN_APPROX_NONE):
+def find_contours(bw):
     """
     :param bw: binary image
-    :param method:
     :return: a list of contours
     """
-    _, contours, _ = cv2.findContours(bw.copy(),
-                                      mode=cv2.RETR_EXTERNAL,
-                                      method=method)
-    return contours
+    _, cntrs, _ = cv2.findContours(bw.copy(),
+                                   mode=cv2.RETR_EXTERNAL,
+                                   method=cv2.CHAIN_APPROX_NONE)
+    return cntrs
 
 
 def local_max_points(bw):

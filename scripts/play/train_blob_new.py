@@ -9,7 +9,7 @@ import numpy as np
 from scpye.image_pipeline import ImagePipeline
 from scpye.image_transformer import ImageTransformer, FeatureTransformer
 from scpye.blob_analyzer import clean_bw, gray_from_bw, fill_bw
-from scpye.contour_analysis import region_props_bw, clean_bw, fill_bw, gray_from_bw
+from scpye.contour_analysis import analyze_contours_bw, clean_bw, fill_bw, gray_from_bw
 from scpye.bounding_box import extract_bbox
 from skimage.measure import label
 from scpye.data_manager import DataManager
@@ -51,7 +51,7 @@ class BlobFinder(ImageTransformer):
 
     @ImageTransformer.forward_list
     def transform(self, X, y=None):
-        blobs, cntrs = region_props_bw(X, min_area=self.min_area)
+        blobs, cntrs = analyze_contours_bw(X, min_area=self.min_area)
         self.blobs = blobs
         self.cntrs = cntrs
         self.bw = fill_bw(X, cntrs)

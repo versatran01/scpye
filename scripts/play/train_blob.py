@@ -40,7 +40,7 @@ for I, L in zip(Is, Ls):
 
     bw_clf = clean_bw(bw_clf)
 
-    blobs, cntrs = region_props_bw(bw_clf)
+    blobs, cntrs = analyze_contours_bw(bw_clf)
     bw_clf = fill_bw(bw_clf, cntrs)
 
     bw_tp = bw_clf & bw_pos
@@ -88,7 +88,7 @@ for I, L in zip(Is, Ls):
     bw_clf = gray_from_bw(bw_clf)
 
     bw_clf = clean_bw(bw_clf)
-    blobs, cntrs = region_props_bw(bw_clf)
+    blobs, cntrs = analyze_contours_bw(bw_clf)
     bw_clf = fill_bw(bw_clf, cntrs)
 
     bgr = img_ppl.named_steps['remove_dark'].image

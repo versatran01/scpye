@@ -40,7 +40,7 @@ bw = fd.detect(I)
 min_area = 5
 bw = gray_from_bw(bw)
 bw = clean_bw(bw)
-blobs, cntrs = region_props_bw(bw, min_area=min_area)
+blobs, cntrs = analyze_contours_bw(bw, min_area=min_area)
 bw_clean = fill_bw(bw, cntrs)
 
 disp_left = fd.color

@@ -7,13 +7,14 @@ from scpye.visualization import imshow
 from scpye.blob_analyzer import BlobAnalyzer
 from scpye.contour_analysis import find_contours
 
+# %%
 base_dir = '/home/chao/Workspace/dataset/agriculture'
 color = 'red'
 mode = 'slow_flash'
 side = 'north'
 bag_ind = 1
 
-
+# %%
 dm = DataManager(base_dir, color=color, mode=mode, side=side)
 image_dir = os.path.join(dm.image_dir, "frame" + str(bag_ind))
 
@@ -27,16 +28,15 @@ bw = cv2.imread(bw_file, cv2.IMREAD_GRAYSCALE)
 bgr = cv2.imread(bgr_file, cv2.IMREAD_COLOR)
 imshow(bgr, bw, figsize=(12, 16), interp='none', cmap=plt.cm.viridis)
 
-
+# %%
 ba = BlobAnalyzer(ksize=3, iters=2)
-gray, bw_clean = ba.analyze(bgr, bw)
-
+blobs, cntrs, gray, filled = ba.analyze(bgr, bw)
 
 bw = np.array(bw > 0, dtype=np.uint8)
-bw_clean = np.array(bw_clean > 0, dtype=np.uint8)
-imshow(bgr, bw + bw_clean, figsize=(12, 16), interp='none', cmap=plt.cm.viridis)
+filled = np.array(filled > 0, dtype=np.uint8)
+imshow(bgr, bw + filled, figsize=(12, 16), interp='none', cmap=plt.cm.viridis)
 
-
+# %%
 Ix = cv2.Scharr(gray, cv2.CV_32F, 1, 0)
 Iy = cv2.Scharr(gray, cv2.CV_32F, 0, 1)
 mag, ang = cv2.cartToPolar(Ix, Iy)
