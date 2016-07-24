@@ -25,8 +25,7 @@ def region_props(contours, min_area=0):
     :param min_area:
     :return:
     """
-    blobs = []
-    cntrs = []
+    blobs, cntrs = [], []
     for cntr in contours:
         area = cv2.contourArea(cntr)
         # Need len(cntr) >= 5 to fit ellipse
@@ -126,20 +125,18 @@ def fill_bw(bw, contours):
     return bw_filled
 
 
-def gray_from_bw(bw, color=False):
+def gray_from_bw(bw):
     """
-    Convert binary image (bool, int) to grayscale image (gray, bgr)
+    Convert binary image (bool, int) to greyscale image
     :param bw: binary image
-    :param color: whether to convert to bgr
-    :return: grayscale image
+    :return: greyscale image
     """
-    gray = np.array(bw, dtype='uint8') * 255
+    assert np.ndim(bw) == 2, 'Image dimension wrong'
 
-    if color:
-        bgr = cv2.cvtColor(gray, cv2.COLOR_GRAY2BGR)
-        return bgr
+    if bw.dtype == bool:
+        return np.array(bw, dtype='uint8') * 255
     else:
-        return gray
+        return bw
 
 
 def local_max_points(bw):

@@ -25,7 +25,9 @@ class FruitVisualizer(object):
         self.bw_name = 'bw{0:04d}.png'
 
     def show(self, disp_bgr, disp_bw):
-        disp_bw = np.array(disp_bw, dtype='uint8') * 255
+        if disp_bw.dtype == bool:
+            disp_bw = np.array(disp_bw, dtype='uint8') * 255
+
         if self.h_bgr is None:
             self.h_bgr = self.ax_bgr.imshow(disp_bgr)
             self.h_bw = self.ax_bw.imshow(disp_bw)

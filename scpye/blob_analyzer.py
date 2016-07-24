@@ -1,5 +1,6 @@
 from __future__ import print_function, division, absolute_import
 
+import cv2
 import numpy as np
 import scipy.ndimage as ndi
 from skimage.feature import peak_local_max
@@ -13,45 +14,40 @@ from scpye.region_props import (region_props_bw, clean_bw, fill_bw,
 class BlobAnalyzer(object):
     fruit_dtype = [('bbox', np.int, 4), ('num', np.int, 1)]
 
-    def __init__(self, min_area=5, split=False):
+    def __init__(self, min_area=5, ksize=3, iters=2, do_split=False):
         """
         :param min_area: minimum area to be consider a blob
-        :param split: whether to split big blob to smaller ones or not
+        :param do_split: whether to split big blob to smaller ones or not
         :return:
         """
         self.min_area = min_area
-        self.split = split
+        self.ksize = ksize
+        self.iters = iters
+        self.split = do_split
         self.area_thresh = 0
 
-    def analyze(self, bw, v):
+    def analyze(self, bgr, bw):
         """
-        :param bw:
-        :param v:
+        :param bgr: color image
+        :param bw: mask
         :return: (fruits, bw)
         """
-        bw_clean, blobs = self.clean(bw)
-        v[bw_clean == 0] = 0
-
-        areas = blobs['prop'][:, 0]
-        self.area_thresh = np.mean(areas)
-        fruits = [self.split_blob(blob, v) for blob in blobs]
-        fruits = np.vstack(fruits)
-        return fruits, bw_clean
-
-    def clean(self, bw):
-        """
-        Clean up raw binary detection image and do contour analysis
-        :param bw:
-        :return:
-        """
+        gray = cv2.cvtColor(bgr, cv2.COLOR_BGR2GRAY)
         bw = gray_from_bw(bw)
-        # Clean binary image
-        bw = clean_bw(bw)
-        # Get regional properties and also remove very small blobs
+        bw_clean = clean_bw(bw, ksize=self.ksize, iters=self.iters)
+        gray[bw_clean == 0] = 0
+
+        # areas = blobs['prop'][:, 0]
+        # self.area_thresh = np.mean(areas)
+        # fruits = [self.split_blob(blob, gray) for blob in blobs]
+        # fruits = np.vstack(fruits)
+        # return fruits, bw_clean
+        return gray, bw_clean
+
+    def extract(self, bw):
         blobs, cntrs = region_props_bw(bw, self.min_area)
-        # Redraw bw with cntrs
         bw = fill_bw(bw, cntrs)
-        return bw, blobs
+        return blobs, bw
 
     def split_blob(self, blob, v, min_aspect=1.4, max_extent=0.5):
         """
