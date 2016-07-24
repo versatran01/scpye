@@ -35,9 +35,9 @@ mode = 'slow_flash'
 side = 'north'
 
 # %%
-do_train = True
+do_train = False
 do_save = True
-do_test = False
+do_test = True
 
 # %%
 if side == 'north':

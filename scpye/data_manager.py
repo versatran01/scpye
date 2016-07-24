@@ -116,7 +116,6 @@ class DataManager(object):
         Load image and label in separate lists
         :param image_indices:
         """
-
         # image_indices has to be a list
         if np.isscalar(image_indices):
             image_indices = [image_indices]
