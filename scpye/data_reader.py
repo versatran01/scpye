@@ -100,6 +100,12 @@ class DataReader(object):
         print('{0} load from {1}'.format(name, model_pickle))
         return model
 
+    def load_all_models(self):
+        pass
+
+    def save_all_models(self):
+        pass
+
     def load_image_label_list(self, image_indices):
         """
         Load image and label in separate lists
@@ -110,8 +116,7 @@ class DataReader(object):
         if np.isscalar(image_indices):
             image_indices = [image_indices]
 
-        Is = []
-        Ls = []
+        Is, Ls = [], []
         for ind in image_indices:
             I, L = self.load_image_label(ind)
             Is.append(I)
@@ -138,17 +143,3 @@ class DataReader(object):
                     print(e)
                     continue
                 yield image
-
-    def load_ground_truth(self):
-        truth_file = os.path.join(self.color_dir, 'ground_truth.txt')
-        return np.loadtxt(truth_file)
-
-    def save_count(self, bag_ind, frame_counts):
-        count_file = os.path.join(self.count_dir,
-                                  'frame{0}.txt'.format(bag_ind))
-        np.savetxt(count_file, frame_counts, fmt='%u')
-
-    def load_count(self, bag_ind):
-        count_file = os.path.join(self.count_dir,
-                                  'frame{0}.txt'.format(bag_ind))
-        return np.loadtxt(count_file)
