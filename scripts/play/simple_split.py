@@ -1,7 +1,7 @@
 # %%
 from __future__ import division
 from scpye.bounding_box import extract_bbox
-from scpye.region_props import *
+from scpye.contour_analysis import *
 from scpye.blob_analyzer import *
 from scpye.testing import get_prediction_bw
 from scpye.training import *

@@ -9,7 +9,7 @@ import numpy as np
 from scpye.image_pipeline import ImagePipeline
 from scpye.image_transformer import ImageTransformer, FeatureTransformer
 from scpye.blob_analyzer import clean_bw, gray_from_bw, fill_bw
-from scpye.region_props import region_props_bw, clean_bw, fill_bw, gray_from_bw
+from scpye.contour_analysis import region_props_bw, clean_bw, fill_bw, gray_from_bw
 from scpye.bounding_box import extract_bbox
 from skimage.measure import label
 from scpye.data_manager import DataManager

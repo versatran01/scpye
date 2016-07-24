@@ -7,8 +7,8 @@ from skimage.feature import peak_local_max
 from skimage.morphology import watershed
 
 from scpye.bounding_box import bbox_area, extract_bbox
-from scpye.region_props import (region_props_bw, clean_bw, fill_bw,
-                                local_max_points, gray_from_bw)
+from scpye.image_processing import (clean_bw, fill_bw, uint8_from_bool)
+from scpye.contour_analysis import (region_props_bw, local_max_points)
 
 
 class BlobAnalyzer(object):
@@ -32,33 +32,39 @@ class BlobAnalyzer(object):
         :param bw: mask
         :return: (fruits, bw)
         """
+        # Clean original bw
         gray = cv2.cvtColor(bgr, cv2.COLOR_BGR2GRAY)
-        bw = gray_from_bw(bw)
-        bw_clean = clean_bw(bw, ksize=self.ksize, iters=self.iters)
+        bw_clean = self.clean(bw)
         gray[bw_clean == 0] = 0
 
+        blobs, cntrs, bw_filled = self.extract(bw_clean)
         # areas = blobs['prop'][:, 0]
         # self.area_thresh = np.mean(areas)
         # fruits = [self.split_blob(blob, gray) for blob in blobs]
         # fruits = np.vstack(fruits)
         # return fruits, bw_clean
-        return gray, bw_clean
+        return gray, bw_filled
+
+    def clean(self, bw):
+        bw = uint8_from_bool(bw)
+        bw_clean = clean_bw(bw, ksize=self.ksize, iters=self.iters)
+        return bw_clean
 
     def extract(self, bw):
         blobs, cntrs = region_props_bw(bw, self.min_area)
-        bw = fill_bw(bw, cntrs)
-        return blobs, bw
+        bw_filled = fill_bw(bw, cntrs)
+        return blobs, cntrs, bw_filled
 
-    def split_blob(self, blob, v, min_aspect=1.4, max_extent=0.5):
+    def split(self, blob, gray, min_aspect=1.4, max_extent=0.5):
         """
         :param blob:
-        :param v:
+        :param gray:
         :param min_aspect:
         :param max_extent:
         :return:
         """
         bbox = blob['bbox']
-        v_bbox = extract_bbox(v, bbox)
+        v_bbox = extract_bbox(gray, bbox)
 
         min_dist = min(np.sqrt(bbox_area(bbox)) / 5, 10)
         area, aspect, extent = blob['prop']
@@ -107,7 +113,7 @@ def find_local_maximas(image, min_distance=10):
     image_max = ndi.maximum_filter(image, size=3, mode='constant')
     local_max = peak_local_max(image_max, min_distance=min_distance,
                                indices=False, exclude_border=False)
-    local_max = gray_from_bw(local_max)
+    local_max = uint8_from_bool(local_max)
     points = local_max_points(local_max)
     return points
 

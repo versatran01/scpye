@@ -11,7 +11,7 @@ import cv2
 import numpy as np
 from scpye.data_manager import DataManager
 from scpye.fruit_detector import FruitDetector
-from scpye.region_props import find_contours
+from scpye.contour_analysis import find_contours
 from scpye.blob_analyzer import *
 from scpye.visualization import *
 

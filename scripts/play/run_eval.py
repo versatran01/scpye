@@ -11,7 +11,7 @@ from __future__ import division
 import sys
 
 # HACK
-from scpye.region_props import gray_from_bw
+from scpye.contour_analysis import gray_from_bw
 
 sys.path.append('..')
 
