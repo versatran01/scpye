@@ -9,7 +9,7 @@ Created on Thu Feb 11 21:34:34 2016
 import os
 import cv2
 import numpy as np
-from scpye.data_reader import DataReader
+from scpye.data_manager import DataManager
 from scpye.fruit_detector import FruitDetector
 from scpye.region_props import find_contours
 from scpye.blob_analyzer import *
@@ -28,7 +28,7 @@ if color == 'red':
 else:
     index = 11
     min_area = 5
-dr = DataReader(color=color, mode='slow_flash')
+dr = DataManager(color=color, mode='slow_flash')
 fd = FruitDetector.from_pickle(dr.model_dir)
 I = dr.load_image(index)
 bw = fd.detect(I)

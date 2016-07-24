@@ -1,13 +1,13 @@
 # %%
 import numpy as np
-from scpye.data_reader import DataReader
+from scpye.data_manager import DataManager
 from scpye.pipeline_factory import (create_image_pipeline,
                                     create_feature_pipeline)
 from scpye.training import (create_voting_classifier,
                             cross_validate_classifier)
 
 # %%
-def train_image_classifier(data_reader, image_indices, image_pipeline,
+def train_image_classifier(data_manager, image_indices, image_pipeline,
                            feature_pipeline):
     """
     :type data_reader: DataReader
@@ -17,7 +17,7 @@ def train_image_classifier(data_reader, image_indices, image_pipeline,
     :rtype: GridSearchCV
     """
     # Load
-    Is, Ls = data_reader.load_image_label_list(image_indices)
+    Is, Ls = data_manager.load_image_label_list(image_indices)
     # Transform
     Its, Lts = image_pipeline.transform(Is, Ls)
     Xt, yt = feature_pipeline.fit_transform(Its, Lts)
@@ -35,9 +35,9 @@ mode = 'slow_flash'
 side = 'north'
 
 # %%
-train = True
-save = False
-test = False
+do_train = True
+do_save = True
+do_test = False
 
 # %%
 if side == 'north':
@@ -60,19 +60,18 @@ else:
 
 # %%
 # DataReader
-drd = DataReader(base_dir, color=color, mode=mode, side=side)
+dmg = DataManager(base_dir, color=color, mode=mode, side=side)
 
-if train:
+if do_train:
     img_ppl = create_image_pipeline(bbox=bbox, k=k)
     ftr_ppl = create_feature_pipeline(pmin=pmin, cspace=cspace, loc=loc,
                                       patch=patch)
-    img_clf = train_image_classifier(drd, train_inds, img_ppl, ftr_ppl)
+    img_clf = train_image_classifier(dmg, train_inds, img_ppl, ftr_ppl)
 
-    if save:
-        print('saving pipeline and classifier')
-        drd.save_model(img_ppl, 'img_ppl')
-        drd.save_model(img_clf, 'img_clf')
+    if do_save:
+        print('saving all models')
+        dmg.save_all_models(img_ppl, ftr_ppl, img_clf)
 
-if test:
-    img_ppl = drd.load_model('img_ppl')
-    img_clf = drd.load_model('img_clf')
+if do_test:
+    print('loading all models')
+    img_ppl, ftr_ppl, img_clf = dmg.load_all_models()

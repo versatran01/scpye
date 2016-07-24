@@ -2,7 +2,7 @@ import cv2
 import numpy as np
 import matplotlib.pyplot as plt
 
-from scpye.data_reader import DataReader
+from scpye.data_manager import DataManager
 from scpye.pipeline_factory import (create_image_pipeline,
                                     create_feature_pipeline)
 from scpye.training import (create_voting_classifier, cross_validate_classifier)
@@ -28,7 +28,7 @@ method = 'lr'
 patch = True
 
 # %%
-drd = DataReader(base_dir, color=color, mode=mode, side=side)
+drd = DataManager(base_dir, color=color, mode=mode, side=side)
 img_ppl = create_image_pipeline(bbox=bbox, k=k)
 ftr_ppl = create_feature_pipeline(pmin=pmin, cspace=cspace, loc=loc,
                                   patch=patch)

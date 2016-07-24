@@ -3,7 +3,7 @@ from __future__ import (absolute_import, division, print_function)
 import cv2
 import numpy as np
 from scpye.visualization import imshow
-from scpye.data_reader import DataReader
+from scpye.data_manager import DataManager
 from scpye.image_pipeline import ImagePipeline
 from scpye.region_props import find_contours, gray_from_bw
 from scpye.visualization import draw_contours
@@ -28,7 +28,7 @@ def get_prediction_bw(image_pipeline, image_classifier, image):
 def test_image_classifier(data_reader, image_indices, image_pipeline,
                           image_classifier):
     """
-    :type data_reader: DataReader
+    :type data_reader: DataManager
     :param image_indices:
     :type image_pipeline: ImagePipeline
     :param image_classifier:

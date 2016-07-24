@@ -1,15 +1,15 @@
 import os
+
 import cv2
 import numpy as np
-from sklearn.externals import joblib
-
 import rosbag
 from cv_bridge import CvBridge, CvBridgeError
+from sklearn.externals import joblib
 
 from scpye.exception import ImageNotFoundError
 
 
-class DataReader(object):
+class DataManager(object):
     def __init__(self, base_dir='/home/chao/Workspace/bag', fruit='apple',
                  color='red', mode='fast_flash', side='north', bag='rect_fixed',
                  filename='frame{0:04d}_{1}.png', bagname='frame{0}.bag'):
@@ -27,7 +27,6 @@ class DataReader(object):
         self.train_dir = os.path.join(self.data_dir, 'train')
         self.model_dir = os.path.join(self.data_dir, 'model')
         self.image_dir = os.path.join(self.data_dir, 'image')
-        self.count_dir = os.path.join(self.data_dir, 'count')
         self.bag_dir = os.path.join(self.data_dir, bag)
 
     def _read_image(self, index, suffix, color=True):
@@ -78,16 +77,22 @@ class DataReader(object):
         label = self.load_label(index)
         return image, label
 
-    def save_model(self, model, name):
+    def save_model(self, model, name, compress=3):
         """
         Save model to model directory
         :param model:
         :param name:
+        :param compress: compression level, 3 is recommended
         :return:
         """
         model_pickle = os.path.join(self.model_dir, name + '.pkl')
-        joblib.dump(model, model_pickle)
+        joblib.dump(model, model_pickle, compress=compress)
         print('{0} saved to {1}'.format(name, model_pickle))
+
+    def save_all_models(self, img_ppl, ftr_ppl, img_clf):
+        self.save_model(img_ppl, 'img_ppl')
+        self.save_model(ftr_ppl, 'ftr_ppl')
+        self.save_model(img_clf, 'img_clf')
 
     def load_model(self, name):
         """
@@ -101,10 +106,10 @@ class DataReader(object):
         return model
 
     def load_all_models(self):
-        pass
-
-    def save_all_models(self):
-        pass
+        img_ppl = self.load_model('img_ppl')
+        ftr_ppl = self.load_model('ftr_ppl')
+        img_clf = self.load_model('img_clf')
+        return img_ppl, ftr_ppl, img_clf
 
     def load_image_label_list(self, image_indices):
         """

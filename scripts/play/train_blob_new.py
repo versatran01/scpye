@@ -12,7 +12,7 @@ from scpye.blob_analyzer import clean_bw, gray_from_bw, fill_bw
 from scpye.region_props import region_props_bw, clean_bw, fill_bw, gray_from_bw
 from scpye.bounding_box import extract_bbox
 from skimage.measure import label
-from scpye.data_reader import DataReader
+from scpye.data_manager import DataManager
 from scpye.testing import get_positive_bw, get_prediction_bw
 from sklearn.preprocessing import StandardScaler
 from sklearn.grid_search import GridSearchCV
@@ -118,7 +118,7 @@ train_indices = range(0, 12, 3) + range(1, 12, 3)
 test_indices = range(2, 12, 3)
 
 # %%
-drd = DataReader(base_dir, color=color, mode=mode)
+drd = DataManager(base_dir, color=color, mode=mode)
 img_ppl = drd.load_model('img_ppl')
 img_clf = drd.load_model('img_clf')
 

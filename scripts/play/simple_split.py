@@ -15,7 +15,7 @@ mode = 'slow_flash'
 test_indices = [5]
 
 # %%
-drd = DataReader(base_dir, color=color, mode=mode)
+drd = DataManager(base_dir, color=color, mode=mode)
 img_ppl = drd.load_model('img_ppl')
 img_clf = drd.load_model('img_clf')
 

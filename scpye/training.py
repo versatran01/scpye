@@ -9,7 +9,7 @@ from sklearn.ensemble import (RandomForestClassifier, VotingClassifier)
 from sklearn.cross_validation import train_test_split
 from sklearn.metrics import classification_report
 
-from scpye.data_reader import DataReader
+from scpye.data_manager import DataManager
 from scpye.exception import ClassifierNotSupportedError
 
 
