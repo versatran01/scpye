@@ -1,10 +1,14 @@
 # %%
 import numpy as np
+import matplotlib.pyplot as plt
+
 from scpye.data_manager import DataManager
 from scpye.pipeline_factory import (create_image_pipeline,
                                     create_feature_pipeline)
 from scpye.training import (create_voting_classifier,
                             cross_validate_classifier)
+from scpye.visualization import imshow
+
 
 # %%
 def train_image_classifier(data_manager, image_indices, image_pipeline,
@@ -28,6 +32,29 @@ def train_image_classifier(data_manager, image_indices, image_pipeline,
     return grid
 
 
+def test_image_classifier(data_manager, image_indices, image_pipeline,
+                          feature_pipeline, image_classifier):
+    """
+    :type data_manager: DataManager
+    :type image_pipeline: ImagePipeline
+    :type feature_pipeline: ImagePipeline
+    :type image_classifier: GridSearchCV
+    """
+    if np.isscalar(image_indices):
+        image_indices = [image_indices]
+
+    for ind in image_indices:
+        I, L = data_manager.load_image_label(ind)
+        It, Lt = image_pipeline.transform(I, L[..., 1])
+        Xt = feature_pipeline.transform(It)
+        y = image_classifier.predict(Xt)
+
+        bw = feature_pipeline.named_steps['remove_dark'].mask.copy()
+        bw[bw > 0] = y
+        bw = np.array(bw, dtype='uint8')
+        imshow(It, bw + Lt, cmap=plt.cm.viridis)
+
+
 # %%
 base_dir = '/home/chao/Workspace/dataset/agriculture'
 color = 'red'
@@ -41,8 +68,8 @@ do_test = True
 
 # %%
 if side == 'north':
-    train_inds = range(0, 12, 3) + range(1, 12, 3)
-    test_inds = range(2, 12, 3)
+    train_inds = range(1, 12, 3) + range(2, 12, 3)
+    test_inds = range(0, 12, 3)
 else:
     train_inds = range(12, 16)
     test_inds = range(12, 16)
@@ -72,6 +99,12 @@ if do_train:
         print('saving all models')
         dmg.save_all_models(img_ppl, ftr_ppl, img_clf)
 
+
+def get_dark_remover(feature_pipeline):
+    return feature_pipeline.named_steps['remove_dark']
+
+
 if do_test:
     print('loading all models')
     img_ppl, ftr_ppl, img_clf = dmg.load_all_models()
+    test_image_classifier(dmg, test_inds, img_ppl, ftr_ppl, img_clf)

@@ -9,6 +9,10 @@ from sklearn.externals import joblib
 from scpye.exception import ImageNotFoundError
 
 
+def make_binary(data):
+    return np.array(data > 0, dtype='uint8')
+
+
 class DataManager(object):
     def __init__(self, base_dir='/home/chao/Workspace/bag', fruit='apple',
                  color='red', mode='fast_flash', side='north', bag='rect_fixed',
@@ -66,7 +70,7 @@ class DataManager(object):
         neg = self._read_image(index, 'neg', color=False)
         pos = self._read_image(index, 'pos', color=False)
         label = np.dstack((neg, pos))
-        return label
+        return make_binary(label)
 
     def load_image_label(self, index):
         """

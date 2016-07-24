@@ -26,4 +26,3 @@ for image in dr.load_bag(bag_ind):
 
 ft.finish()
 print(ft.total_counts)
-dr.save_count(bag_ind, ft.frame_counts)
