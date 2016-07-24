@@ -1,11 +1,9 @@
 import os
-
 import cv2
 import numpy as np
 import rosbag
 from cv_bridge import CvBridge, CvBridgeError
 from sklearn.externals import joblib
-
 from scpye.exception import ImageNotFoundError
 
 

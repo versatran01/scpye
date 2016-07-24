@@ -24,41 +24,26 @@ class FruitDetector(object):
         self.ftr_ppl = ftr_ppl
         self.img_clf = img_clf
 
-    @property
-    def dark_remover(self):
-        return self.ftr_ppl.named_steps['remove_dar']
-
-    @property
-    def bgr(self):
-        return self.dark_remover.bgr.copy()
-
-    @property
-    def gray(self):
-        return self.dark_remover.gray.copy()
-
-    @property
-    def mask(self):
-        return self.dark_remover.mask.copy()
-
     def detect(self, image):
+        """
+        Detect fruit on image
+        :param image:
+        :return: (bgr, bw)
+        """
         It = self.img_ppl.transform(image)
         Xt = self.ftr_ppl.transform(It)
         y = self.img_clf.predict(Xt)
 
-        bw = self.mask
+        bw = self.ftr_ppl.named_steps['remove_dark'].mask.copy()
         bw[bw > 0] = y
-        return bw
+        return It, bw
 
     @classmethod
-    def from_pickle(cls, model_dir):
+    def from_pickle(cls, data_manager):
         """
         Constructor from a pickle
-        :param model_dir:
-        :return:
+        :type data_manager: DataManager
         :rtype: FruitDetector
         """
-        img_ppl_file = os.path.join(model_dir, 'img_ppl.pkl')
-        img_clf_file = os.path.join(model_dir, 'img_clf.pkl')
-        img_ppl = joblib.load(img_ppl_file)
-        img_clf = joblib.load(img_clf_file)
-        return cls(img_ppl, img_clf)
+        img_ppl, ftr_ppl, img_clf = data_manager.load_all_models()
+        return cls(img_ppl, ftr_ppl, img_clf)
