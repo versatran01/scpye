@@ -1,64 +1,51 @@
-from __future__ import print_function, division, absolute_import
+from __future__ import (print_function, division, absolute_import)
 
 import cv2
 import numpy as np
 import scipy.ndimage as ndi
 from skimage.feature import peak_local_max
 
-from scpye.processing.image_processing import (clean_bw, fill_bw, u8_from_bw)
-
-from scpye.processing.contour_analysis import (analyze_contours_bw,
-                                               find_contours)
-
 
 class BlobAnalyzer(object):
     fruit_dtype = [('bbox', np.int, 4), ('num', np.int, 1)]
 
-    def __init__(self, do_split=False):
+    def __init__(self, max_cntr_area=100, max_aspect=1.3, min_extent=0.62,
+                 min_solidity=0.90, min_distance=4):
+        self.max_cntr_area = max_cntr_area
+        self.max_aspect = max_aspect
+        self.min_extent = min_extent
+        self.min_solidity = min_solidity
+
+    def is_single_blob(self, prop):
         """
-        :param do_split: whether to split big blob to smaller ones or not
+        Check if this blob is a single blob
+        :param prop:
         :return:
         """
-        self.split = do_split
+        area, aspect, extent, solidity = prop
 
-    def analyze(self, bgr, bw):
+        return area < self.max_cntr_area \
+               or (extent > self.min_extent and aspect < self.max_aspect) \
+               or solidity > self.min_solidity
+
+    def analyze(self, bgr, bw, props):
         """
         :param bgr: color image
         :param bw: mask
-        :return: (fruits, bw)
+        :param props: region props
+        :return: fruits
         """
         # Clean original bw
         gray = cv2.cvtColor(bgr, cv2.COLOR_BGR2GRAY)
-        bw_clean = self.clean(bw)
-        gray[bw_clean == 0] = 0
+        gray[bw == 0] = 0
 
-        blobs, cntrs, bw_filled = self.extract(bw_clean)
         # areas = blobs['prop'][:, 0]
         # self.area_thresh = np.mean(areas)
         # fruits = [self.split_blob(blob, gray) for blob in blobs]
         # fruits = np.vstack(fruits)
         # return fruits, bw_clean
-        return blobs, cntrs, gray, bw_filled
+        return gray
 
-    def clean(self, bw):
-        """
-        Clean noise from binary image
-        :param bw: binary image
-        :return: cleaned binary image
-        """
-        bw = u8_from_bw(bw)
-        bw_clean = clean_bw(bw, ksize=self.ksize, iters=self.iters)
-        return bw_clean
-
-    def extract(self, bw):
-        """
-        Extract blobs and contours from binary image
-        :param bw: binary image
-        :return: blobs, contours, filled binary image
-        """
-        blobs, cntrs = analyze_contours_bw(bw, self.min_cntr_area)
-        bw_filled = fill_bw(bw, cntrs)
-        return blobs, cntrs, bw_filled
 
         # def split(self, blob, gray, min_aspect=1.4, max_extent=0.5):
         #     """
