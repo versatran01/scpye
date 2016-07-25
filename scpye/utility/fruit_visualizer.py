@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 
 
 class FruitVisualizer(object):
-    def __init__(self, image_dir, bag_ind):
+    def __init__(self, image_dir, bag_ind, save_image=False):
         self.fig = plt.figure()
         plt.ion()
         self.ax_bgr = self.fig.add_subplot(121)
@@ -20,6 +20,7 @@ class FruitVisualizer(object):
 
         self.image_dir = os.path.join(image_dir, 'frame' + str(bag_ind))
         self.bag_ind = bag_ind
+        self.save_image = save_image
 
         self.bgr_name = 'bgr{0:04d}.png'
         self.bw_name = 'bw{0:04d}.png'
@@ -37,7 +38,7 @@ class FruitVisualizer(object):
 
         self.i += 1
 
-        if self.image_dir is not None:
+        if self.save_image:
             bgr_name = os.path.join(self.image_dir,
                                     self.bgr_name.format(self.i))
             bw_name = os.path.join(self.image_dir,

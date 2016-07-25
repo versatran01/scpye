@@ -40,7 +40,7 @@ def clean_bw(bw, ksize=3, iters=1):
     return bw
 
 
-def uint8_from_bw(bw, val=255):
+def u8_from_bw(bw, val=255):
     """
     Convert bw image from bool to uint8 if possible
     :param bw: binary image

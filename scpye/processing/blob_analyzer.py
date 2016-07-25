@@ -3,26 +3,23 @@ from __future__ import print_function, division, absolute_import
 import cv2
 import numpy as np
 import scipy.ndimage as ndi
-from scpye.image_processing import (clean_bw, fill_bw, uint8_from_bw)
 from skimage.feature import peak_local_max
 
-from scpye.processing.contour_analysis import (analyze_contours_bw, find_contours)
+from scpye.processing.image_processing import (clean_bw, fill_bw, u8_from_bw)
+
+from scpye.processing.contour_analysis import (analyze_contours_bw,
+                                               find_contours)
 
 
 class BlobAnalyzer(object):
     fruit_dtype = [('bbox', np.int, 4), ('num', np.int, 1)]
 
-    def __init__(self, min_area=5, ksize=3, iters=2, do_split=False):
+    def __init__(self, do_split=False):
         """
-        :param min_area: minimum area to be consider a blob
         :param do_split: whether to split big blob to smaller ones or not
         :return:
         """
-        self.min_cntr_area = min_area
-        self.ksize = ksize
-        self.iters = iters
         self.split = do_split
-        self.area_thresh = 0
 
     def analyze(self, bgr, bw):
         """
@@ -38,7 +35,6 @@ class BlobAnalyzer(object):
         blobs, cntrs, bw_filled = self.extract(bw_clean)
         # areas = blobs['prop'][:, 0]
         # self.area_thresh = np.mean(areas)
-        # TODO: min_area = (min_distance + 2) ** 2
         # fruits = [self.split_blob(blob, gray) for blob in blobs]
         # fruits = np.vstack(fruits)
         # return fruits, bw_clean
@@ -50,7 +46,7 @@ class BlobAnalyzer(object):
         :param bw: binary image
         :return: cleaned binary image
         """
-        bw = uint8_from_bw(bw)
+        bw = u8_from_bw(bw)
         bw_clean = clean_bw(bw, ksize=self.ksize, iters=self.iters)
         return bw_clean
 
@@ -122,7 +118,7 @@ def find_local_maximas(image, min_distance=5):
     image_max = ndi.maximum_filter(image, size=3, mode='constant')
     local_max = peak_local_max(image_max, min_distance=min_distance,
                                indices=False, exclude_border=False)
-    local_max = uint8_from_bw(local_max)
+    local_max = u8_from_bw(local_max)
     points = local_max_points(local_max)
     return points
 
