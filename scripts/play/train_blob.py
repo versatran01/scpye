@@ -6,14 +6,14 @@ Created on Sun Feb  7 23:17:29 2016
 """
 
 # %%
+from scpye.blob_analyzer import *
+from scpye.testing import get_positive_bw, get_prediction_bw
 from skimage.measure import label
 
-from scpye.blob_analyzer import *
-from scpye.bounding_box import extract_bbox
-from scpye.contour_analysis import clean_bw, fill_bw, gray_from_bw
-from scpye.testing import get_positive_bw, get_prediction_bw
-from scpye.training import *
-from scpye.visualization import *
+from scpye.detection.training import *
+from scpye.processing.contour_analysis import clean_bw, fill_bw, gray_from_bw
+from scpye.tracking.bounding_box import extract_bbox
+from scpye.utility.visualization import *
 
 # %%
 base_dir = '/home/chao/Dropbox'

@@ -1,10 +1,11 @@
 from sklearn.preprocessing import StandardScaler
 
-from scpye.image_pipeline import ImagePipeline, FeatureUnion
-from scpye.image_transformer import (ImageRotator, ImageCropper, ImageResizer,
-                                     ImageSmoother, DarkRemover)
-from scpye.feature_transformer import (CspaceTransformer, MaskLocator,
-                                       PatchCreator)
+from scpye.detection.feature_transformer import (CspaceTransformer, MaskLocator,
+                                                 PatchCreator)
+from scpye.detection.image_pipeline import ImagePipeline, FeatureUnion
+from scpye.detection.image_transformer import (ImageRotator, ImageCropper,
+                                               ImageResizer, ImageSmoother,
+                                               DarkRemover)
 
 
 def create_image_pipeline(ccw=-1, bbox=None, k=0.5):

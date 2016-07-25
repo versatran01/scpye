@@ -1,6 +1,6 @@
-from scpye.data_manager import DataManager
-from scpye.fruit_detector import FruitDetector
-from scpye.fruit_visualizer import FruitVisualizer
+from scpye.detection.fruit_detector import FruitDetector
+from scpye.utility.data_manager import DataManager
+from scpye.utility.fruit_visualizer import FruitVisualizer
 
 base_dir = '/home/chao/Workspace/dataset/agriculture'
 color = 'red'

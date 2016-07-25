@@ -1,8 +1,10 @@
 from __future__ import (print_function, division, absolute_import)
 
 from collections import namedtuple
+
 from scpye.image_processing import (clean_bw, fill_bw, uint8_from_bw)
-from scpye.contour_analysis import (analyze_contours_bw)
+
+from scpye.processing.contour_analysis import (analyze_contours_bw)
 
 RegionProps = namedtuple('RegionProps', ('blobs', 'cntrs'))
 

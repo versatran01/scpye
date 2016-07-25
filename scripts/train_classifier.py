@@ -1,20 +1,20 @@
 # %%
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
 
-from scpye.data_manager import DataManager
-from scpye.pipeline_factory import (create_image_pipeline,
-                                    create_feature_pipeline)
-from scpye.training import (create_voting_classifier,
-                            cross_validate_classifier)
-from scpye.visualization import imshow
+from scpye.detection.pipeline_factory import (create_image_pipeline,
+                                              create_feature_pipeline)
+from scpye.detection.training import (create_voting_classifier,
+                                      cross_validate_classifier)
+from scpye.utility.data_manager import DataManager
+from scpye.utility.visualization import imshow
 
 
 # %%
 def train_image_classifier(data_manager, image_indices, image_pipeline,
                            feature_pipeline):
     """
-    :type data_reader: DataReader
+    :type data_manager: DataReader
     :param image_indices: list of indices
     :type image_pipeline: ImagePipeline
     :type feature_pipeline: ImagePipeline
@@ -36,6 +36,7 @@ def test_image_classifier(data_manager, image_indices, image_pipeline,
                           feature_pipeline, image_classifier):
     """
     :type data_manager: DataManager
+    :param image_indices:
     :type image_pipeline: ImagePipeline
     :type feature_pipeline: ImagePipeline
     :type image_classifier: GridSearchCV

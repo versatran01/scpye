@@ -8,7 +8,7 @@ import cv2
 import numpy as np
 from sklearn.base import TransformerMixin, BaseEstimator
 
-from scpye.bounding_box import extract_bbox
+from scpye.tracking.bounding_box import extract_bbox
 
 MaskedData = namedtuple('MaskedData', ['data', 'mask'])
 

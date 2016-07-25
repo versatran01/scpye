@@ -1,16 +1,14 @@
 import os
 from itertools import izip
-import cv2
-import numpy as np
-import matplotlib.pyplot as plt
-from scpye.data_manager import DataManager
-from scpye.blob_analyzer import BlobAnalyzer
-from scpye.visualization import imshow
-from scpye.bounding_box import extract_bbox
-from scpye.visualization import draw_bboxes
 
-import scipy.ndimage as ndi
-from skimage.feature import peak_local_max
+import cv2
+import matplotlib.pyplot as plt
+import numpy as np
+
+from scpye.blob_analyzer import BlobAnalyzer
+from scpye.utility.data_manager import DataManager
+from scpye.utility.visualization import draw_bboxes
+from scpye.utility.visualization import imshow
 
 # %%
 base_dir = '/home/chao/Workspace/dataset/agriculture'
@@ -48,7 +46,7 @@ mag, ang = cv2.cartToPolar(Ix, Iy)
 imshow(mag, ang, figsize=(12, 16))
 
 # %%
-gray_max = ndi.maximum_filter(gray, size=4, mode='constant')
+
 
 
 disp_bgr = bgr.copy()
@@ -81,8 +79,7 @@ for blob, cntr in izip(blobs, cntrs):
 #    ang_bbox = extract_bbox(ang, bbox)
 #    bgr_bbox = extract_bbox(bgr, bbox)
 #    gray_bbox = extract_bbox(gray, bbox)
-#    gray_bbox_max = extract_bbox(gray_max, bbox)
-
+#    gray_bbox_max = ndi.maximum_filter(gray_bbox, size=4, mode='constant')
 #    local_max = peak_local_max(gray_bbox_max, min_distance=5, indices=False,
 #                               exclude_border=False)
 single_blobs = np.array(single_blobs)

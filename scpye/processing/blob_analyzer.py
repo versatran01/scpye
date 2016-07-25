@@ -3,12 +3,10 @@ from __future__ import print_function, division, absolute_import
 import cv2
 import numpy as np
 import scipy.ndimage as ndi
-from skimage.feature import peak_local_max
-from skimage.morphology import watershed
-
-from scpye.bounding_box import bbox_area, extract_bbox
 from scpye.image_processing import (clean_bw, fill_bw, uint8_from_bw)
-from scpye.contour_analysis import (analyze_contours_bw, find_contours)
+from skimage.feature import peak_local_max
+
+from scpye.processing.contour_analysis import (analyze_contours_bw, find_contours)
 
 
 class BlobAnalyzer(object):

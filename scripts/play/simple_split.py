@@ -1,12 +1,10 @@
 # %%
 from __future__ import division
-from scpye.bounding_box import extract_bbox
-from scpye.contour_analysis import *
-from scpye.blob_analyzer import *
+
 from scpye.testing import get_prediction_bw
-from scpye.training import *
-from scpye.visualization import *
-import scipy.ndimage as ndi
+
+from scpye.blob_analyzer import *
+from scpye.utility.visualization import *
 
 # %%
 base_dir = '/home/chao/Dropbox'

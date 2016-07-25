@@ -5,19 +5,18 @@ Created on Mon Feb  8 19:20:09 2016
 @author: chao
 """
 
-import numpy as np
-from scpye.image_pipeline import ImagePipeline
-from scpye.image_transformer import ImageTransformer, FeatureTransformer
-from scpye.blob_analyzer import clean_bw, gray_from_bw, fill_bw
-from scpye.contour_analysis import analyze_contours_bw, clean_bw, fill_bw, gray_from_bw
-from scpye.bounding_box import extract_bbox
-from skimage.measure import label
-from scpye.data_manager import DataManager
 from scpye.testing import get_positive_bw, get_prediction_bw
-from sklearn.preprocessing import StandardScaler
+from skimage.measure import label
 from sklearn.grid_search import GridSearchCV
+from sklearn.preprocessing import StandardScaler
 from sklearn.svm import SVC
-from scpye.visualization import *
+
+from scpye.detection.image_pipeline import ImagePipeline
+from scpye.detection.image_transformer import ImageTransformer, FeatureTransformer
+from scpye.processing.contour_analysis import analyze_contours_bw, clean_bw, fill_bw, gray_from_bw
+from scpye.tracking.bounding_box import extract_bbox
+from scpye.utility.data_manager import DataManager
+from scpye.utility.visualization import *
 
 
 # %%

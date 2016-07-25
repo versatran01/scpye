@@ -6,14 +6,10 @@ Created on Thu Feb 11 21:34:34 2016
 """
 
 # %% 
-import os
-import cv2
-import numpy as np
-from scpye.data_manager import DataManager
-from scpye.fruit_detector import FruitDetector
-from scpye.contour_analysis import find_contours
 from scpye.blob_analyzer import *
-from scpye.visualization import *
+from scpye.detection.fruit_detector import FruitDetector
+from scpye.utility.data_manager import DataManager
+from scpye.utility.visualization import *
 
 save_dir = '/home/chao/Desktop'
 
