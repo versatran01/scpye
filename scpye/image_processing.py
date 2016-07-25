@@ -8,7 +8,6 @@ def morph_closing(bw, ksize=3, iters=1):
     :param ksize: kernel size
     :param iters: number of iterations
     :return: binary image after closing
-    :rtype: numpy.ndarray
     """
     kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (ksize, ksize))
     bw_closed = cv2.morphologyEx(bw, cv2.MORPH_CLOSE, kernel, iterations=iters)
@@ -21,7 +20,6 @@ def morph_opening(bw, ksize=3, iters=1):
     :param ksize: kernel size
     :param iters: number of iterations
     :return: binary image after opening
-    :rtype: numpy.ndarray
     """
     kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (ksize, ksize))
     bw_opened = cv2.morphologyEx(bw, cv2.MORPH_OPEN, kernel=kernel,
@@ -42,18 +40,15 @@ def clean_bw(bw, ksize=3, iters=1):
     return bw
 
 
-def uint8_from_bool(bw):
+def uint8_from_bw(bw, val=255):
     """
     Convert bw image from bool to uint8 if possible
     :param bw: binary image
+    :param val: max_val of image
     :return: greyscale image
     """
     assert np.ndim(bw) == 2, 'Image dimension wrong'
-
-    if bw.dtype == bool:
-        return np.array(bw, dtype='uint8') * 255
-    else:
-        return bw
+    return np.array(bw > 0, dtype=np.uint8) * val
 
 
 def fill_bw(bw, contours):
@@ -62,7 +57,6 @@ def fill_bw(bw, contours):
     :param bw:
     :param contours:
     :return: filled image
-    :rtype: numpy.ndarray
     """
     bw_filled = np.zeros_like(bw)
     cv2.drawContours(bw_filled, contours, -1, color=255, thickness=-1)

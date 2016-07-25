@@ -7,7 +7,7 @@ from skimage.feature import peak_local_max
 from skimage.morphology import watershed
 
 from scpye.bounding_box import bbox_area, extract_bbox
-from scpye.image_processing import (clean_bw, fill_bw, uint8_from_bool)
+from scpye.image_processing import (clean_bw, fill_bw, uint8_from_bw)
 from scpye.contour_analysis import (analyze_contours_bw, find_contours)
 
 
@@ -52,7 +52,7 @@ class BlobAnalyzer(object):
         :param bw: binary image
         :return: cleaned binary image
         """
-        bw = uint8_from_bool(bw)
+        bw = uint8_from_bw(bw)
         bw_clean = clean_bw(bw, ksize=self.ksize, iters=self.iters)
         return bw_clean
 
@@ -124,7 +124,7 @@ def find_local_maximas(image, min_distance=5):
     image_max = ndi.maximum_filter(image, size=3, mode='constant')
     local_max = peak_local_max(image_max, min_distance=min_distance,
                                indices=False, exclude_border=False)
-    local_max = uint8_from_bool(local_max)
+    local_max = uint8_from_bw(local_max)
     points = local_max_points(local_max)
     return points
 

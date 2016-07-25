@@ -1,4 +1,5 @@
 import os
+from itertools import izip
 import cv2
 import numpy as np
 import matplotlib.pyplot as plt
@@ -6,6 +7,7 @@ from scpye.data_manager import DataManager
 from scpye.blob_analyzer import BlobAnalyzer
 from scpye.visualization import imshow
 from scpye.bounding_box import extract_bbox
+from scpye.visualization import draw_bboxes
 
 import scipy.ndimage as ndi
 from skimage.feature import peak_local_max
@@ -21,7 +23,7 @@ bag_ind = 1
 dm = DataManager(base_dir, color=color, mode=mode, side=side)
 image_dir = os.path.join(dm.image_dir, "frame" + str(bag_ind))
 
-i = 133
+i = 12
 bw_name = 'bw{0:04d}.png'
 bgr_name = 'bgr{0:04d}.png'
 
@@ -48,13 +50,43 @@ imshow(mag, ang, figsize=(12, 16))
 # %%
 gray_max = ndi.maximum_filter(gray, size=4, mode='constant')
 
-blob = blobs[40]
-bbox = blob['bbox']
-bw_bbox = extract_bbox(bw, bbox)
-ang_bbox = extract_bbox(ang, bbox)
-bgr_bbox = extract_bbox(bgr, bbox)
-gray_bbox = extract_bbox(gray, bbox)
-gray_bbox_max = ndi.maximum_filter(gray_bbox, size=3, mode='constant')
-out = local_max = peak_local_max(gray_bbox_max, min_distance=5, indices=False,
-                                 exclude_border=False)
-imshow(gray_bbox, bgr_bbox, ang_bbox, out, interp='none', figsize=(12, 18))
+
+disp_bgr = bgr.copy()
+disp_bw = cv2.cvtColor(filled * 255, cv2.COLOR_GRAY2BGR)
+imshow(disp_bgr, disp_bw, interp='none', figsize=(12, 16))
+
+min_distance = 5
+# threshold to be a single blob
+
+max_cntr_area = 100
+max_aspect = 1.3
+min_extent = 0.62
+min_solidity = 0.90
+
+
+single_blobs = []
+for blob, cntr in izip(blobs, cntrs):
+    bbox = blob['bbox']
+    cntr_area, aspect, extent, solidity = blob['prop']
+
+    if cntr_area < max_cntr_area:
+        single_blobs.append(blob)
+    elif extent > min_extent and aspect < max_aspect:
+        single_blobs.append(blob)
+    elif solidity > min_solidity:
+        single_blobs.append(blob)
+
+
+#    bw_bbox = extract_bbox(bw, bbox)
+#    ang_bbox = extract_bbox(ang, bbox)
+#    bgr_bbox = extract_bbox(bgr, bbox)
+#    gray_bbox = extract_bbox(gray, bbox)
+#    gray_bbox_max = extract_bbox(gray_max, bbox)
+
+#    local_max = peak_local_max(gray_bbox_max, min_distance=5, indices=False,
+#                               exclude_border=False)
+single_blobs = np.array(single_blobs)
+draw_bboxes(disp_bgr, single_blobs['bbox'])
+draw_bboxes(disp_bw, single_blobs['bbox'])
+#imshow(gray_bbox, bgr_bbox, ang_bbox, out, interp='none', figsize=(12, 18))
+imshow(disp_bgr, disp_bw, interp='none', figsize=(12, 16))

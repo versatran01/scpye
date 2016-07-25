@@ -4,10 +4,11 @@ import logging
 
 import cv2
 import numpy as np
-from scpye.assignment import hungarian_assignment
+
 from scpye.bounding_box import bboxes_assignment_cost, bbox_center
-from scpye.fruit_track import FruitTrack
 from scpye.optical_flow import calc_optical_flow
+from scpye.track.assignment import hungarian_assignment
+from scpye.track.fruit_track import FruitTrack
 from scpye.visualization import (draw_bboxes, draw_optical_flows,
                                  draw_bboxes_matches, draw_text, Colors)
 

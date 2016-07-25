@@ -8,9 +8,9 @@ import rosbag
 from cv_bridge import CvBridge, CvBridgeError
 from sklearn.externals import joblib
 
-from scpye.fruit_detector import FruitDetector
-from scpye.fruit_tracker import FruitTracker
 from scpye.contour_analysis import analyze_contours
+from scpye.fruit_detector import FruitDetector
+from scpye.track.fruit_tracker import FruitTracker
 from scpye.visualization import draw_bboxes
 
 k = 0.3

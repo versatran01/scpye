@@ -32,7 +32,6 @@ def analyze_contours(contours, min_area):
     blobs, cntrs = [], []
     for cntr in contours:
         cntr_area = contour_area(cntr)
-        # Need len(cntr) >= 5 to fit ellipse
         if cntr_area >= min_area:
             bbox = contour_bounding_rect(cntr)
             aspect = bounding_rect_aspect(bbox)
