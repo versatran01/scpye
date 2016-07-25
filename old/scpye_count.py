@@ -10,7 +10,7 @@ from sklearn.externals import joblib
 
 from scpye.contour_analysis import analyze_contours
 from scpye.fruit_detector import FruitDetector
-from scpye.track.fruit_tracker import FruitTracker
+from scpye.tracking.fruit_tracker import FruitTracker
 from scpye.visualization import draw_bboxes
 
 k = 0.3

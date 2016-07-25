@@ -14,7 +14,7 @@ class FruitTrack(object):
 
     def predict(self, flow):
         """
-        Predict new location of the track
+        Predict new location of the tracking
         Modifies the [x, y] of bbox
         :param flow:
         """
@@ -23,7 +23,7 @@ class FruitTrack(object):
 
     def correct(self, fruit):
         """
-        Correct location of the track
+        Correct location of the tracking
         :param fruit:
         """
         bbox_new = fruit[:4]

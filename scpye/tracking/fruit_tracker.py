@@ -7,8 +7,8 @@ import numpy as np
 
 from scpye.bounding_box import bboxes_assignment_cost, bbox_center
 from scpye.optical_flow import calc_optical_flow
-from scpye.track.assignment import hungarian_assignment
-from scpye.track.fruit_track import FruitTrack
+from scpye.tracking.assignment import hungarian_assignment
+from scpye.tracking.fruit_track import FruitTrack
 from scpye.visualization import (draw_bboxes, draw_optical_flows,
                                  draw_bboxes_matches, draw_text, Colors)
 
@@ -18,7 +18,7 @@ logging.basicConfig(level=logging.INFO)
 class FruitTracker(object):
     def __init__(self, min_age=3, max_level=3):
         """
-        :param min_age: minimum age of a track to be considered for counting
+        :param min_age: minimum age of a tracking to be considered for counting
         """
         # Tracking
         self.tracks = []
@@ -116,7 +116,7 @@ class FruitTracker(object):
         Predict tracks using optical flow
         :param gray: gray scale image
         """
-        # for each track, get center points and flow
+        # for each tracking, get center points and flow
         points1 = np.array([bbox_center(track.bbox) for track in self.tracks])
         prev_flows = np.array([track.flow for track in self.tracks])
         points2 = points1 + prev_flows
