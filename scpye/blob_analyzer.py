@@ -8,7 +8,7 @@ from skimage.morphology import watershed
 
 from scpye.bounding_box import bbox_area, extract_bbox
 from scpye.image_processing import (clean_bw, fill_bw, uint8_from_bool)
-from scpye.contour_analysis import (analyze_contours_bw, local_max_points)
+from scpye.contour_analysis import (analyze_contours_bw, find_contours)
 
 
 class BlobAnalyzer(object):
@@ -20,7 +20,7 @@ class BlobAnalyzer(object):
         :param do_split: whether to split big blob to smaller ones or not
         :return:
         """
-        self.min_area = min_area
+        self.min_cntr_area = min_area
         self.ksize = ksize
         self.iters = iters
         self.split = do_split
@@ -40,6 +40,7 @@ class BlobAnalyzer(object):
         blobs, cntrs, bw_filled = self.extract(bw_clean)
         # areas = blobs['prop'][:, 0]
         # self.area_thresh = np.mean(areas)
+        # TODO: min_area = (min_distance + 2) ** 2
         # fruits = [self.split_blob(blob, gray) for blob in blobs]
         # fruits = np.vstack(fruits)
         # return fruits, bw_clean
@@ -61,7 +62,7 @@ class BlobAnalyzer(object):
         :param bw: binary image
         :return: blobs, contours, filled binary image
         """
-        blobs, cntrs = analyze_contours_bw(bw, self.min_area)
+        blobs, cntrs = analyze_contours_bw(bw, self.min_cntr_area)
         bw_filled = fill_bw(bw, cntrs)
         return blobs, cntrs, bw_filled
 
@@ -112,20 +113,44 @@ class BlobAnalyzer(object):
         #         fruits.append(fruit)
         #     return np.vstack(fruits)
 
-# def find_local_maximas(image, min_distance=10):
-#     """
-#     Find points of local maximas from gray scale image
-#     :param image:
-#     :param min_distance:
-#     :return:
-#     """
-#     image_max = ndi.maximum_filter(image, size=3, mode='constant')
-#     local_max = peak_local_max(image_max, min_distance=min_distance,
-#                                indices=False, exclude_border=False)
-#     local_max = uint8_from_bool(local_max)
-#     points = local_max_points(local_max)
-#     return points
 
+def find_local_maximas(image, min_distance=5):
+    """
+    Find points of local maximas from gray scale image
+    :param image:
+    :param min_distance:
+    :return:
+    """
+    image_max = ndi.maximum_filter(image, size=3, mode='constant')
+    local_max = peak_local_max(image_max, min_distance=min_distance,
+                               indices=False, exclude_border=False)
+    local_max = uint8_from_bool(local_max)
+    points = local_max_points(local_max)
+    return points
+
+
+def local_max_points(bw):
+    """
+    :param bw:
+    :return:
+    """
+    cntrs = find_contours(bw)
+
+    if len(cntrs) == 0:
+        return None
+
+    points = []
+    for cnt in cntrs:
+        mmt = cv2.moments(cnt)
+        cntr_area = cv2.contourArea(cnt)
+        if cntr_area > 0:
+            points.append(moment_centroid(mmt))
+
+    if len(points) == 0:
+        return None
+    else:
+        points = np.array(points)
+        return points
 
 # def label_blob_watershed(bbox, bw, v, k=5.5, return_num=False):
 #     """

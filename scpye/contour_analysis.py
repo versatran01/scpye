@@ -60,30 +60,6 @@ def find_contours(bw):
     return cntrs
 
 
-def local_max_points(bw):
-    """
-    :param bw:
-    :return:
-    """
-    cs = find_contours(bw)
-
-    if len(cs) == 0:
-        return None
-
-    points = []
-    for cnt in cs:
-        m = cv2.moments(cnt)
-        a = cv2.contourArea(cnt)
-        if a > 0:
-            points.append(moment_centroid(m))
-
-    if len(points) == 0:
-        return None
-    else:
-        points = np.array(points)
-        return points
-
-
 def contour_area(cntr):
     """
     :param cntr:
