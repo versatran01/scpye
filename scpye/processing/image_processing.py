@@ -1,9 +1,5 @@
 import cv2
 import numpy as np
-from scipy import ndimage as ndi
-from skimage.feature import peak_local_max
-
-from scpye.processing.contour_analysis import find_contours, moment_centroid
 
 
 def morph_closing(bw, ksize=3, iters=1):
@@ -71,29 +67,6 @@ def fill_bw(bw, cntrs, in_place=False):
     cv2.drawContours(bw_filled, cntrs, -1, color=255, thickness=-1)
 
     return bw_filled
-
-
-# def local_max_points(bw, min_area):
-#     """
-#     Find position of local max points
-#     :param bw:
-#     :param min_area:
-#     :return:
-#     """
-#     cntrs = find_contours(bw)
-#
-#     points, good_cntrs = [], []
-#     for cntr in cntrs:
-#         mmt = cv2.moments(cntr)
-#         cntr_area = cv2.contourArea(cntr)
-#         if cntr_area > min_area:
-#             points.append(moment_centroid(mmt))
-#             good_cntrs.append(cntr)
-#
-#     bw_filled = fill_bw(bw, good_cntrs, in_place=False)
-#
-#     points = np.atleast_2d(np.array(points))
-#     return points, bw_filled
 
 
 def scale_array(data, val=100):

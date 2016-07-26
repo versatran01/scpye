@@ -1,7 +1,6 @@
 from __future__ import (print_function, division, absolute_import)
 
 import cv2
-import numpy as np
 import scipy.ndimage as ndi
 from skimage.feature import peak_local_max
 from skimage.morphology import watershed
