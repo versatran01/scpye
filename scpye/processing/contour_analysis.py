@@ -1,5 +1,6 @@
 from __future__ import (print_function, absolute_import, division)
 
+from collections import namedtuple
 import cv2
 import numpy as np
 
@@ -8,6 +9,8 @@ http://docs.opencv.org/trunk/d3/d05/tutorial_py_table_of_contents_contours.html#
 """
 
 blob_dtype = [('bbox', np.int, 4), ('prop', np.float, 4)]
+
+RegionProp = namedtuple('RegionProp', ('blob', 'cntr'))
 
 
 def analyze_contours_bw(bw, min_area=4):
@@ -27,9 +30,9 @@ def analyze_contours(contours, min_area):
     """
     :param contours:
     :param min_area:
-    :return:
+    :return: region properties
     """
-    blobs, cntrs = [], []
+    region_props = []
     for cntr in contours:
         cntr_area = contour_area(cntr)
         if cntr_area >= min_area:
@@ -41,11 +44,9 @@ def analyze_contours(contours, min_area):
             # Assemble to recarray
             blob = np.array((bbox, (cntr_area, aspect, extent, solidity)),
                             dtype=blob_dtype)
-            blobs.append(blob)
-            cntrs.append(cntr)
+            region_props.append(RegionProp(blob=blob, cntr=cntr))
 
-    blobs = np.array(blobs)
-    return blobs, cntrs
+    return region_props
 
 
 def find_contours(bw):

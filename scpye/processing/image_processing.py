@@ -73,52 +73,36 @@ def fill_bw(bw, cntrs, in_place=False):
     return bw_filled
 
 
-def local_max_points(bw, min_area):
-    """
-    Find position of local max points
-    :param bw:
-    :return:
-    """
-    cntrs = find_contours(bw)
-
-    points, good_cntrs = [], []
-    for cntr in cntrs:
-        mmt = cv2.moments(cntr)
-        cntr_area = cv2.contourArea(cntr)
-        if cntr_area > min_area:
-            points.append(moment_centroid(mmt))
-            good_cntrs.append(cntr)
-
-    bw_filled = fill_bw(bw, good_cntrs, in_place=False)
-
-    points = np.atleast_2d(np.array(points))
-    return points, bw_filled
-
-# def watershed(bbox, bw, v, k=5.5, return_num=False):
+# def local_max_points(bw, min_area):
 #     """
-#     :param bbox: bounding box
-#     :param bw: binary image
-#     :param v: gray scale image
-#     :param k: magic number
-#     :param return_num: return number of labels
+#     Find position of local max points
+#     :param bw:
+#     :param min_area:
 #     :return:
 #     """
-#     min_dist = np.sqrt(bbox_area(bbox)) / k
+#     cntrs = find_contours(bw)
 #
-#     v_bbox = extract_bbox(v, bbox, copy=True)
-#     bw_bbox = extract_bbox(bw, bbox, copy=True)
-#     v_bbox[bw_bbox == 0] = 0
-#     dist = ndi.distance_transform_edt(bw_bbox) * 2
-#     dist += v_bbox
+#     points, good_cntrs = [], []
+#     for cntr in cntrs:
+#         mmt = cv2.moments(cntr)
+#         cntr_area = cv2.contourArea(cntr)
+#         if cntr_area > min_area:
+#             points.append(moment_centroid(mmt))
+#             good_cntrs.append(cntr)
 #
-#     local_max = peak_local_max(dist, indices=False, min_distance=min_dist,
-#                                labels=bw_bbox)
-#     if np.count_nonzero(local_max) > 1:
-#         markers = ndi.label(local_max, structure=np.ones((3, 3)))[0]
-#         label = watershed(-dist, markers, mask=bw_bbox)
-#     else:
-#         label = bw_bbox
-#     if return_num:
-#         return label, np.max(label)
-#     else:
-#         return label
+#     bw_filled = fill_bw(bw, good_cntrs, in_place=False)
+#
+#     points = np.atleast_2d(np.array(points))
+#     return points, bw_filled
+
+
+def scale_array(data, val=100):
+    """
+    Scale array to value
+    :param data:
+    :param val:
+    :return:
+    """
+    max_data = np.max(data)
+    scale = float(val) / max_data
+    return np.multiply(data, scale)

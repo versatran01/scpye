@@ -1,11 +1,7 @@
 from __future__ import (print_function, division, absolute_import)
 
-from collections import namedtuple
-
 from scpye.processing.image_processing import (clean_bw, fill_bw, u8_from_bw)
 from scpye.processing.contour_analysis import (analyze_contours_bw)
-
-RegionProps = namedtuple('RegionProps', ('blobs', 'cntrs'))
 
 
 class BinaryCleaner(object):
@@ -26,9 +22,11 @@ class BinaryCleaner(object):
         :return:
         """
         bw = u8_from_bw(bw, val=255)
-        bw_cleaned = clean_bw(bw, ksize=self.ksize, iters=self.iters)
+        bw_clean = clean_bw(bw, ksize=self.ksize, iters=self.iters)
 
-        blobs, cntrs = analyze_contours_bw(bw_cleaned, min_area=self.min_area)
-        bw_filled = fill_bw(bw_cleaned, cntrs)
+        region_props = analyze_contours_bw(bw_clean, min_area=self.min_area)
 
-        return bw_filled, RegionProps(blobs=blobs, cntrs=cntrs)
+        cntrs = [rp.cntr for rp in region_props]
+        bw_fill = fill_bw(bw_clean, cntrs)
+
+        return bw_fill, region_props
