@@ -1,22 +1,10 @@
 import os
-from itertools import izip
-
 import cv2
-import numpy as np
-import matplotlib.pyplot as plt
-import scipy.ndimage as ndi
-from skimage.feature import peak_local_max
-from skimage.morphology import watershed
 
 from scpye.processing.binary_cleaner import BinaryCleaner
 from scpye.processing.blob_analyzer import BlobAnalyzer
-from scpye.processing.contour_analysis import find_contours, moment_centroid
-from scpye.processing.image_processing import (u8_from_bw, fill_bw,
-                                               scale_array)
 from scpye.utility.data_manager import DataManager
-from scpye.utility.visualization import draw_bboxes, draw_points
-from scpye.utility.visualization import imshow
-from scpye.tracking.bounding_box import extract_bbox
+from scpye.utility.visualization import imshow, draw_bboxes
 
 # %%
 base_dir = '/home/chao/Workspace/dataset/agriculture'
