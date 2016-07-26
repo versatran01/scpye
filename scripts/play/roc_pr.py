@@ -1,12 +1,9 @@
-import cv2
 import numpy as np
-import matplotlib.pyplot as plt
 
-from scpye.data_manager import DataManager
-from scpye.pipeline_factory import (create_image_pipeline,
-                                    create_feature_pipeline)
-from scpye.training import (create_voting_classifier, cross_validate_classifier)
-from scpye.visualization import imshow
+from scpye.detection.pipeline_factory import (create_image_pipeline,
+                                              create_feature_pipeline)
+from scpye.detection.training import (create_voting_classifier, cross_validate_classifier)
+from scpye.utility.data_manager import DataManager
 
 # %%
 base_dir = '/home/chao/Workspace/dataset/agriculture'

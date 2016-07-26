@@ -10,17 +10,15 @@ from __future__ import division
 
 import sys
 
-# HACK
-from scpye.region_props import gray_from_bw
+from scpye.processing.contour_analysis import gray_from_bw
 
 sys.path.append('..')
 
 import os
 from sklearn.externals import joblib
-from scpye.training import *
 from scpye.blob_analyzer import *
-from scpye.visualization import *
-from scpye.bounding_box import extract_bbox
+from scpye.utility.visualization import *
+from scpye.tracking.bounding_box import extract_bbox
 
 # %%
 base_dir = '/home/chao/Dropbox'

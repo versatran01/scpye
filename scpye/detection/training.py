@@ -1,16 +1,13 @@
 from __future__ import (print_function, absolute_import, division)
 
-from collections import namedtuple
-
-from sklearn.svm import SVC
-from sklearn.linear_model import LogisticRegression
-from sklearn.grid_search import GridSearchCV
-from sklearn.ensemble import (RandomForestClassifier, VotingClassifier)
 from sklearn.cross_validation import train_test_split
+from sklearn.ensemble import (RandomForestClassifier, VotingClassifier)
+from sklearn.grid_search import GridSearchCV
+from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import classification_report
+from sklearn.svm import SVC
 
-from scpye.data_manager import DataManager
-from scpye.exception import ClassifierNotSupportedError
+from scpye.utility.exception import ClassifierNotSupportedError
 
 
 def create_single_classifier(clf_name='svc'):

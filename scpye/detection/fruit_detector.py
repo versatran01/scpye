@@ -1,10 +1,8 @@
 from __future__ import (print_function, division, absolute_import)
 
-import os
-import cv2
 import numpy as np
-from sklearn.externals import joblib
-from scpye.image_pipeline import ImagePipeline
+
+from scpye.detection.image_pipeline import ImagePipeline
 
 
 def get_dark_remover(feature_pipeline):

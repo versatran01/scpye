@@ -2,11 +2,10 @@ from __future__ import (print_function, absolute_import, division)
 
 import cv2
 import numpy as np
-
 from sklearn.feature_extraction.image import extract_patches_2d
 
-from scpye.image_transformer import ImageTransformer, split_label, MaskedData
-from scpye.exception import FeatureNotSupportedError
+from scpye.detection.image_transformer import ImageTransformer, split_label
+from scpye.utility.exception import FeatureNotSupportedError
 
 
 def stack_list(func):

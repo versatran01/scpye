@@ -6,10 +6,8 @@ Created on Thu Feb  4 14:30:18 2016
 """
 
 import os
-import cv2
-import numpy as np
 
-from scpye.visualization import *
+from scpye.utility.visualization import *
 
 # %%
 cwd = os.getcwd()

@@ -5,9 +5,11 @@ Created on Sat Feb 13 12:43:40 2016
 @author: chao
 """
 from __future__ import division
-import numpy as np
+
 import matplotlib.pyplot as plt
-from scpye.data_manager import DataManager
+import numpy as np
+
+from scpye.utility.data_manager import DataManager
 
 base_dir = '/home/chao/Workspace/bag'
 color = 'green'
