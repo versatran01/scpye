@@ -29,7 +29,7 @@ bag_ind = 1
 dm = DataManager(base_dir, color=color, mode=mode, side=side)
 image_dir = os.path.join(dm.image_dir, "frame" + str(bag_ind))
 
-i = 122
+i = 46
 bw_name = 'bw{0:04d}.png'
 bgr_name = 'bgr{0:04d}.png'
 
@@ -48,11 +48,7 @@ disp_bw = cv2.cvtColor(bw, cv2.COLOR_GRAY2BGR)
 
 # %%
 ba = BlobAnalyzer()
-fruits = ba.analyze(bgr, bw, region_props)
-
-draw_bboxes(disp_bgr, single_bboxes)
-draw_bboxes(disp_bw, single_bboxes)
-#imshow(disp_bgr, disp_bw, interp='none', figsize=(12, 16))
+fruits = ba.analyze(bgr, region_props)
 
 # %%
 #bboxes = []
@@ -92,6 +88,4 @@ draw_bboxes(disp_bw, single_bboxes)
 #more_single_blobs = np.array(more_single_blobs)
 draw_bboxes(disp_bgr, fruits, color=(0, 255, 0))
 draw_bboxes(disp_bw, fruits, color=(0, 255, 0))
-#draw_bboxes(disp_bgr, single_bboxes, color=(255, 255, 0))
-#draw_bboxes(disp_bw, single_bboxes, color=(255, 255, 0))
 imshow(disp_bgr, disp_bw, interp='none', figsize=(12, 16))
