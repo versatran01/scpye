@@ -135,16 +135,7 @@ def contour_equi_diameter(cntr, cntr_area=None):
 def moment_centroid(mmt):
     """
     Centroid of moment
-    :param mmt:
-    :return:
+    :param mmt: moment
+    :return: (x, y)
     """
     return np.array((mmt['m10'] / mmt['m00'], mmt['m01'] / mmt['m00']))
-
-# Ellipse
-# center, axes, angle = cv2.fitEllipse(cntr)
-# maj_ind = np.argmax(axes)
-# maj_axes = axes[maj_ind]
-# min_axes = axes[1 - maj_ind]
-# axes_ratio = min_axes / maj_axes
-# Eccentricity
-# eccen = np.sqrt(1 - axes_ratio ** 2)
