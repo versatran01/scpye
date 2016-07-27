@@ -8,8 +8,8 @@ Created on Thu Feb 11 21:34:34 2016
 # %% 
 from scpye.blob_analyzer import *
 from scpye.detection.fruit_detector import FruitDetector
-from scpye.utility.data_manager import DataManager
-from scpye.utility.visualization import *
+from scpye.utils.data_manager import DataManager
+from scpye.utils.drawing import *
 
 save_dir = '/home/chao/Desktop'
 

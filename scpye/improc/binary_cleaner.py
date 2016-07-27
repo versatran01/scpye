@@ -1,7 +1,7 @@
 from __future__ import (print_function, division, absolute_import)
 
-from scpye.processing.image_processing import (clean_bw, fill_bw, u8_from_bw)
-from scpye.processing.contour_analysis import (analyze_contours_bw)
+from scpye.improc.image_processing import (clean_bw, fill_bw, u8_from_bw)
+from scpye.improc.contour_analysis import (analyze_contours_bw)
 
 
 class BinaryCleaner(object):

@@ -9,7 +9,7 @@ from __future__ import division
 import matplotlib.pyplot as plt
 import numpy as np
 
-from scpye.utility.data_manager import DataManager
+from scpye.utils.data_manager import DataManager
 
 base_dir = '/home/chao/Workspace/bag'
 color = 'green'

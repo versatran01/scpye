@@ -1,5 +1,18 @@
 import cv2
 import numpy as np
+from skimage import exposure
+
+
+def enhance_contrast(image, pmin=2.0, pmax=99.8):
+    """
+    Enhance image contrast
+    :param image:
+    :param pmin:
+    :param pmax:
+    :return:
+    """
+    vmin, vmax = np.percentile(image, (pmin, pmax))
+    return exposure.rescale_intensity(image, in_range=(vmin, vmax))
 
 
 def morph_closing(bw, ksize=3, iters=1):

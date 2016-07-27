@@ -7,7 +7,7 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import classification_report
 from sklearn.svm import SVC
 
-from scpye.utility.exception import ClassifierNotSupportedError
+from scpye.utils.exception import ClassifierNotSupportedError
 
 
 def create_single_classifier(clf_name='svc'):

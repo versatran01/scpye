@@ -3,7 +3,7 @@ import unittest
 import numpy as np
 import numpy.testing as nt
 
-from scpye.tracking.bounding_box import *
+from scpye.track.bounding_box import *
 
 
 class TestBbox(unittest.TestCase):

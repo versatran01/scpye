@@ -11,9 +11,9 @@ from scpye.testing import get_positive_bw, get_prediction_bw
 from skimage.measure import label
 
 from scpye.detection.training import *
-from scpye.processing.contour_analysis import clean_bw, fill_bw, gray_from_bw
-from scpye.tracking.bounding_box import extract_bbox
-from scpye.utility.visualization import *
+from scpye.improc.contour_analysis import clean_bw, fill_bw, gray_from_bw
+from scpye.track.bounding_box import extract_bbox
+from scpye.utils.drawing import *
 
 # %%
 base_dir = '/home/chao/Dropbox'

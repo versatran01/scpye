@@ -6,7 +6,7 @@ import rosbag
 from cv_bridge import CvBridge, CvBridgeError
 from sklearn.externals import joblib
 
-from scpye.utility.exception import ImageNotFoundError
+from scpye.utils.exception import ImageNotFoundError
 
 
 def make_binary(data):

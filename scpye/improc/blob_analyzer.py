@@ -5,9 +5,9 @@ import scipy.ndimage as ndi
 from skimage.feature import peak_local_max
 from skimage.morphology import watershed
 
-from scpye.tracking.bounding_box import extract_bbox
-from scpye.processing.image_processing import (fill_bw, scale_array, u8_from_bw)
-from scpye.processing.contour_analysis import contour_bounding_rect
+from scpye.track.bounding_box import extract_bbox
+from scpye.improc.image_processing import (fill_bw, scale_array, u8_from_bw)
+from scpye.improc.contour_analysis import contour_bounding_rect
 
 
 class BlobAnalyzer(object):

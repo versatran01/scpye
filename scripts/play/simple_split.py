@@ -4,7 +4,7 @@ from __future__ import division
 from scpye.testing import get_prediction_bw
 
 from scpye.blob_analyzer import *
-from scpye.utility.visualization import *
+from scpye.utils.drawing import *
 
 # %%
 base_dir = '/home/chao/Dropbox'

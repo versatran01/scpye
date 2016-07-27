@@ -2,7 +2,7 @@ from __future__ import (print_function, division, absolute_import)
 
 import numpy as np
 
-from scpye.detection.image_pipeline import ImagePipeline
+from scpye.detect.image_pipeline import ImagePipeline
 
 
 def get_dark_remover(feature_pipeline):

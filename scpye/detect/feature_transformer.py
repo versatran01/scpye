@@ -4,8 +4,8 @@ import cv2
 import numpy as np
 from sklearn.feature_extraction.image import extract_patches_2d
 
-from scpye.detection.image_transformer import ImageTransformer, split_label
-from scpye.utility.exception import FeatureNotSupportedError
+from scpye.detect.image_transformer import (ImageTransformer, split_label)
+from scpye.utils.exception import FeatureNotSupportedError
 
 
 def stack_list(func):
