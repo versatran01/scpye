@@ -12,13 +12,13 @@ base_dir = '/home/chao/Workspace/dataset/agriculture'
 color = 'red'
 mode = 'slow_flash'
 side = 'north'
-bag_ind = 1
+bag_ind = 3
 
 # %%
 dm = DataManager(base_dir, color=color, mode=mode, side=side)
 image_dir = os.path.join(dm.image_dir, "frame" + str(bag_ind))
 
-i = 15
+i = 150
 bw_name = 'bw{0:04d}.png'
 bgr_name = 'bgr{0:04d}.png'
 
