@@ -73,12 +73,12 @@ def draw_ellipses(image, ellipses, color=(255, 0, 0), thickness=1):
                     thickness=thickness)
 
 
-def draw_contours(image, cs, color=(255, 0, 0), thickness=1):
-    cv2.drawContours(image, cs, -1, color, thickness)
+def draw_contour(image, cntr, color=(255, 0, 0), thickness=1):
+    cv2.drawContours(image, [cntr], 0, color, thickness)
 
 
-def draw_contour(image, cnt, color=(255, 0, 0), thickness=1):
-    cv2.drawContours(image, [cnt], 0, color, thickness)
+def draw_contours(image, cntrs, color=(255, 0, 0), thickness=1):
+    cv2.drawContours(image, cntrs, -1, color, thickness)
 
 
 def draw_text(image, text, point, color=(255, 0, 0), scale=0.5, thickness=1):

@@ -29,6 +29,18 @@ def extract_bbox(image, bbox, copy=False):
         return image[y:y + h, x:x + w, ...]
 
 
+def bbox_shift(bbox, center):
+    """
+    Shift bbox to new center
+    :param bbox:
+    :param center:
+    :return:
+    """
+    x, y, w, h = bbox
+    xn, yn = center
+    return np.array([xn - w / 2, yn - h / 2, w, h], np.float)
+
+
 def bbox_center(bbox):
     """
     Center of a bounding box
@@ -36,7 +48,7 @@ def bbox_center(bbox):
     :return: center of bbox
     """
     x, y, w, h = bbox
-    return np.array([x + w / 2, y + h / 2])
+    return np.array([x + w / 2, y + h / 2], np.float)
 
 
 def bbox_distsq(bbox1, bbox2):

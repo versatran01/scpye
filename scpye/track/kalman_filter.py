@@ -5,19 +5,38 @@ import numpy.linalg as la
 
 
 class KalmanFilter(object):
-    def __init__(self, dim_x=4):
+    def __init__(self, dim_x=4, x0=None, P0=None, Q=None):
         assert dim_x > 0, "dim_x must be > 0"
         self.dim_x = dim_x
 
-        self.x = np.zeros(dim_x)  # state
-        self.P = np.eye(dim_x)  # state cov
-        self.Q = np.eye(dim_x)  # process cov
+        # state
+        if x0 is None:
+            self.x = np.zeros(dim_x)
+        else:
+            self.x = x0
+
+        # state cov
+        if P0 is None:
+            self.P = np.eye(dim_x)
+        else:
+            self.P = P0
+
+        # process cov
+        if Q is None:
+            self.Q = np.eye(dim_x)
+        else:
+            self.Q = Q
 
         # These are fixed
         self.I = np.eye(dim_x)
-        self.F = np.array([[1.0, 1], [0, 0]])  # state transition matrix
+        I2 = np.eye(2)
+        O2 = np.zeros((2, 2))
+        self.F = np.zeros((dim_x, dim_x))  # state transition matrix
+        self.F[:2, :2] = I2
+        self.F[:2, 2:] = I2
         self.F_T = np.transpose(self.F)
-        self.H = np.array([[1.0, 0], [0, 0]])  # measurement function
+        self.H = np.zeros((dim_x, dim_x))  # measurement function
+        self.H[:2, :2] = I2
         self.H_T = np.transpose(self.H)
 
     def init(self, x0, P0):
@@ -26,17 +45,20 @@ class KalmanFilter(object):
         self.P = P0
 
     def predict(self):
-        # x <- F * x + B * u
+        # x = F * x + B * u
         self.x = np.dot(self.F, self.x)
-        # P <- F * P * F^T + Q
+        # P = F * P * F^T + Q
         self.P = self.F.dot(self.P).dot(self.F) + self.Q
+        return self.x, self.P
 
-    def update(self, z_p, R):
+    def update(self, z_p, R_p):
         # z is [z_x, z_y, 0, 0]
+        R = np.zeros((self.dim_x, self.dim_x))
+        R[:2, :2] = R_p
         z = np.hstack((z_p, np.zeros(2)))
 
-        # y = z - H * z
         Hx = np.dot(self.H, self.x)
+        # y = z - H * z
         y = z - Hx
         # S = H * P * H^T + R
         S = self.H.dot(self.P).dot(self.H_T) + R

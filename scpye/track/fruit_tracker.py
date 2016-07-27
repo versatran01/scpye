@@ -22,9 +22,9 @@ class FruitTracker(object):
         self.total_counts = 0
         self.frame_counts = []
 
+        self.gray_prev = None
         # Optical flow parameters
         self.max_level = max_level
-        self.gray_prev = None
         self.win_size = 0
         self.init_flow = np.zeros(2, np.int)
 
