@@ -19,8 +19,8 @@ def extract_bbox(image, bbox, copy=False):
     Extract region of image defined by bbox
     :param image: image
     :param bbox: bbox
+    :param copy: whether to return a copy or reference
     :return: region of image
-    :rtype: numpy.ndarray
     """
     x, y, w, h = bbox
     if copy:
@@ -33,9 +33,7 @@ def bbox_center(bbox):
     """
     Center of a bounding box
     :param bbox: bbox
-    :type bbox: numpy.ndarray
     :return: center of bbox
-    :rtype: numpy.ndarray
     """
     x, y, w, h = bbox
     return np.array([x + w / 2, y + h / 2])
@@ -44,12 +42,9 @@ def bbox_center(bbox):
 def bbox_distsq(bbox1, bbox2):
     """
     Squared distance between bbox1 and bbox2
-    :param bbox1: bbox
-    :type bbox1: numpy.ndarray
-    :param bbox2: bbox
-    :type bbox2: numpy.ndarray
+    :param bbox1: bbox1
+    :param bbox2: bbox2
     :return: squared distance between center of bbox
-    :rtype: float
     """
     cx1, cy1 = bbox_center(bbox1)
     cx2, cy2 = bbox_center(bbox2)
@@ -59,12 +54,9 @@ def bbox_distsq(bbox1, bbox2):
 def bbox_intersect(bbox1, bbox2):
     """
     Whether two bboxes intersect or not
-    :param bbox1: bbox
-    :type bbox1: numpy.ndarray
-    :param bbox2: bbox
-    :type bbox2: numpy.ndarray
+    :param bbox1: bbox1
+    :param bbox2: bbox2
     :return: True if two bboxes intersect
-    :rtype: bool
     """
     x1, y1, w1, h1 = bbox1
     x2, y2, w2, h2 = bbox2
@@ -76,11 +68,9 @@ def bbox_intersect(bbox1, bbox2):
 def bbox_intersect_area(bbox1, bbox2):
     """
     Intersection area of two bboxes
-    :param bbox1: bbox
-    :type bbox1: numpy.ndarray
-    :param bbox2: bbox
+    :param bbox1: bbox1
+    :param bbox2: bbox2
     :return: intersection area
-    :rtype: float
     """
     x1, y1, w1, h1 = bbox1
     x2, y2, w2, h2 = bbox2
@@ -96,7 +86,6 @@ def bbox_overlap_ratio(bbox1, bbox2, ratio_type=OverlapRatio.Union):
     :param bbox2: bbox
     :param ratio_type:
     :return: overlap ratio
-    :rtype: float
     """
     if not bbox_intersect(bbox1, bbox2):
         return 0.0
@@ -123,12 +112,25 @@ def bbox_area(bbox):
 
 
 def bbox_distsq_area_ratio(bbox1, bbox2):
+    """
+
+    :param bbox1:
+    :param bbox2:
+    :return:
+    """
     dist_sq = bbox_distsq(bbox1, bbox2)
     area = bbox_area(bbox1) + bbox_area(bbox2)
     return dist_sq / area
 
 
 def bboxes_overlap_ratio(bboxes1, bboxes2, ratio_type=OverlapRatio.Union):
+    """
+
+    :param bboxes1:
+    :param bboxes2:
+    :param ratio_type:
+    :return:
+    """
     bboxes1 = np.atleast_2d(bboxes1)
     bboxes2 = np.atleast_2d(bboxes2)
     n1 = len(bboxes1)
@@ -143,6 +145,12 @@ def bboxes_overlap_ratio(bboxes1, bboxes2, ratio_type=OverlapRatio.Union):
 
 
 def bboxes_assignment_cost(bboxes1, bboxes2):
+    """
+
+    :param bboxes1:
+    :param bboxes2:
+    :return:
+    """
     bboxes1 = np.atleast_2d(bboxes1)
     bboxes2 = np.atleast_2d(bboxes2)
     n1 = len(bboxes1)

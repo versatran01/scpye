@@ -1,18 +1,14 @@
 from __future__ import (print_function, division, absolute_import)
 
-import logging
-
 import cv2
 import numpy as np
 
 from scpye.track.assignment import hungarian_assignment
-from scpye.track.bounding_box import bboxes_assignment_cost, bbox_center
+from scpye.track.bounding_box import (bboxes_assignment_cost, bbox_center)
 from scpye.track.fruit_track import FruitTrack
 from scpye.track.optical_flow import calc_optical_flow
 from scpye.utils.drawing import (draw_bboxes, draw_optical_flows,
                                  draw_bboxes_matches, draw_text, Colors)
-
-logging.basicConfig(level=logging.INFO)
 
 
 class FruitTracker(object):
@@ -26,13 +22,13 @@ class FruitTracker(object):
         self.total_counts = 0
         self.frame_counts = []
 
+        # Optical flow parameters
         self.max_level = max_level
         self.gray_prev = None
         self.win_size = 0
         self.init_flow = np.zeros(2, np.int)
 
         self.disp = None
-        self.logger = logging.getLogger('fruit_tracker')
 
     @property
     def initialized(self):
@@ -47,7 +43,6 @@ class FruitTracker(object):
         for fruit in fruits:
             track = FruitTrack(fruit, self.init_flow)
             tracks.append(track)
-        self.logger.debug('Add {0} new tracks'.format(len(fruits)))
 
     @staticmethod
     def calc_win_size(gray, k=16):
@@ -68,7 +63,7 @@ class FruitTracker(object):
         :param image: gray scale image
         :param fruits: new fruits
         """
-        # Convert to grayscale
+        # Convert to greyscale
         gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
         self.disp = image.copy()
 
@@ -76,23 +71,15 @@ class FruitTracker(object):
         draw_bboxes(self.disp, fruits[:, :4], color=Colors.detect)
 
         if not self.initialized:
-            self.logger.info('Initializing fruit tracker')
-
             self.gray_prev = gray
             self.win_size = self.calc_win_size(gray)
             self.init_flow = np.array([self.win_size, 0], np.int)
-            self.logger.debug(
-                'win_size: {0}, init_flow: {1}'.format(self.win_size,
-                                                       self.init_flow))
 
             self.add_new_tracks(self.tracks, fruits)
             return
 
         valid_tracks, invalid_tracks = self.predict_tracks(gray)
 
-        self.logger.debug(
-            'Tracks valid/invalid: {0}/{1}'.format(len(valid_tracks),
-                                                   len(invalid_tracks)))
         matched_tracks, lost_tracks = self.match_tracks(valid_tracks, fruits)
 
         # Update matched tracks
@@ -130,7 +117,6 @@ class FruitTracker(object):
         # New optical flow, used to update init_flow
         flows = points2 - points1
         self.init_flow = np.squeeze(np.mean(flows, axis=0))
-        self.logger.debug('Average flow: {0}'.format(self.init_flow))
 
         # ===== DRAW OPTICAL FLOW =====
         draw_optical_flows(self.disp, points1, points2, status=status,
@@ -176,11 +162,6 @@ class FruitTracker(object):
             track.correct(fruit)
             matched_tracks.append(track)
 
-        self.logger.debug(
-            'Matched/lost/new: {0}/{1}/{2}'.format(len(match_inds),
-                                                   len(lost_inds),
-                                                   len(new_inds)))
-
         # Add new tracks
         new_fruits = fruits[new_inds]
         self.add_new_tracks(matched_tracks, new_fruits)
@@ -210,7 +191,6 @@ class FruitTracker(object):
             if track.age >= self.min_age:
                 temp_sum += track.num
 
-        self.logger.debug('Lost tracks sum: {0}'.format(temp_sum))
         self.frame_counts.append(temp_sum)
         self.total_counts += temp_sum
 

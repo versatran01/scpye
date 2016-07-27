@@ -12,10 +12,10 @@ def points_inside_image(points, image, b=4):
     :param b: distance from border
     :return:
     """
-    h, w = image.shape
+    h, w = np.shape(image)
     px = points[:, :, 0]
     py = points[:, :, 1]
-    return (px >= b) & (px < w - b) & (py >= b) & (py < h - b)
+    return (px >= b) and (px < w - b) and (py >= b) and (py < h - b)
 
 
 def _prepare_points_cv(points):
