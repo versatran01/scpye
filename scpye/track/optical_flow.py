@@ -4,7 +4,7 @@ import cv2
 import numpy as np
 
 
-def points_inside_image(points, image, b=4):
+def points_inside_image(points, image, b=0):
     """
     Check if point is inside image with a certain margin
     :param points:
@@ -15,7 +15,7 @@ def points_inside_image(points, image, b=4):
     h, w = np.shape(image)
     px = points[:, :, 0]
     py = points[:, :, 1]
-    return (px >= b) and (px < w - b) and (py >= b) and (py < h - b)
+    return (px >= b) & (px < w - b) & (py >= b) & (py < h - b)
 
 
 def _prepare_points_cv(points):

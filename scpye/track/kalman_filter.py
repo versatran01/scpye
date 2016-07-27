@@ -5,53 +5,68 @@ import numpy.linalg as la
 
 
 class KalmanFilter(object):
-    def __init__(self, dim_x=4, x0=None, P0=None, Q=None):
-        assert dim_x > 0, "dim_x must be > 0"
-        self.dim_x = dim_x
+    def __init__(self, x0=None, P0=None, Q=None):
+        self.dim_x = 4
 
         # state
         if x0 is None:
-            self.x = np.zeros(dim_x)
+            self.x = np.zeros(self.dim_x)
         else:
             self.x = x0
 
         # state cov
         if P0 is None:
-            self.P = np.eye(dim_x)
+            self.P = np.eye(self.dim_x)
         else:
             self.P = P0
 
         # process cov
         if Q is None:
-            self.Q = np.eye(dim_x)
+            self.Q = np.eye(self.dim_x)
         else:
             self.Q = Q
 
         # These are fixed
-        self.I = np.eye(dim_x)
+        self.I = np.eye(self.dim_x)
         I2 = np.eye(2)
-        O2 = np.zeros((2, 2))
-        self.F = np.zeros((dim_x, dim_x))  # state transition matrix
+        self.F = np.zeros((self.dim_x, self.dim_x))  # state transition matrix
         self.F[:2, :2] = I2
         self.F[:2, 2:] = I2
         self.F_T = np.transpose(self.F)
-        self.H = np.zeros((dim_x, dim_x))  # measurement function
+        self.H = np.zeros((self.dim_x, self.dim_x))  # measurement function
         self.H[:2, :2] = I2
         self.H_T = np.transpose(self.H)
 
-    def init(self, x0, P0):
-        # TODO: initialize x, P, Q
+    def init(self, x0, P0, Q):
+        """
+        Initialization of a Kalman filter
+        :param x0:
+        :param P0:
+        :param Q:
+        :return:
+        """
         self.x = x0
         self.P = P0
+        self.Q = Q
 
     def predict(self):
+        """
+        Prediction step of a Kalman filter
+        :return:
+        """
         # x = F * x + B * u
         self.x = np.dot(self.F, self.x)
         # P = F * P * F^T + Q
         self.P = self.F.dot(self.P).dot(self.F) + self.Q
         return self.x, self.P
 
-    def update(self, z_p, R_p):
+    def update_pos(self, z_p, R_p):
+        """
+        Update step of a Kalman filter
+        :param z_p:
+        :param R_p:
+        :return:
+        """
         # z is [z_x, z_y, 0, 0]
         R = np.zeros((self.dim_x, self.dim_x))
         R[:2, :2] = R_p

@@ -16,7 +16,7 @@ class OverlapRatio:
 
 def extract_bbox(image, bbox, copy=False):
     """
-    Extract region of image defined by bbox
+    Extract bbox from image
     :param image: image
     :param bbox: bbox
     :param copy: whether to return a copy or reference
@@ -29,7 +29,7 @@ def extract_bbox(image, bbox, copy=False):
         return image[y:y + h, x:x + w, ...]
 
 
-def bbox_shift(bbox, center):
+def shift_bbox(bbox, center):
     """
     Shift bbox to new center
     :param bbox:
@@ -38,7 +38,16 @@ def bbox_shift(bbox, center):
     """
     x, y, w, h = bbox
     xn, yn = center
-    return np.array([xn - w / 2, yn - h / 2, w, h], np.float)
+    return np.array([xn - w / 2, yn - h / 2, w, h], dtype=int)
+
+
+def bbox_area(bbox):
+    """
+    Area of bbox
+    :param bbox: bbox
+    :return: bbox area
+    """
+    return bbox[-1] * bbox[-2]
 
 
 def bbox_center(bbox):
@@ -48,7 +57,7 @@ def bbox_center(bbox):
     :return: center of bbox
     """
     x, y, w, h = bbox
-    return np.array([x + w / 2, y + h / 2], np.float)
+    return np.array([x + w / 2.0, y + h / 2.0])
 
 
 def bbox_distsq(bbox1, bbox2):
@@ -103,24 +112,15 @@ def bbox_overlap_ratio(bbox1, bbox2, ratio_type=OverlapRatio.Union):
         return 0.0
 
     # intersection area is a * b, where a is width and b is height
-    area_intersection = bbox_intersect_area(bbox1, bbox2)
+    intersect_area = bbox_intersect_area(bbox1, bbox2)
     area_b1 = bbox_area(bbox1)
     area_b2 = bbox_area(bbox2)
     if ratio_type == OverlapRatio.Union:
-        area_union = area_b1 + area_b2 - area_intersection
-        return area_intersection / area_union
+        area_union = area_b1 + area_b2 - intersect_area
+        return intersect_area / area_union
     elif ratio_type == OverlapRatio.Min:
         area_min = min(area_b1, area_b2)
-        return area_intersection / area_min
-
-
-def bbox_area(bbox):
-    """
-    Area of bbox
-    :param bbox: bbox
-    :return: bbox area
-    """
-    return bbox[-1] * bbox[-2]
+        return intersect_area / area_min
 
 
 def bbox_distsq_area_ratio(bbox1, bbox2):
@@ -173,7 +173,7 @@ def bboxes_assignment_cost(bboxes1, bboxes2):
     for i1, b1 in enumerate(bboxes1):
         for i2, b2 in enumerate(bboxes2):
             overlap_ratio = bbox_overlap_ratio(b1, b2)
-            overlap_cost = 1 - overlap_ratio
-            distance2_area_cost = bbox_distsq_area_ratio(b1, b2)
-            C[i1, i2] = overlap_cost + distance2_area_cost
+            overlap_ratio_cost = 1 - overlap_ratio
+            distsq_area_ratio_cost = bbox_distsq_area_ratio(b1, b2)
+            C[i1, i2] = overlap_ratio_cost + distsq_area_ratio_cost
     return C
