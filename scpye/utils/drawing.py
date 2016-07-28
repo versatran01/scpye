@@ -3,6 +3,7 @@ from __future__ import (print_function, division, absolute_import)
 import cv2
 import numpy as np
 import matplotlib.pyplot as plt
+from itertools import izip
 
 
 class Colors:
@@ -90,25 +91,21 @@ def draw_text(image, text, point, color=(255, 0, 0), scale=0.5, thickness=1):
                 thickness=thickness)
 
 
-def draw_optical_flows(image, points1, points2, status=None, color=(255, 0, 0)):
+def draw_optical_flows(image, points1, points2, status=None, color=(255, 0, 0),
+                       thickness=1, draw_invalid=False):
     points1 = np.atleast_2d(points1)
     points2 = np.atleast_2d(points2)
 
     if status is None:
-        for pt1, pt2 in zip(points1, points2):
+        status = np.ones(len(points1))
+
+    for pt1, pt2, st in izip(points1, points2, status):
+        if st or draw_invalid:
             a, b = pt1.ravel()
             c, d = pt2.ravel()
 
-            cv2.line(image, (a, b), (c, d), color=color, thickness=1)
+            cv2.line(image, (a, b), (c, d), color=color, thickness=thickness)
             cv2.circle(image, (c, d), 1, color=color, thickness=-1)
-    else:
-        for pt1, pt2, st in zip(points1, points2, status):
-            if st:
-                a, b = pt1.ravel()
-                c, d = pt2.ravel()
-
-                cv2.line(image, (a, b), (c, d), color=color, thickness=1)
-                cv2.circle(image, (c, d), 1, color=color, thickness=-1)
 
 
 def draw_bboxes_matches(image, matches, bboxes1, bboxes2, color, thickness=1):

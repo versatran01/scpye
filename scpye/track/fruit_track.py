@@ -26,6 +26,7 @@ class FruitTrack(object):
         self.bbox = fruit
         self.age = 1
         self.hist = []
+        self.prev_pos = None
 
         # every track will initialize its own kalman filter
         init_pos = bbox_center(self.bbox)
@@ -40,6 +41,10 @@ class FruitTrack(object):
         return self.kf.x[:2].copy()
 
     @property
+    def vel(self):
+        return self.kf.x[2:].copy()
+
+    @property
     def pos_cov(self):
         return self.kf.P[:2, :2].copy()
 
@@ -52,20 +57,28 @@ class FruitTrack(object):
         """
         Predict new location of the tracking
         """
+        self.prev_pos = self.pos
         self.kf.predict()
         self.bbox = shift_bbox(self.bbox, self.pos)
 
-    def correct(self, fruit):
+    def correct_pos(self, pos, pos_cov):
         """
-        Correct location of the tracking
-        :param fruit:
+        Correct location of the track from pos input
+        :param pos:
+        :param pos_cov:
         """
-        # bbox_new = fruit[:4]
-        # self.num = fruit[-1]
-        # # Update flow first
-        # self.flow += (bbox_new[:2] - self.bbox[:2]) / 2
-        # # Then update bbox
-        # self.bbox = bbox_new
-        # # Increment age
-        # self.age += 1
-        pass
+        vel = pos - self.prev_pos
+        z = np.hstack((pos, vel))
+        R = np.hstack((pos_cov, np.ones(2)))
+        self.kf.update(z, R)
+        self.bbox = shift_bbox(self.bbox, self.pos)
+
+    def correct_bbox(self, bbox, bbox_cov):
+        """
+        Correct location of the track from bbox input
+        :param bbox:
+        :param bbox_cov:
+        :return:
+        """
+        pos = bbox_center(bbox)
+        self.correct_pos(pos, bbox_cov)

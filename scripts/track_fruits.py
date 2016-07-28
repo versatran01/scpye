@@ -1,6 +1,7 @@
 import os
 import cv2
 import numpy as np
+from itertools import izip
 
 from scpye.improc.binary_cleaner import BinaryCleaner
 from scpye.improc.blob_analyzer import BlobAnalyzer
@@ -8,9 +9,10 @@ from scpye.utils.data_manager import DataManager
 from scpye.utils.drawing import imshow, draw_bboxes
 from scpye.improc.image_processing import enhance_contrast
 
-
 from scpye.track.fruit_track import FruitTrack
-from scpye.utils.drawing import (draw_ellipses, draw_bboxes)
+from scpye.utils.drawing import (draw_ellipses, draw_bboxes, draw_points,
+                                 draw_optical_flows)
+from scpye.track.optical_flow import calc_optical_flow
 
 # %%
 base_dir = '/home/chao/Workspace/dataset/agriculture'
@@ -30,7 +32,11 @@ tracks = []
 init = False
 prev_gray = None
 init_flow = np.array([38, 0])
-proc_cov = np.diag([5, 1, 0, 0])
+proc_cov = np.diag([5, 2, 0, 0])
+
+win_size = 31
+max_level = 3
+pos_cov = (1, 1)
 
 for i in range(5, 8):
     bw_file = os.path.join(image_dir, bw_name.format(i))
@@ -48,6 +54,9 @@ for i in range(5, 8):
     ba = BlobAnalyzer()
     fruits = ba.analyze(bgr, region_props)
 
+    draw_bboxes(disp_bgr, fruits, color=(0, 255, 0))
+    draw_bboxes(disp_bw, fruits, color=(0, 255, 0))
+
     if prev_gray is None:
         prev_gray = gray
         for fruit in fruits:
@@ -56,18 +65,51 @@ for i in range(5, 8):
     else:
         # Main loop
         # Prediction
-        prev_points = [t.pos for t in tracks]
+        # get previous points
+
+        # predict
         for track in tracks:
             track.predict()
-        init_points = [t.pos for t in tracks]
-    bboxes = [t.bbox for t in tracks]
-    ellipses = [t.cov_ellipse for t in tracks]
+        pred_bboxes = [t.bbox for t in tracks]
+        draw_bboxes(disp_bgr, pred_bboxes, color=(255, 0, 0))
+        draw_bboxes(disp_bw, pred_bboxes, color=(255, 0, 0))
 
-    draw_ellipses(disp_bgr, ellipses)
-    draw_ellipses(disp_bw, ellipses)
-    draw_bboxes(disp_bgr, bboxes, color=(255, 0, 0))
-    draw_bboxes(disp_bw, bboxes, color=(255, 0, 0))
-    draw_bboxes(disp_bgr, fruits, color=(0, 255, 0))
-    draw_bboxes(disp_bw, fruits, color=(0, 255, 0))
+        # get predicted points
+        prev_points = [t.prev_pos for t in tracks]
+        init_points = [t.pos for t in tracks]
+        # calculate optical flow
+        prev_points, curr_points, status = calc_optical_flow(prev_gray, gray,
+                                                             prev_points,
+                                                             init_points,
+                                                             win_size,
+                                                             max_level)
+        draw_optical_flows(disp_bgr, prev_points, curr_points, status,
+                           color=(255, 0, 255))
+        draw_optical_flows(disp_bw, prev_points, curr_points, status,
+                           color=(255, 0, 255))
+        # update tracks
+        updated_tracks, lost_tracks = [], []
+        for track, point, stat in izip(tracks, curr_points, status):
+            if stat:
+                track.correct_pos(point, pos_cov)
+                updated_tracks.append(track)
+            else:
+                lost_tracks.append(track)
+        updated_bboxes = [t.bbox for t in updated_tracks]
+        ellipses = [t.cov_ellipse for t in updated_tracks]
+        draw_bboxes(disp_bgr, updated_bboxes, color=(255, 255, 0))
+        draw_bboxes(disp_bw, updated_bboxes, color=(255, 255, 0))
+        draw_ellipses(disp_bgr, ellipses)
+        draw_ellipses(disp_bw, ellipses)
+
+        prev_gray = gray
+
+#    bboxes = [t.bbox for t in tracks]
+#
+#
+
+#    draw_bboxes(disp_bgr, bboxes, color=(255, 0, 0))
+#    draw_bboxes(disp_bw, bboxes, color=(255, 0, 0))
+
 
     imshow(disp_bgr, disp_bw, interp='none', figsize=(12, 16))
