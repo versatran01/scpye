@@ -32,22 +32,11 @@ class KalmanFilter(object):
         self.F = np.zeros((self.dim_x, self.dim_x))  # state transition matrix
         self.F[:2, :2] = I2
         self.F[:2, 2:] = I2
+        self.F[2:, 2:] = I2
         self.F_T = np.transpose(self.F)
         self.H = np.zeros((self.dim_x, self.dim_x))  # measurement function
         self.H[:2, :2] = I2
         self.H_T = np.transpose(self.H)
-
-    def init(self, x0, P0, Q):
-        """
-        Initialization of a Kalman filter
-        :param x0:
-        :param P0:
-        :param Q:
-        :return:
-        """
-        self.x = x0
-        self.P = P0
-        self.Q = Q
 
     def predict(self):
         """
@@ -58,7 +47,6 @@ class KalmanFilter(object):
         self.x = np.dot(self.F, self.x)
         # P = F * P * F^T + Q
         self.P = self.F.dot(self.P).dot(self.F) + self.Q
-        return self.x, self.P
 
     def update_pos(self, z_p, R_p):
         """

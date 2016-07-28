@@ -29,7 +29,7 @@ bgr_name = 'bgr{0:04d}.png'
 tracks = []
 init = False
 prev_gray = None
-init_flow = np.array([40, 0])
+init_flow = np.array([38, 0])
 proc_cov = np.diag([5, 1, 0, 0])
 
 for i in range(5, 8):
@@ -53,14 +53,13 @@ for i in range(5, 8):
         for fruit in fruits:
             track = FruitTrack(fruit, init_flow, proc_cov)
             tracks.append(track)
-
     else:
         # Main loop
         # Prediction
-        points = [t.pos for t in tracks]
+        prev_points = [t.pos for t in tracks]
         for track in tracks:
             track.predict()
-
+        init_points = [t.pos for t in tracks]
     bboxes = [t.bbox for t in tracks]
     ellipses = [t.cov_ellipse for t in tracks]
 

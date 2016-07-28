@@ -37,11 +37,11 @@ class FruitTrack(object):
 
     @property
     def pos(self):
-        return self.kf.x[:2]
+        return self.kf.x[:2].copy()
 
     @property
     def pos_cov(self):
-        return self.kf.P[:2, :2]
+        return self.kf.P[:2, :2].copy()
 
     @property
     def cov_ellipse(self):
