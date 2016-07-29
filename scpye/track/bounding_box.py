@@ -113,13 +113,14 @@ def bbox_overlap_ratio(bbox1, bbox2, ratio_type=OverlapRatio.Union):
 
     # intersection area is a * b, where a is width and b is height
     intersect_area = bbox_intersect_area(bbox1, bbox2)
-    area_b1 = bbox_area(bbox1)
-    area_b2 = bbox_area(bbox2)
+    bbox1_area = bbox_area(bbox1)
+    bbox2_area = bbox_area(bbox2)
+
     if ratio_type == OverlapRatio.Union:
-        area_union = area_b1 + area_b2 - intersect_area
+        area_union = bbox1_area + bbox2_area - intersect_area
         return intersect_area / area_union
     elif ratio_type == OverlapRatio.Min:
-        area_min = min(area_b1, area_b2)
+        area_min = min(bbox1_area, bbox2_area)
         return intersect_area / area_min
 
 
@@ -132,7 +133,7 @@ def bbox_distsq_area_ratio(bbox1, bbox2):
     """
     dist_sq = bbox_distsq(bbox1, bbox2)
     area = bbox_area(bbox1) + bbox_area(bbox2)
-    return dist_sq / area
+    return dist_sq / area / 2.0
 
 
 def bboxes_overlap_ratio(bboxes1, bboxes2, ratio_type=OverlapRatio.Union):
@@ -165,6 +166,7 @@ def bboxes_assignment_cost(bboxes1, bboxes2):
     """
     bboxes1 = np.atleast_2d(bboxes1)
     bboxes2 = np.atleast_2d(bboxes2)
+
     n1 = len(bboxes1)
     n2 = len(bboxes2)
     assert n1 > 0 and n2 > 0

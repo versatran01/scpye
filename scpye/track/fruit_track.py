@@ -70,12 +70,17 @@ class FruitTrack(object):
         self.kf.update(z, flow_cov)
         self.bbox = shift_bbox(self.bbox, self.pos)
 
-    def correct_assign(self, bbox, bbox_cov):
+    def correct_assign(self, bbox, assign_cov):
         """
-        Correct location of the track from bbox input
+        Correct location of the track hungarian assignment
         :param bbox:
-        :param bbox_cov:
+        :param assign_cov:
         :return:
         """
-        # pos = bbox_center(bbox)
-        # self.correct_pos(pos, bbox_cov)
+        pos = bbox_center(bbox)
+        vel = pos - self.prev_pos
+        z = np.hstack((pos, vel))
+        self.kf.update(z, assign_cov)
+        self.bbox = shift_bbox(self.bbox, self.pos)
+        # Don't forget to update bbox dimension
+        self.bbox[2:] = bbox[2:]

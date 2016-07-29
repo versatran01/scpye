@@ -41,6 +41,10 @@ class KalmanFilter(object):
         self.H = np.eye(self.dim_x)  # measurement function
         self.H_T = np.transpose(self.H)
 
+        self.Hp = np.zeros((2, self.dim_x))
+        self.Hp[:2, :2] = I2
+        self.Hp_T = np.transpose(self.Hp)
+
     def predict(self):
         """
         Prediction step of a Kalman filter
@@ -74,3 +78,16 @@ class KalmanFilter(object):
         # P <- (I - K * H) * P
         I_KH = self.I - np.dot(K, self.H)
         self.P = np.dot(I_KH, self.P).dot(I_KH.T) + np.dot(K, R).dot(K.T)
+
+    def update_pos(self, z_p, R_p=None):
+        if np.ndim(R_p) == 1:
+            R_p = np.diag(R_p)
+
+        Hx_p = np.dot(self.Hp, self.x)
+        y = z_p - Hx_p
+        S = self.H.dot(self.P).dot(self.Hp_T) + R_p
+        K = self.P.dot(self.Hp_T).dot(la.inv(S))
+        self.x += np.dot(K, y)
+
+        I_KH = self.I - np.dot(K, self.Hp)
+        self.P = np.dot(I_KH, self.P).dot(I_KH.T) + np.dot(K, R_p).dot(K.T)

@@ -14,7 +14,8 @@ from scpye.utils.drawing import (draw_bboxes, draw_optical_flows,
 
 class FruitTracker(object):
     def __init__(self, min_age=3, win_size=31, max_level=3, init_flow=(40, 0),
-                 proc_cov=(5, 2, 1, 1), flow_cov=(1, 1, 1, 1)):
+                 proc_cov=(5, 2, 1, 1), flow_cov=(1, 1, 1, 1),
+                 assign_cov=(2, 2, 1, 1)):
         """
         :param min_age: minimum age of a tracking to be considered for counting
         """
@@ -36,6 +37,7 @@ class FruitTracker(object):
         self.init_flow = np.array(init_flow)
         self.proc_cov = np.array(proc_cov)
         self.flow_cov = np.array(flow_cov)
+        self.assign_cov = np.array(assign_cov)
 
         # self.disp = None
 
@@ -75,19 +77,19 @@ class FruitTracker(object):
         self.predict_tracks()
 
         # Optical flow update
-        updated_tks, lost_tks = self.update_tracks(gray)
+        updated_tracks, lost_tracks = self.update_tracks(gray)
 
-        # Hungarian assignment matching
-        matched_tks, unmatched_tks = self.match_tracks(updated_tks, fruits)
+        # Hungarian assignment
+        matched_tks, unmatched_tks = self.match_tracks(updated_tracks, fruits)
 
         # Update matched tracks
         self.tracks = matched_tks
 
         # Assemble all lost tracks
-        lost_tks.extend(unmatched_tks)
+        lost_tracks.extend(unmatched_tks)
 
         # Count fruits in invalid tracks
-        self.count_in_tracks(lost_tks)
+        # self.count_in_tracks(lost_tks)
 
     def predict_tracks(self):
         """
@@ -173,32 +175,32 @@ class FruitTracker(object):
 
         return matched_tracks, lost_tracks
 
-    def finish(self):
-        """
-        Count what's left in tracks, call after final image
-        """
-        self.count_in_tracks(self.tracks)
-        self.frame_counts = np.array(self.frame_counts)
+        # def finish(self):
+        #     """
+        #     Count what's left in tracks, call after final image
+        #     """
+        #     self.count_in_tracks(self.tracks)
+        #     self.frame_counts = np.array(self.frame_counts)
 
-    def count_in_tracks(self, tracks):
-        """
-        Count how many fruits there are in tracks
-        :param tracks: list of tracks
-        """
-        temp_sum = 0
-        for track in tracks:
-            if track.age >= self.min_age:
-                temp_sum += track.num
+        # def count_in_tracks(self, tracks):
+        #     """
+        #     Count how many fruits there are in tracks
+        #     :param tracks: list of tracks
+        #     """
+        #     temp_sum = 0
+        #     for track in tracks:
+        #         if track.age >= self.min_age:
+        #             temp_sum += track.num
+        #
+        #     self.frame_counts.append(temp_sum)
+        #     self.total_counts += temp_sum
+        #
+        #     # ===== DRAW TOTAL COUNTS =====
+        #     draw_text(self.disp, self.total_counts, (0, len(self.disp) - 5),
+        #               scale=1, color=Colors.counted)
 
-        self.frame_counts.append(temp_sum)
-        self.total_counts += temp_sum
-
-        # ===== DRAW TOTAL COUNTS =====
-        draw_text(self.disp, self.total_counts, (0, len(self.disp) - 5),
-                  scale=1, color=Colors.counted)
-
-    def draw_tracks(self):
-        bboxes = [t.bbox for t in self.tracks if t.age >= self.min_age]
-        if len(bboxes) == 0:
-            return
-            # draw_bboxes(self.disp, bboxes, color=Colors.counted)
+        # def draw_tracks(self):
+        #     bboxes = [t.bbox for t in self.tracks if t.age >= self.min_age]
+        #     if len(bboxes) == 0:
+        #         return
+        #         # draw_bboxes(self.disp, bboxes, color=Colors.counted)
