@@ -35,14 +35,14 @@ tracks = []
 init = False
 prev_gray = None
 init_flow = (38, 0)
-proc_cov = (5, 2, 1, 1)
+proc_cov = (5, 2, 5, 2)
 
 win_size = 31
 max_level = 3
-flow_cov = (1, 1, 1, 1)
-assign_cov = (2, 2)
+flow_cov = (1, 1)
+assign_cov = (1, 1)
 
-for i in range(5, 7):
+for i in range(5, 8):
     bw_file = os.path.join(image_dir, bw_name.format(i))
     bgr_file = os.path.join(image_dir, bgr_name.format(i))
     bw = cv2.imread(bw_file, cv2.IMREAD_GRAYSCALE)
@@ -109,21 +109,21 @@ for i in range(5, 7):
         draw_bboxes(disp_bw, bboxes, color=(255, 255, 0))
 
         # assign tracks
-        bboxes_update = np.array([t.bbox for t in updated_tracks])
-        bboxes_detect = np.array(fruits)
-        cost = bboxes_assignment_cost(bboxes_update, bboxes_detect)
-        match_inds, lost_inds, new_inds = hungarian_assignment(cost)
+#        bboxes_update = np.array([t.bbox for t in updated_tracks])
+#        bboxes_detect = np.array(fruits)
+#        cost = bboxes_assignment_cost(bboxes_update, bboxes_detect)
+#        match_inds, lost_inds, new_inds = hungarian_assignment(cost)
 
         # get matched tracks
-        matched_tracks = []
-        for match in match_inds:
-            i_track, i_fruit = match
-            track = tracks[i_track]
-            track.correct_assign(fruits[i_fruit], assign_cov)
-            matched_tracks.append(track)
-
-        draw_bboxes_matches(disp_bgr, match_inds, bboxes_update,
-                            bboxes_detect, color=(0, 0, 255))
-        draw_bboxes_matches(disp_bw, match_inds, bboxes_update,
-                            bboxes_detect, color=(0, 0, 255))
+#        matched_tracks = []
+#        for match in match_inds:
+#            i_track, i_fruit = match
+#            track = tracks[i_track]
+#            track.correct_assign(fruits[i_fruit], assign_cov)
+#            matched_tracks.append(track)
+#
+#        draw_bboxes_matches(disp_bgr, match_inds, bboxes_update,
+#                            bboxes_detect, color=(0, 0, 255))
+#        draw_bboxes_matches(disp_bw, match_inds, bboxes_update,
+#                            bboxes_detect, color=(0, 0, 255))
     imshow(disp_bgr, disp_bw, interp='none', figsize=(12, 16))

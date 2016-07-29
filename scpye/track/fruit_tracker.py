@@ -14,8 +14,7 @@ from scpye.utils.drawing import (draw_bboxes, draw_optical_flows,
 
 class FruitTracker(object):
     def __init__(self, min_age=3, win_size=31, max_level=3, init_flow=(40, 0),
-                 proc_cov=(5, 2, 1, 1), flow_cov=(1, 1, 1, 1),
-                 assign_cov=(2, 2, 1, 1)):
+                 proc_cov=(5, 2, 1, 1), flow_cov=(1, 1), bbox_cov=(2, 2)):
         """
         :param min_age: minimum age of a tracking to be considered for counting
         """
@@ -32,12 +31,12 @@ class FruitTracker(object):
 
         # Kalman filter parameters
         assert np.size(init_flow) == 2
-        assert np.size(proc_cov) == 4
-        assert np.size(flow_cov) == 4
+        assert np.size(proc_cov) == 2
+        assert np.size(flow_cov) == 2
         self.init_flow = np.array(init_flow)
         self.proc_cov = np.array(proc_cov)
         self.flow_cov = np.array(flow_cov)
-        self.assign_cov = np.array(assign_cov)
+        self.bbox_cov = np.array(bbox_cov)
 
         # self.disp = None
 

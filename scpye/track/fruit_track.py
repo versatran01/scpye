@@ -65,9 +65,7 @@ class FruitTrack(object):
         :param pos:
         :param flow_cov:
         """
-        vel = pos - self.prev_pos
-        z = np.hstack((pos, vel))
-        self.kf.update(z, flow_cov)
+        self.kf.update_pos(pos, flow_cov)
         self.bbox = shift_bbox(self.bbox, self.pos)
 
     def correct_assign(self, bbox, assign_cov):
@@ -78,9 +76,7 @@ class FruitTrack(object):
         :return:
         """
         pos = bbox_center(bbox)
-        vel = pos - self.prev_pos
-        z = np.hstack((pos, vel))
-        self.kf.update(z, assign_cov)
+        self.kf.update_pos(pos, assign_cov)
         self.bbox = shift_bbox(self.bbox, self.pos)
         # Don't forget to update bbox dimension
         self.bbox[2:] = bbox[2:]
