@@ -31,12 +31,12 @@ bgr_name = 'bgr{0:04d}.png'
 tracks = []
 init = False
 prev_gray = None
-init_flow = np.array([38, 0])
-proc_cov = np.diag([5, 2, 0, 0])
+init_flow = (38, 0)
+proc_cov = (5, 2, 1, 1)
 
 win_size = 31
 max_level = 3
-pos_cov = (1, 1)
+flow_cov = (1, 1, 1, 1)
 
 for i in range(5, 8):
     bw_file = os.path.join(image_dir, bw_name.format(i))
@@ -70,6 +70,7 @@ for i in range(5, 8):
         # predict
         for track in tracks:
             track.predict()
+
         pred_bboxes = [t.bbox for t in tracks]
         draw_bboxes(disp_bgr, pred_bboxes, color=(255, 0, 0))
         draw_bboxes(disp_bw, pred_bboxes, color=(255, 0, 0))
@@ -91,7 +92,7 @@ for i in range(5, 8):
         updated_tracks, lost_tracks = [], []
         for track, point, stat in izip(tracks, curr_points, status):
             if stat:
-                track.correct_pos(point, pos_cov)
+                track.correct_flow(point, flow_cov)
                 updated_tracks.append(track)
             else:
                 lost_tracks.append(track)
@@ -99,17 +100,9 @@ for i in range(5, 8):
         ellipses = [t.cov_ellipse for t in updated_tracks]
         draw_bboxes(disp_bgr, updated_bboxes, color=(255, 255, 0))
         draw_bboxes(disp_bw, updated_bboxes, color=(255, 255, 0))
-        draw_ellipses(disp_bgr, ellipses)
-        draw_ellipses(disp_bw, ellipses)
+
+        # assign tracks
 
         prev_gray = gray
-
-#    bboxes = [t.bbox for t in tracks]
-#
-#
-
-#    draw_bboxes(disp_bgr, bboxes, color=(255, 0, 0))
-#    draw_bboxes(disp_bw, bboxes, color=(255, 0, 0))
-
 
     imshow(disp_bgr, disp_bw, interp='none', figsize=(12, 16))

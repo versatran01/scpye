@@ -22,8 +22,8 @@ def cov2ellipse(P, ns=3):
 
 
 class FruitTrack(object):
-    def __init__(self, fruit, init_flow, proc_cov):
-        self.bbox = fruit
+    def __init__(self, bbox, init_flow, proc_cov):
+        self.bbox = bbox
         self.age = 1
         self.hist = []
         self.prev_pos = None
@@ -32,8 +32,6 @@ class FruitTrack(object):
         init_pos = bbox_center(self.bbox)
         init_state = np.hstack((init_pos, init_flow))
 
-        if np.ndim(proc_cov) == 1:
-            proc_cov = np.diag(proc_cov)
         self.kf = KalmanFilter(x0=init_state, Q=proc_cov)
 
     @property
@@ -61,24 +59,23 @@ class FruitTrack(object):
         self.kf.predict()
         self.bbox = shift_bbox(self.bbox, self.pos)
 
-    def correct_pos(self, pos, pos_cov):
+    def correct_flow(self, pos, flow_cov):
         """
         Correct location of the track from pos input
         :param pos:
-        :param pos_cov:
+        :param flow_cov:
         """
         vel = pos - self.prev_pos
         z = np.hstack((pos, vel))
-        R = np.hstack((pos_cov, np.ones(2)))
-        self.kf.update(z, R)
+        self.kf.update(z, flow_cov)
         self.bbox = shift_bbox(self.bbox, self.pos)
 
-    def correct_bbox(self, bbox, bbox_cov):
+    def correct_assign(self, bbox, bbox_cov):
         """
         Correct location of the track from bbox input
         :param bbox:
         :param bbox_cov:
         :return:
         """
-        pos = bbox_center(bbox)
-        self.correct_pos(pos, bbox_cov)
+        # pos = bbox_center(bbox)
+        # self.correct_pos(pos, bbox_cov)

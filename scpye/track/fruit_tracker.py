@@ -2,6 +2,7 @@ from __future__ import (print_function, division, absolute_import)
 
 import cv2
 import numpy as np
+from itertools import izip
 
 from scpye.track.assignment import hungarian_assignment
 from scpye.track.bounding_box import (bboxes_assignment_cost, bbox_center)
@@ -12,8 +13,8 @@ from scpye.utils.drawing import (draw_bboxes, draw_optical_flows,
 
 
 class FruitTracker(object):
-    def __init__(self, min_age=3, max_level=3, init_flow=(40, 0),
-                 pos_proc_cov=(5, 1), border=-5):
+    def __init__(self, min_age=3, win_size=31, max_level=3, init_flow=(40, 0),
+                 proc_cov=(5, 2, 1, 1), flow_cov=(1, 1, 1, 1)):
         """
         :param min_age: minimum age of a tracking to be considered for counting
         """
@@ -25,14 +26,16 @@ class FruitTracker(object):
 
         self.gray_prev = None
         # Optical flow parameters
+        self.win_size = win_size
         self.max_level = max_level
 
         # Kalman filter parameters
         assert np.size(init_flow) == 2
-        assert np.size(pos_proc_cov) == 2
-        self.border = border
+        assert np.size(proc_cov) == 4
+        assert np.size(flow_cov) == 4
         self.init_flow = np.array(init_flow)
-        self.proc_cov = np.hstack((pos_proc_cov, np.zeros(2)))
+        self.proc_cov = np.array(proc_cov)
+        self.flow_cov = np.array(flow_cov)
 
         # self.disp = None
 
@@ -49,19 +52,6 @@ class FruitTracker(object):
         for fruit in fruits:
             track = FruitTrack(fruit, self.init_flow, self.proc_cov)
             tracks.append(track)
-
-    @staticmethod
-    def calc_win_size(gray, k=16):
-        """
-        Calculate window size for
-        :param gray:
-        :param k:
-        :return: window size
-        """
-        h, w = gray.shape
-        d = np.sqrt(h * w)
-        win_size = int(d / k)
-        return win_size | 1
 
     def track(self, image, fruits):
         """
@@ -81,14 +71,11 @@ class FruitTracker(object):
             self.add_new_tracks(self.tracks, fruits)
             return
 
-        # Save previous position for update step
-        points = [t.pos for t in self.tracks]
-
         # Kalman filter prediction
         self.predict_tracks()
 
         # Optical flow update
-        updated_tks, lost_tks = self.update_tracks(gray, points)
+        updated_tks, lost_tks = self.update_tracks(gray)
 
         # Hungarian assignment matching
         matched_tks, unmatched_tks = self.match_tracks(updated_tks, fruits)
@@ -110,14 +97,32 @@ class FruitTracker(object):
         for track in self.tracks:
             track.predict()
 
-    def update_tracks(self, gray, points):
+    def update_tracks(self, gray):
         """
         Update tracks in Kalman filter via KLT
         :param gray:
-        :param points:
         :return: updated tracks, invalid_tracks
         """
         updated_tracks, invalid_tracks = [], []
+        prev_pts = [t.prev_pos for t in self.tracks]
+        init_pts = [t.pos for t in self.tracks]
+        prev_pts, curr_pts, status = calc_optical_flow(self.gray_prev, gray,
+                                                       prev_pts, init_pts,
+                                                       self.win_size,
+                                                       self.max_level)
+
+        # Remove lost tracks
+        updated_tracks, lost_tracks = [], []
+        for track, point, stat in izip(self.tracks, curr_pts, status):
+            if stat:
+                track.correct_flow(point, self.flow_cov)
+                updated_tracks.append(track)
+            else:
+                lost_tracks.append(track)
+
+        # Update gray_prev
+        self.gray_prev = gray
+
         return updated_tracks, invalid_tracks
 
     def match_tracks(self, tracks, fruits):
@@ -128,43 +133,6 @@ class FruitTracker(object):
         """
         matched_tracks, unmatched_tracks = [], []
         return matched_tracks, unmatched_tracks
-
-    def predict_tracks_old(self, gray):
-        """
-        Predict tracks using optical flow
-        :param gray: gray scale image
-        """
-        # for each tracking, get center points and flow
-        points1 = np.array([bbox_center(track.bbox) for track in self.tracks])
-        prev_flows = np.array([track.flow for track in self.tracks])
-        points2 = points1 + prev_flows
-
-        # Do optical flow
-        # NOTE: dimension of points1 and points2 are 3 because of opencv
-        points1, points2, status = calc_optical_flow(self.gray_prev, gray,
-                                                     points1, points2,
-                                                     self.win_size,
-                                                     self.max_level)
-        # New optical flow, used to update init_flow
-        flows = points2 - points1
-        self.init_flow = np.squeeze(np.mean(flows, axis=0))
-
-        # ===== DRAW OPTICAL FLOW =====
-        # draw_optical_flows(self.disp, points1, points2, status=status,
-        #                    color=Colors.flow)
-
-        valid_tracks = []
-        invalid_tracks = []
-        for track, flow, stat in zip(self.tracks, flows, status):
-            if stat:
-                track.predict(np.ravel(flow))
-                valid_tracks.append(track)
-            else:
-                invalid_tracks.append(track)
-
-        # Update gray_prev
-        self.gray_prev = gray
-        return valid_tracks, invalid_tracks
 
     def match_tracks_old(self, tracks, fruits):
         """
