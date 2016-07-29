@@ -16,7 +16,9 @@ from scpye.utils.drawing import (Colors, draw_bboxes, draw_optical_flows,
 
 class FruitTracker(object):
     def __init__(self, min_age=3, win_size=31, max_level=3, init_flow=(40, 0),
-                 proc_cov=(10, 4, 5, 2), flow_cov=(3, 3), bbox_cov=(1, 1)):
+                 state_cov=(5, 5, 5, 5), proc_cov=(10, 4, 5, 2),
+                 flow_cov=(3, 3),
+                 bbox_cov=(1, 1)):
         """
         :param min_age: minimum age of a tracking to be considered for counting
         """
@@ -31,11 +33,14 @@ class FruitTracker(object):
         self.max_level = max_level
 
         # Kalman filter parameters
+        self.state_cov = np.array(state_cov)
         self.init_flow = np.array(init_flow)
         self.proc_cov = np.array(proc_cov)
         self.flow_cov = np.array(flow_cov)
         self.bbox_cov = np.array(bbox_cov)
 
+        # Visualization
+        self.vis = True
         self.disp_bgr = None
         self.disp_bw = None
 
@@ -50,7 +55,8 @@ class FruitTracker(object):
         :param fruits: a list of fruits
         """
         for fruit in fruits:
-            track = FruitTrack(fruit, self.init_flow, self.proc_cov)
+            track = FruitTrack(fruit, self.init_flow, self.state_cov,
+                               self.proc_cov)
             tracks.append(track)
 
     def track(self, image, fruits, bw):
@@ -67,8 +73,9 @@ class FruitTracker(object):
         self.disp_bw = cv2.cvtColor(bw, cv2.COLOR_GRAY2BGR)
 
         # VISUALIZATION: detect
-        draw_bboxes(self.disp_bgr, fruits, color=Colors.white)
-        draw_bboxes(self.disp_bw, fruits, color=Colors.white)
+        if self.vis:
+            draw_bboxes(self.disp_bgr, fruits, color=Colors.white)
+            draw_bboxes(self.disp_bw, fruits, color=Colors.white)
 
         # Initialization
         if not self.initialized:
@@ -80,28 +87,33 @@ class FruitTracker(object):
         self.predict_tracks()
 
         # VISUALIZATION: after prediction
-        predict_bboxes = [t.bbox for t in self.tracks]
-        draw_bboxes(self.disp_bgr, predict_bboxes, color=Colors.red)
-        draw_bboxes(self.disp_bw, predict_bboxes, color=Colors.red)
+        if self.vis:
+            predict_bboxes = [t.bbox for t in self.tracks]
+            draw_bboxes(self.disp_bgr, predict_bboxes, color=Colors.red)
+            draw_bboxes(self.disp_bw, predict_bboxes, color=Colors.red)
 
         updated_tracks, lost_tracks = self.update_tracks(gray)
 
         # VISUALIZATION: after optical flow update
-        update_bboxes = [t.bbox for t in self.tracks]
-        draw_bboxes(self.disp_bgr, update_bboxes, color=Colors.yellow)
-        draw_bboxes(self.disp_bw, update_bboxes, color=Colors.yellow)
+        if self.vis:
+            updated_bboxes = [t.bbox for t in updated_tracks]
+            draw_bboxes(self.disp_bgr, updated_bboxes, color=Colors.yellow)
+            draw_bboxes(self.disp_bw, updated_bboxes, color=Colors.yellow)
 
-        self.tracks, unmatched_tks = self.match_tracks(updated_tracks, fruits)
+        matched_tracks, unmatched_tks = self.match_tracks(updated_tracks,
+                                                          fruits)
 
         # VISUALIZATION: after hungarian assignment update
-        matched_bboxes = [t.bbox for t in self.tracks]
-        draw_bboxes(self.disp_bgr, matched_bboxes, color=Colors.green)
-        draw_bboxes(self.disp_bw, matched_bboxes, color=Colors.green)
+        if self.vis:
+            matched_bboxes = [t.bbox for t in matched_tracks]
+            draw_bboxes(self.disp_bgr, matched_bboxes, color=Colors.green)
+            draw_bboxes(self.disp_bw, matched_bboxes, color=Colors.green)
 
-        # Assemble all lost tracks
+        # Assemble all lost tracks and update tracks
+        self.tracks = matched_tracks
         lost_tracks.extend(unmatched_tks)
 
-        # Count fruits in invalid tracks
+        # Count fruits in lost tracks
         # self.count_in_tracks(lost_tks)
 
     def predict_tracks(self):
@@ -179,27 +191,11 @@ class FruitTracker(object):
 
         return matched_tracks, unmatched_tracks
 
+    def count_in_tracks(self, tracks):
+        """
+        Count how many fruits there are in tracks
+        :param tracks: list of tracks
+        """
 
-        # def finish(self):
-        #     """
-        #     Count what's left in tracks, call after final image
-        #     """
-        #     self.count_in_tracks(self.tracks)
-        #     self.frame_counts = np.array(self.frame_counts)
-
-        # def count_in_tracks(self, tracks):
-        #     """
-        #     Count how many fruits there are in tracks
-        #     :param tracks: list of tracks
-        #     """
-        #     temp_sum = 0
-        #     for track in tracks:
-        #         if track.age >= self.min_age:
-        #             temp_sum += track.num
-        #
-        #     self.frame_counts.append(temp_sum)
-        #     self.total_counts += temp_sum
-        #
-        #     # ===== DRAW TOTAL COUNTS =====
-        #     draw_text(self.disp, self.total_counts, (0, len(self.disp) - 5),
-        #               scale=1, color=Colors.counted)
+        frame_count = sum([1 for t in tracks if t.age >= self.min_age])
+        self.total_counts += frame_count

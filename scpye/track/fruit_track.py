@@ -22,7 +22,7 @@ def cov2ellipse(P, ns=3):
 
 
 class FruitTrack(object):
-    def __init__(self, bbox, init_flow, proc_cov):
+    def __init__(self, bbox, init_flow, state_cov, proc_cov):
         self.bbox = bbox
         self.age = 1
         self.hist = []
@@ -32,7 +32,7 @@ class FruitTrack(object):
         init_pos = bbox_center(self.bbox)
         init_state = np.hstack((init_pos, init_flow))
 
-        self.kf = KalmanFilter(x0=init_state, Q=proc_cov)
+        self.kf = KalmanFilter(x0=init_state, P0=state_cov, Q=proc_cov)
 
     @property
     def pos(self):

@@ -24,7 +24,7 @@ bgr_name = 'bgr{0:04d}.png'
 
 bc = BinaryCleaner(ksize=3, iters=2, min_area=100)
 ba = BlobAnalyzer()
-ft = FruitTracker()
+ft = FruitTracker(init_flow=(42, 0))
 
 for i in range(10, 15):
     bw_file = os.path.join(image_dir, bw_name.format(i))
