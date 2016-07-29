@@ -16,7 +16,7 @@ from scpye.utils.drawing import (Colors, draw_bboxes, draw_optical_flows,
 
 class FruitTracker(object):
     def __init__(self, min_age=3, win_size=31, max_level=3, init_flow=(40, 0),
-                 proc_cov=(10, 4, 5, 2), flow_cov=(1, 1), bbox_cov=(2, 2)):
+                 proc_cov=(10, 4, 5, 2), flow_cov=(3, 3), bbox_cov=(1, 1)):
         """
         :param min_age: minimum age of a tracking to be considered for counting
         """
@@ -66,8 +66,9 @@ class FruitTracker(object):
         self.disp_bgr = enhance_contrast(image)
         self.disp_bw = cv2.cvtColor(bw, cv2.COLOR_GRAY2BGR)
 
-        draw_bboxes(self.disp_bgr, fruits, color=Colors.cyan)
-        draw_bboxes(self.disp_bw, fruits, color=Colors.cyan)
+        # VISUALIZATION: detect
+        draw_bboxes(self.disp_bgr, fruits, color=Colors.white)
+        draw_bboxes(self.disp_bw, fruits, color=Colors.white)
 
         # Initialization
         if not self.initialized:
@@ -78,19 +79,24 @@ class FruitTracker(object):
 
         self.predict_tracks()
 
-        # VISUALIZATION
+        # VISUALIZATION: after prediction
         predict_bboxes = [t.bbox for t in self.tracks]
         draw_bboxes(self.disp_bgr, predict_bboxes, color=Colors.red)
         draw_bboxes(self.disp_bw, predict_bboxes, color=Colors.red)
 
         updated_tracks, lost_tracks = self.update_tracks(gray)
 
-        # VISUALIZATION
+        # VISUALIZATION: after optical flow update
         update_bboxes = [t.bbox for t in self.tracks]
         draw_bboxes(self.disp_bgr, update_bboxes, color=Colors.yellow)
         draw_bboxes(self.disp_bw, update_bboxes, color=Colors.yellow)
 
         self.tracks, unmatched_tks = self.match_tracks(updated_tracks, fruits)
+
+        # VISUALIZATION: after hungarian assignment update
+        matched_bboxes = [t.bbox for t in self.tracks]
+        draw_bboxes(self.disp_bgr, matched_bboxes, color=Colors.green)
+        draw_bboxes(self.disp_bw, matched_bboxes, color=Colors.green)
 
         # Assemble all lost tracks
         lost_tracks.extend(unmatched_tks)
@@ -120,7 +126,7 @@ class FruitTracker(object):
                                              self.win_size,
                                              self.max_level)
 
-        # VISUALIZATION
+        # VISUALIZATION: optical flow
         draw_optical_flows(self.disp_bgr, prev_pts, curr_pts, status,
                            color=Colors.magenta)
         draw_optical_flows(self.disp_bw, prev_pts, curr_pts, status,
@@ -152,9 +158,9 @@ class FruitTracker(object):
         cost = bboxes_assignment_cost(bboxes_update, bboxes_detect)
         match_inds, lost_inds, new_inds = hungarian_assignment(cost)
 
-        # VISUALIZATION
-        draw_bboxes_matches(self.disp_bgr, match_inds, bboxes_update,
-                            bboxes_detect, color=Colors.green)
+        # VISUALIZATION: hungarian assignment
+        # draw_bboxes_matches(self.disp_bgr, match_inds, bboxes_update,
+        #                     bboxes_detect, color=Colors.cyan)
 
         # get matched tracks
         matched_tracks = []
