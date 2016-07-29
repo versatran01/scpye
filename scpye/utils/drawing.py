@@ -10,16 +10,13 @@ class Colors:
     """
     Collection of colors
     """
-
-    predict = (0, 0, 255)  # blue
-    detect = (0, 0, 255)  # red
-    counted = (0, 255, 0)  # green
-    match = (0, 255, 255)  # yellow
-    flow = (255, 0, 255)  # magenta
-    text = (0, 255, 255)
-
-    def __init__(self):
-        pass
+    red = (255, 0, 0)
+    green = (0, 255, 0)
+    blue = (0, 0, 255)
+    yellow = (255, 255, 0)
+    magenta = (255, 0, 255)
+    cyan = (0, 255, 255)
+    white = (255, 255, 255)
 
 
 def imshow(*images, **options):

@@ -1,21 +1,11 @@
 import os
 import cv2
-import numpy as np
-from itertools import izip
-
 from scpye.improc.binary_cleaner import BinaryCleaner
 from scpye.improc.blob_analyzer import BlobAnalyzer
-from scpye.improc.image_processing import enhance_contrast
 
-from scpye.track.optical_flow import calc_optical_flow
-from scpye.track.fruit_track import FruitTrack
-from scpye.track.bounding_box import bboxes_assignment_cost
-from scpye.track.assignment import hungarian_assignment
 from scpye.track.fruit_tracker import FruitTracker
 from scpye.utils.data_manager import DataManager
-from scpye.utils.drawing import imshow, draw_bboxes
-from scpye.utils.drawing import (draw_ellipses, draw_bboxes, draw_points,
-                                 draw_optical_flows, draw_bboxes_matches)
+from scpye.utils.drawing import imshow
 
 
 # %%
@@ -45,6 +35,5 @@ for i in range(5, 8):
 
     bw, region_props = bc.clean(bw)
     fruits = ba.analyze(bgr, region_props)
-    ft.track(bgr, fruits)
-
-#    imshow(disp_bgr, disp_bw, interp='none', figsize=(12, 16))
+    ft.track(bgr, fruits, bw)
+    imshow(ft.disp_bgr, ft.disp_bw, interp='none', figsize=(12, 16))
