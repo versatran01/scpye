@@ -101,8 +101,8 @@ def draw_optical_flows(image, points1, points2, status=None, color=(255, 0, 0),
 
     for pt1, pt2, st in izip(points1, points2, status):
         if st or draw_invalid:
-            a, b = pt1.ravel()
-            c, d = pt2.ravel()
+            a, b = np.array(pt1.ravel(), int)
+            c, d = np.array(pt2.ravel(), int)
 
             cv2.line(image, (a, b), (c, d), color=color, thickness=thickness)
             cv2.circle(image, (c, d), 1, color=color, thickness=-1)

@@ -60,4 +60,4 @@ def calc_optical_flow(gray1, gray2, points1, points2, win_size, max_level):
 
     # status = (status == 1) & is_inside
 
-    return np.squeeze(points1), np.squeeze(points2), np.squeeze(status)
+    return np.squeeze(points2), np.squeeze(status)

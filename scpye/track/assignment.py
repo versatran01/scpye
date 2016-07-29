@@ -26,7 +26,7 @@ def pad_cost_matrix(cost_matrix, unassigned_cost):
     return padded_cost_matrix
 
 
-def hungarian_assignment(cost_matrix, unassigned_cost=1.5):
+def hungarian_assignment(cost_matrix, unassigned_cost=1.2):
     """
     This is the equivalent of matlab's assignDetectionsToTracks
     :param cost_matrix: M x N matrix, M - tracks, N - detections

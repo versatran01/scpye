@@ -68,7 +68,7 @@ class FruitTrack(object):
         self.kf.update_pos(pos, flow_cov)
         self.bbox = shift_bbox(self.bbox, self.pos)
 
-    def correct_assign(self, bbox, assign_cov):
+    def correct_bbox(self, bbox, assign_cov):
         """
         Correct location of the track hungarian assignment
         :param bbox:
