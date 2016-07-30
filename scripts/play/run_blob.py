@@ -7,7 +7,7 @@ Created on Thu Feb  4 14:30:18 2016
 
 import os
 
-from scpye.utility.visualization import *
+from scpye.utils.drawing import *
 
 # %%
 cwd = os.getcwd()

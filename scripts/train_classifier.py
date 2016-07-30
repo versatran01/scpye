@@ -2,12 +2,12 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-from scpye.detection.pipeline_factory import (create_image_pipeline,
-                                              create_feature_pipeline)
-from scpye.detection.training import (create_voting_classifier,
-                                      cross_validate_classifier)
-from scpye.utility.data_manager import DataManager
-from scpye.utility.visualization import imshow
+from scpye.detect.pipeline_factory import (create_image_pipeline,
+                                           create_feature_pipeline)
+from scpye.detect.training import (create_voting_classifier,
+                                   cross_validate_classifier)
+from scpye.utils.data_manager import DataManager
+from scpye.utils.drawing import imshow
 
 
 # %%

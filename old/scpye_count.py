@@ -8,10 +8,10 @@ import rosbag
 from cv_bridge import CvBridge, CvBridgeError
 from sklearn.externals import joblib
 
-from scpye.processing.contour_analysis import analyze_contours
+from scpye.improc.contour_analysis import analyze_contours
 from scpye.detection.fruit_detector import FruitDetector
-from scpye.tracking.fruit_tracker import FruitTracker
-from scpye.utility.visualization import draw_bboxes
+from scpye.track.fruit_tracker import FruitTracker
+from scpye.utils.drawing import draw_bboxes
 
 k = 0.3
 apple = 'green'

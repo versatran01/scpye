@@ -1,18 +1,17 @@
 from __future__ import (print_function, division, absolute_import)
 
 import cv2
+import numpy as np
 import scipy.ndimage as ndi
 from skimage.feature import peak_local_max
 from skimage.morphology import watershed
 
-from scpye.tracking.bounding_box import extract_bbox
-from scpye.processing.image_processing import (fill_bw, scale_array, u8_from_bw)
-from scpye.processing.contour_analysis import contour_bounding_rect
+from scpye.track.bounding_box import extract_bbox
+from scpye.improc.image_processing import (fill_bw, scale_array, u8_from_bw)
+from scpye.improc.contour_analysis import contour_bounding_rect
 
 
 class BlobAnalyzer(object):
-    # fruit_dtype = [('bbox', np.int, 4), ('num', np.int, 1)]
-
     def __init__(self, max_cntr_area=100, max_aspect=1.3, min_extent=0.62,
                  min_solidity=0.90, gauss_filter_sigma=2,
                  max_filter_size=4, gray_edt_ratio=2, min_distance=5,
@@ -62,7 +61,7 @@ class BlobAnalyzer(object):
         splitted_fruits = self.split_multi(gray, multi_rprops)
         self.fruits.extend(splitted_fruits)
 
-        return self.fruits
+        return np.array(self.fruits)
 
     def extract_multi(self, region_props):
         """

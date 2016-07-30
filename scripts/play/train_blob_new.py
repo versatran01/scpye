@@ -13,10 +13,10 @@ from sklearn.svm import SVC
 
 from scpye.detection.image_pipeline import ImagePipeline
 from scpye.detection.image_transformer import ImageTransformer, FeatureTransformer
-from scpye.processing.contour_analysis import analyze_contours_bw, clean_bw, fill_bw, gray_from_bw
-from scpye.tracking.bounding_box import extract_bbox
-from scpye.utility.data_manager import DataManager
-from scpye.utility.visualization import *
+from scpye.improc.contour_analysis import analyze_contours_bw, clean_bw, fill_bw, gray_from_bw
+from scpye.track.bounding_box import extract_bbox
+from scpye.utils.data_manager import DataManager
+from scpye.utils.drawing import *
 
 
 # %%

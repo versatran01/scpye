@@ -10,15 +10,15 @@ from __future__ import division
 
 import sys
 
-from scpye.processing.contour_analysis import gray_from_bw
+from scpye.improc.contour_analysis import gray_from_bw
 
 sys.path.append('..')
 
 import os
 from sklearn.externals import joblib
 from scpye.blob_analyzer import *
-from scpye.utility.visualization import *
-from scpye.tracking.bounding_box import extract_bbox
+from scpye.utils.drawing import *
+from scpye.track.bounding_box import extract_bbox
 
 # %%
 base_dir = '/home/chao/Dropbox'

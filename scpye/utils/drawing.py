@@ -3,22 +3,20 @@ from __future__ import (print_function, division, absolute_import)
 import cv2
 import numpy as np
 import matplotlib.pyplot as plt
+from itertools import izip
 
 
 class Colors:
     """
     Collection of colors
     """
-
-    predict = (0, 0, 255)  # blue
-    detect = (0, 0, 255)  # red
-    counted = (0, 255, 0)  # green
-    match = (0, 255, 255)  # yellow
-    flow = (255, 0, 255)  # magenta
-    text = (0, 255, 255)
-
-    def __init__(self):
-        pass
+    red = (255, 0, 0)
+    green = (0, 255, 0)
+    blue = (0, 0, 255)
+    yellow = (255, 255, 0)
+    magenta = (255, 0, 255)
+    cyan = (0, 255, 255)
+    white = (255, 255, 255)
 
 
 def imshow(*images, **options):
@@ -73,12 +71,12 @@ def draw_ellipses(image, ellipses, color=(255, 0, 0), thickness=1):
                     thickness=thickness)
 
 
-def draw_contours(image, cs, color=(255, 0, 0), thickness=1):
-    cv2.drawContours(image, cs, -1, color, thickness)
+def draw_contour(image, cntr, color=(255, 0, 0), thickness=1):
+    cv2.drawContours(image, [cntr], 0, color, thickness)
 
 
-def draw_contour(image, cnt, color=(255, 0, 0), thickness=1):
-    cv2.drawContours(image, [cnt], 0, color, thickness)
+def draw_contours(image, cntrs, color=(255, 0, 0), thickness=1):
+    cv2.drawContours(image, cntrs, -1, color, thickness)
 
 
 def draw_text(image, text, point, color=(255, 0, 0), scale=0.5, thickness=1):
@@ -90,25 +88,21 @@ def draw_text(image, text, point, color=(255, 0, 0), scale=0.5, thickness=1):
                 thickness=thickness)
 
 
-def draw_optical_flows(image, points1, points2, status=None, color=(255, 0, 0)):
+def draw_optical_flows(image, points1, points2, status=None, color=(255, 0, 0),
+                       thickness=1, draw_invalid=False):
     points1 = np.atleast_2d(points1)
     points2 = np.atleast_2d(points2)
 
     if status is None:
-        for pt1, pt2 in zip(points1, points2):
-            a, b = pt1.ravel()
-            c, d = pt2.ravel()
+        status = np.ones(len(points1))
 
-            cv2.line(image, (a, b), (c, d), color=color, thickness=1)
+    for pt1, pt2, st in izip(points1, points2, status):
+        if st or draw_invalid:
+            a, b = np.array(pt1.ravel(), int)
+            c, d = np.array(pt2.ravel(), int)
+
+            cv2.line(image, (a, b), (c, d), color=color, thickness=thickness)
             cv2.circle(image, (c, d), 1, color=color, thickness=-1)
-    else:
-        for pt1, pt2, st in zip(points1, points2, status):
-            if st:
-                a, b = pt1.ravel()
-                c, d = pt2.ravel()
-
-                cv2.line(image, (a, b), (c, d), color=color, thickness=1)
-                cv2.circle(image, (c, d), 1, color=color, thickness=-1)
 
 
 def draw_bboxes_matches(image, matches, bboxes1, bboxes2, color, thickness=1):
