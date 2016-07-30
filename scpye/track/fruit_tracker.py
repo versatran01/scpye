@@ -10,7 +10,8 @@ from scpye.track.assignment import hungarian_assignment
 from scpye.track.bounding_box import bboxes_assignment_cost
 from scpye.track.fruit_track import FruitTrack
 from scpye.track.optical_flow import (calc_optical_flow, calc_average_flow)
-from scpye.utils.drawing import (Colors, draw_bboxes, draw_optical_flows)
+from scpye.utils.drawing import (Colors, draw_bboxes, draw_optical_flows,
+                                 draw_line)
 
 
 class FruitTracker(object):
@@ -111,6 +112,12 @@ class FruitTracker(object):
         # Assemble all lost tracks and update tracks
         self.tracks = matched_tracks
         lost_tracks.extend(unmatched_tks)
+
+        # VISUALIZATION:
+        # if self.vis:
+        #     for track in self.tracks:
+        #         draw_line(self.disp_bgr, track.hist, color=Colors.magenta)
+        #         draw_line(self.disp_bw, track.hist, color=Colors.magenta)
 
         # Count fruits in lost tracks
         self.count_in_tracks(lost_tracks)

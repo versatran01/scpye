@@ -71,6 +71,15 @@ def draw_ellipses(image, ellipses, color=(255, 0, 0), thickness=1):
                     thickness=thickness)
 
 
+def draw_line(image, line, color=(255, 0, 0), thickness=1):
+    line = np.atleast_2d(np.array(line, dtype=int))
+    for i in range(len(line) - 1):
+        p1, p2 = line[i], line[i + 1]
+        a, b = p1
+        c, d = p2
+        cv2.line(image, (a, b), (c, d), color=color, thickness=thickness)
+
+
 def draw_contour(image, cntr, color=(255, 0, 0), thickness=1):
     cv2.drawContours(image, [cntr], 0, color, thickness)
 
