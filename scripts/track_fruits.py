@@ -6,6 +6,7 @@ from scpye.improc.blob_analyzer import BlobAnalyzer
 from scpye.track.fruit_tracker import FruitTracker
 from scpye.utils.data_manager import DataManager
 from scpye.utils.fruit_visualizer import FruitVisualizer
+from scpye.utils.drawing import imshow
 
 
 # %%
@@ -22,12 +23,12 @@ image_dir = os.path.join(dm.image_dir, "frame" + str(bag_ind))
 bw_name = 'bw{0:04d}.png'
 bgr_name = 'bgr{0:04d}.png'
 
-bc = BinaryCleaner(ksize=3, iters=2, min_area=100)
+bc = BinaryCleaner(ksize=3, iters=2, min_area=5)
 ba = BlobAnalyzer()
 ft = FruitTracker(init_flow=(42, 0))
 fv = FruitVisualizer('dir', 2)
 
-for i in range(10, 100):
+for i in range(1, 199):
     bw_file = os.path.join(image_dir, bw_name.format(i))
     bgr_file = os.path.join(image_dir, bgr_name.format(i))
     bw = cv2.imread(bw_file, cv2.IMREAD_GRAYSCALE)
@@ -38,5 +39,5 @@ for i in range(10, 100):
     fruits = ba.analyze(bgr, region_props)
     ft.track(bgr, fruits, bw)
     fv.show(ft.disp_bgr, ft.disp_bw)
-    # imshow(ft.disp_bgr, ft.disp_bw, interp='none', figsize=(12, 16))
+#    imshow(ft.disp_bgr, ft.disp_bw, interp='none', figsize=(12, 16))
 

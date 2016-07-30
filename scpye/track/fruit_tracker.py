@@ -10,15 +10,13 @@ from scpye.track.assignment import hungarian_assignment
 from scpye.track.bounding_box import bboxes_assignment_cost
 from scpye.track.fruit_track import FruitTrack
 from scpye.track.optical_flow import (calc_optical_flow, calc_average_flow)
-from scpye.utils.drawing import (Colors, draw_bboxes, draw_optical_flows,
-                                 draw_line)
+from scpye.utils.drawing import (Colors, draw_bboxes, draw_optical_flows)
 
 
 class FruitTracker(object):
     def __init__(self, min_age=3, win_size=31, max_level=3, init_flow=(40, 0),
-                 state_cov=(5, 5, 5, 5), proc_cov=(10, 4, 5, 2),
-                 flow_cov=(3, 3),
-                 bbox_cov=(1, 1)):
+                 state_cov=(5, 5, 5, 5), proc_cov=(8, 4, 4, 2),
+                 flow_cov=(2, 2), bbox_cov=(1, 1)):
         """
         :param min_age: minimum age of a tracking to be considered for counting
         """
@@ -205,7 +203,8 @@ class FruitTracker(object):
         Count how many fruits there are in tracks
         :param tracks: list of tracks
         """
-
         frame_count = sum([1 for t in tracks if t.age >= self.min_age])
         self.total_counts += frame_count
-        print(self.total_counts)
+
+    def finish(self):
+        self.count_in_tracks(self.tracks)
