@@ -27,7 +27,7 @@ ba = BlobAnalyzer()
 ft = FruitTracker(init_flow=(42, 0))
 fv = FruitVisualizer('dir', 2)
 
-for i in range(10, 50):
+for i in range(10, 100):
     bw_file = os.path.join(image_dir, bw_name.format(i))
     bgr_file = os.path.join(image_dir, bgr_name.format(i))
     bw = cv2.imread(bw_file, cv2.IMREAD_GRAYSCALE)

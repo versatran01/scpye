@@ -1,17 +1,16 @@
 from __future__ import (print_function, division, absolute_import)
 
-import cv2
-import numpy as np
 from itertools import izip
 
+import cv2
+import numpy as np
+
+from scpye.improc.image_processing import enhance_contrast
 from scpye.track.assignment import hungarian_assignment
 from scpye.track.bounding_box import bboxes_assignment_cost
 from scpye.track.fruit_track import FruitTrack
-from scpye.track.optical_flow import calc_optical_flow
-from scpye.improc.image_processing import enhance_contrast
-
-from scpye.utils.drawing import (Colors, draw_bboxes, draw_optical_flows,
-                                 draw_bboxes_matches)
+from scpye.track.optical_flow import (calc_optical_flow, calc_average_flow)
+from scpye.utils.drawing import (Colors, draw_bboxes, draw_optical_flows)
 
 
 class FruitTracker(object):
@@ -137,6 +136,9 @@ class FruitTracker(object):
                                              prev_pts, init_pts,
                                              self.win_size,
                                              self.max_level)
+
+        # Update init flow
+        self.init_flow = calc_average_flow(prev_pts, curr_pts, status)
 
         # VISUALIZATION: optical flow
         draw_optical_flows(self.disp_bgr, prev_pts, curr_pts, status,
