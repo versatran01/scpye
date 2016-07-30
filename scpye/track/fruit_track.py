@@ -24,7 +24,7 @@ def cov2ellipse(P, ns=3):
 class FruitTrack(object):
     def __init__(self, bbox, init_flow, state_cov, proc_cov):
         self.bbox = bbox
-        self.age = 1
+        self.age = 0
         self.hist = []
         self.prev_pos = None
 
@@ -58,6 +58,9 @@ class FruitTrack(object):
         self.prev_pos = self.pos
         self.kf.predict()
         self.bbox = shift_bbox(self.bbox, self.pos)
+
+        # increment age after prediction
+        self.age += 1
 
     def correct_flow(self, pos, flow_cov):
         """

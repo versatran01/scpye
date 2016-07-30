@@ -114,7 +114,7 @@ class FruitTracker(object):
         lost_tracks.extend(unmatched_tks)
 
         # Count fruits in lost tracks
-        # self.count_in_tracks(lost_tks)
+        self.count_in_tracks(lost_tracks)
 
     def predict_tracks(self):
         """
@@ -199,3 +199,4 @@ class FruitTracker(object):
 
         frame_count = sum([1 for t in tracks if t.age >= self.min_age])
         self.total_counts += frame_count
+        print(self.total_counts)
