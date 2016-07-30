@@ -1,12 +1,10 @@
 # %%
 from __future__ import division
-from scpye.bounding_box import extract_bbox
-from scpye.region_props import *
-from scpye.blob_analyzer import *
+
 from scpye.testing import get_prediction_bw
-from scpye.training import *
-from scpye.visualization import *
-import scipy.ndimage as ndi
+
+from scpye.blob_analyzer import *
+from scpye.utils.drawing import *
 
 # %%
 base_dir = '/home/chao/Dropbox'
@@ -65,14 +63,14 @@ Is, Ls = drd.load_image_label_list(test_indices)
 #    draw_bbox(disp_bgr, bboxes)
 #    imshow2(disp_bgr, B, figsize=(17, 17))
 
-blb_anl = BlobAnalyzer(split=True)
+blb_anl = BlobAnalyzer(do_split=True)
 
 for I, L in zip(Is, Ls):
     B = get_prediction_bw(img_ppl, img_clf, I)
     B = gray_from_bw(B)
     B = clean_bw(B)
 
-    blobs, cntrs = region_props_bw(B, min_area=5)
+    blobs, cntrs = analyze_contours_bw(B, min_area=5)
     B = fill_bw(B, cntrs)
 
     disp_bgr = img_ppl.named_steps['remove_dark'].image.copy()

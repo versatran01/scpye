@@ -6,14 +6,14 @@ Created on Sun Feb  7 23:17:29 2016
 """
 
 # %%
+from scpye.blob_analyzer import *
+from scpye.testing import get_positive_bw, get_prediction_bw
 from skimage.measure import label
 
-from scpye.blob_analyzer import *
-from scpye.bounding_box import extract_bbox
-from scpye.region_props import clean_bw, fill_bw, gray_from_bw
-from scpye.testing import get_positive_bw, get_prediction_bw
-from scpye.training import *
-from scpye.visualization import *
+from scpye.detection.training import *
+from scpye.improc.contour_analysis import clean_bw, fill_bw, gray_from_bw
+from scpye.track.bounding_box import extract_bbox
+from scpye.utils.drawing import *
 
 # %%
 base_dir = '/home/chao/Dropbox'
@@ -40,7 +40,7 @@ for I, L in zip(Is, Ls):
 
     bw_clf = clean_bw(bw_clf)
 
-    blobs, cntrs = region_props_bw(bw_clf)
+    blobs, cntrs = analyze_contours_bw(bw_clf)
     bw_clf = fill_bw(bw_clf, cntrs)
 
     bw_tp = bw_clf & bw_pos
@@ -88,7 +88,7 @@ for I, L in zip(Is, Ls):
     bw_clf = gray_from_bw(bw_clf)
 
     bw_clf = clean_bw(bw_clf)
-    blobs, cntrs = region_props_bw(bw_clf)
+    blobs, cntrs = analyze_contours_bw(bw_clf)
     bw_clf = fill_bw(bw_clf, cntrs)
 
     bgr = img_ppl.named_steps['remove_dark'].image

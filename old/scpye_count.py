@@ -8,10 +8,10 @@ import rosbag
 from cv_bridge import CvBridge, CvBridgeError
 from sklearn.externals import joblib
 
-from scpye.fruit_detector import FruitDetector
-from scpye.fruit_tracker import FruitTracker
-from scpye.region_props import region_props
-from scpye.visualization import draw_bboxes
+from scpye.improc.contour_analysis import analyze_contours
+from scpye.detection.fruit_detector import FruitDetector
+from scpye.track.fruit_tracker import FruitTracker
+from scpye.utils.drawing import draw_bboxes
 
 k = 0.3
 apple = 'green'
@@ -59,7 +59,7 @@ with rosbag.Bag(bagfile) as bag:
 
         # Detection and tracking
         s, bw = detector.detect(image)
-        blobs, bw = region_props(bw)
+        blobs, bw = analyze_contours(bw)
         tracker.track(s, blobs, bw)
 
         # Visualize result

@@ -5,19 +5,18 @@ Created on Mon Feb  8 19:20:09 2016
 @author: chao
 """
 
-import numpy as np
-from scpye.image_pipeline import ImagePipeline
-from scpye.image_transformer import ImageTransformer, FeatureTransformer
-from scpye.blob_analyzer import clean_bw, gray_from_bw, fill_bw
-from scpye.region_props import region_props_bw, clean_bw, fill_bw, gray_from_bw
-from scpye.bounding_box import extract_bbox
-from skimage.measure import label
-from scpye.data_manager import DataManager
 from scpye.testing import get_positive_bw, get_prediction_bw
-from sklearn.preprocessing import StandardScaler
+from skimage.measure import label
 from sklearn.grid_search import GridSearchCV
+from sklearn.preprocessing import StandardScaler
 from sklearn.svm import SVC
-from scpye.visualization import *
+
+from scpye.detection.image_pipeline import ImagePipeline
+from scpye.detection.image_transformer import ImageTransformer, FeatureTransformer
+from scpye.improc.contour_analysis import analyze_contours_bw, clean_bw, fill_bw, gray_from_bw
+from scpye.track.bounding_box import extract_bbox
+from scpye.utils.data_manager import DataManager
+from scpye.utils.drawing import *
 
 
 # %%
@@ -51,7 +50,7 @@ class BlobFinder(ImageTransformer):
 
     @ImageTransformer.forward_list
     def transform(self, X, y=None):
-        blobs, cntrs = region_props_bw(X, min_area=self.min_area)
+        blobs, cntrs = analyze_contours_bw(X, min_area=self.min_area)
         self.blobs = blobs
         self.cntrs = cntrs
         self.bw = fill_bw(X, cntrs)

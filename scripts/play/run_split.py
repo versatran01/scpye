@@ -6,14 +6,10 @@ Created on Thu Feb 11 21:34:34 2016
 """
 
 # %% 
-import os
-import cv2
-import numpy as np
-from scpye.data_manager import DataManager
-from scpye.fruit_detector import FruitDetector
-from scpye.region_props import find_contours
 from scpye.blob_analyzer import *
-from scpye.visualization import *
+from scpye.detection.fruit_detector import FruitDetector
+from scpye.utils.data_manager import DataManager
+from scpye.utils.drawing import *
 
 save_dir = '/home/chao/Desktop'
 
@@ -40,7 +36,7 @@ bw = fd.detect(I)
 min_area = 5
 bw = gray_from_bw(bw)
 bw = clean_bw(bw)
-blobs, cntrs = region_props_bw(bw, min_area=min_area)
+blobs, cntrs = analyze_contours_bw(bw, min_area=min_area)
 bw_clean = fill_bw(bw, cntrs)
 
 disp_left = fd.color
