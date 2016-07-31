@@ -1,5 +1,6 @@
 from __future__ import (print_function, absolute_import, division)
 
+import numpy as np
 import matplotlib.pyplot as plt
 
 
@@ -9,10 +10,11 @@ class FruitVisualizer(object):
         plt.ion()
         self.ax_bgr = self.fig.add_subplot(121)
         self.ax_bw = self.fig.add_subplot(122)
+
         self.h_bgr = None
         self.h_bw = None
-        self.interp = interp
 
+        self.interp = interp
         self.pause_time = pause_time
 
     def show(self, disp_bgr, disp_bw):

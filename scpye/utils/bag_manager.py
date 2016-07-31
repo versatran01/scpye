@@ -15,7 +15,8 @@ class BagManager(object):
         self.bag_fmt = "frame{0}.bag"
         self.bgr_fmt = "bgr{0:04d}.png"
         self.bw_fmt = "bw{0:04d}.png"
-        self.i = 0
+        self.i_detect = 0
+        self.i_video = 0
 
         self.bag_dir = os.path.join(self.data_dir, bag)
         self.detect_dir = os.path.join(self.bag_dir, detect,
@@ -43,14 +44,14 @@ class BagManager(object):
                 yield image
 
     def save_detect(self, bgr, bw):
-        print('saving image', self.i)
+        print('saving image', self.i_detect)
         bgr_name = os.path.join(self.detect_dir,
-                                self.bgr_fmt.format(self.i))
+                                self.bgr_fmt.format(self.i_detect))
         bw_name = os.path.join(self.detect_dir,
-                               self.bw_fmt.format(self.i))
+                               self.bw_fmt.format(self.i_detect))
         cv2.imwrite(bgr_name, bgr)
         cv2.imwrite(bw_name, bw)
-        self.i += 1
+        self.i_detect += 1
 
     def load_detect(self):
         i = 0
@@ -66,3 +67,13 @@ class BagManager(object):
             else:
                 i += 1
                 yield bgr, bw
+
+    def save_video(self, disp_bgr, disp_bw):
+        print('saving image', self.i_video)
+        bgr_name = os.path.join(self.video_dir,
+                                self.bgr_fmt.format(self.i_video))
+        bw_name = os.path.join(self.video_dir,
+                               self.bw_fmt.format(self.i_video))
+        cv2.imwrite(bgr_name, disp_bgr)
+        cv2.imwrite(bw_name, disp_bw)
+        self.i_video += 1

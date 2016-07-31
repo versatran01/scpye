@@ -1,5 +1,3 @@
-import os
-import cv2
 from scpye.improc.binary_cleaner import BinaryCleaner
 from scpye.improc.blob_analyzer import BlobAnalyzer
 
@@ -13,7 +11,7 @@ base_dir = '/home/chao/Workspace/dataset/agriculture'
 color = 'red'
 mode = 'slow_flash'
 side = 'north'
-bag_ind = 1
+bag_ind = 2
 
 # %%
 dm = DataManager(base_dir, color=color, mode=mode, side=side)
@@ -30,3 +28,5 @@ for bgr, bw in bm.load_detect():
     fruits = ba.analyze(bgr, region_props)
     ft.track(bgr, fruits, bw_clean)
     fv.show(ft.disp_bgr, ft.disp_bw)
+    bm.save_video(ft.disp_bgr, ft.disp_bw)
+ft.finish()
