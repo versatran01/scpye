@@ -11,7 +11,7 @@ base_dir = '/home/chao/Workspace/dataset/agriculture'
 color = 'red'
 mode = 'slow_flash'
 side = 'north'
-bag_ind = 2
+bag_ind = 1
 
 # %%
 dm = DataManager(base_dir, color=color, mode=mode, side=side)
