@@ -38,7 +38,7 @@ img_ppl = joblib.load(img_ppl_pkl)
 img_clf = joblib.load(img_clf_pkl)
 
 # %%
-I, L = drd.load_image_label(2)
+I, L = drd.load_image_and_label(2)
 img_ppl.transform(I, L)
 
 # Get transformed label

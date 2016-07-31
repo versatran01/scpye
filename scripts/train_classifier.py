@@ -45,7 +45,7 @@ def test_image_classifier(data_manager, image_indices, image_pipeline,
         image_indices = [image_indices]
 
     for ind in image_indices:
-        I, L = data_manager.load_image_label(ind)
+        I, L = data_manager.load_image_and_label(ind)
         It, Lt = image_pipeline.transform(I, L[..., 1])
         Xt = feature_pipeline.transform(It)
         y = image_classifier.predict(Xt)
@@ -76,8 +76,8 @@ else:
     test_inds = range(12, 16)
 
 # Parameters
-k = 0.5
-pmin = 26
+k = 0.7
+pmin = 27
 cspace = ['hsv', 'lab']
 loc = True
 patch = True
