@@ -30,17 +30,9 @@ class BlobAnalyzer(object):
         self.min_distance = min_distance
         self.exclude_border = exclude_border
 
-    def is_single_blob(self, blob_prop):
-        """
-        Check if this blob is a single blob
-        :param blob_prop:
-        :return:
-        """
-        area, aspect, extent, solidity = blob_prop
-
-        return area < self.max_cntr_area \
-               or (extent > self.min_extent and aspect < self.max_aspect) \
-               or solidity > self.min_solidity
+        # Drawing
+        self.single_bboxes = None
+        self.multi_bboxes = None
 
     def analyze(self, bgr, region_props):
         """
@@ -52,11 +44,28 @@ class BlobAnalyzer(object):
 
         # Get potential multi-props
         fruits, multi_rprops = self.extract_multi(region_props)
+
+        self.single_bboxes = np.array(fruits)
+
         # Split them to single bbox and add to fruits
-        splitted_fruits = self.split_multi(gray, multi_rprops)
-        fruits.extend(splitted_fruits)
+        split_fruits = self.split_multi(gray, multi_rprops)
+        fruits.extend(split_fruits)
+
+        self.multi_bboxes = np.array(split_fruits)
 
         return np.array(fruits)
+
+    def is_single_blob(self, blob_prop):
+        """
+        Check if this blob is a single blob
+        :param blob_prop:
+        :return:
+        """
+        area, aspect, extent, solidity = blob_prop
+
+        return area < self.max_cntr_area \
+               or (extent > self.min_extent and aspect < self.max_aspect) \
+               or solidity > self.min_solidity
 
     def extract_multi(self, region_props):
         """
@@ -83,7 +92,7 @@ class BlobAnalyzer(object):
         :param gray:
         :param region_props:
         """
-        splitted_bboxes = []
+        split_bboxes = []
 
         for rprop in region_props:
             bbox = rprop.blob['bbox']
@@ -93,13 +102,13 @@ class BlobAnalyzer(object):
             dist_max, markers, n_peaks = self.prepare_watershed(gray_bbox)
 
             if n_peaks < 2:
-                splitted_bboxes.append(bbox)
+                split_bboxes.append(bbox)
             else:
                 labels = watershed(-dist_max, markers, mask=gray_bbox)
-                local_bboxes = bboxes_from_labels(labels, n_peaks, bbox)
-                splitted_bboxes.extend(local_bboxes)
+                global_bboxes = bboxes_from_labels(labels, n_peaks, bbox)
+                split_bboxes.extend(global_bboxes)
 
-        return splitted_bboxes
+        return split_bboxes
 
     def prepare_watershed(self, gray):
         """
@@ -111,6 +120,7 @@ class BlobAnalyzer(object):
         # gray will be converted to binary when performing edt
         euclid_dist = ndi.distance_transform_edt(gray)
         dist = scale_array(gray_blur, val=self.gray_max)
+        # combination of intensity and distance transform
         dist += scale_array(euclid_dist,
                             val=self.gray_max / self.gray_edt_ratio)
 
@@ -120,6 +130,7 @@ class BlobAnalyzer(object):
                                    indices=False,
                                    exclude_border=self.exclude_border)
         markers, n_peaks = ndi.label(local_max)
+
         return dist_max, markers, n_peaks
 
 
@@ -132,11 +143,14 @@ def bboxes_from_labels(labels, n_peaks, bbox):
     :return:
     """
     global_bboxes = []
+
     for i in range(n_peaks):
         label_i1 = u8_from_bw(labels == i + 1)  # 0 is background
         local_bbox = contour_bounding_rect(label_i1)
+        # shift bbox from local to global
         local_bbox[:2] += bbox[:2]
         global_bboxes.append(local_bbox)
+
     return global_bboxes
 
 
