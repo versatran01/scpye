@@ -30,8 +30,6 @@ class BlobAnalyzer(object):
         self.min_distance = min_distance
         self.exclude_border = exclude_border
 
-        self.fruits = None
-
     def is_single_blob(self, blob_prop):
         """
         Check if this blob is a single blob
@@ -50,18 +48,15 @@ class BlobAnalyzer(object):
         :param region_props: region props
         :return: fruits
         """
-        self.fruits = []
-        # Clean original bw
         gray = cv2.cvtColor(bgr, cv2.COLOR_BGR2GRAY)
-        # gray[bw == 0] = 0
 
         # Get potential multi-props
-        self.fruits, multi_rprops = self.extract_multi(region_props)
+        fruits, multi_rprops = self.extract_multi(region_props)
         # Split them to single bbox and add to fruits
         splitted_fruits = self.split_multi(gray, multi_rprops)
-        self.fruits.extend(splitted_fruits)
+        fruits.extend(splitted_fruits)
 
-        return np.array(self.fruits)
+        return np.array(fruits)
 
     def extract_multi(self, region_props):
         """
@@ -89,6 +84,7 @@ class BlobAnalyzer(object):
         :param region_props:
         """
         splitted_bboxes = []
+
         for rprop in region_props:
             bbox = rprop.blob['bbox']
             gray_bbox = extract_gray(gray, rprop)
@@ -102,6 +98,7 @@ class BlobAnalyzer(object):
                 labels = watershed(-dist_max, markers, mask=gray_bbox)
                 local_bboxes = bboxes_from_labels(labels, n_peaks, bbox)
                 splitted_bboxes.extend(local_bboxes)
+
         return splitted_bboxes
 
     def prepare_watershed(self, gray):
@@ -134,13 +131,13 @@ def bboxes_from_labels(labels, n_peaks, bbox):
     :param bbox:
     :return:
     """
-    local_bboxes = []
+    global_bboxes = []
     for i in range(n_peaks):
         label_i1 = u8_from_bw(labels == i + 1)  # 0 is background
         local_bbox = contour_bounding_rect(label_i1)
         local_bbox[:2] += bbox[:2]
-        local_bboxes.append(local_bbox)
-    return local_bboxes
+        global_bboxes.append(local_bbox)
+    return global_bboxes
 
 
 def extract_gray(gray, rprop):
