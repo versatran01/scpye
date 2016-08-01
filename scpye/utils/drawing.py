@@ -5,6 +5,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 from itertools import izip
 
+from  scpye.track.bounding_box import extract_bbox
+
 
 class Colors:
     """
@@ -16,6 +18,9 @@ class Colors:
     yellow = (255, 255, 0)
     magenta = (255, 0, 255)
     cyan = (0, 255, 255)
+    orange = (255, 165, 0)
+    purple = (160, 32, 240)
+    gold = (255, 215, 0)
     white = (255, 255, 255)
 
 
@@ -71,6 +76,15 @@ def draw_ellipses(image, ellipses, color=(255, 0, 0), thickness=1):
                     thickness=thickness)
 
 
+def draw_line(image, line, color=(255, 0, 0), thickness=1):
+    line = np.atleast_2d(np.array(line, dtype=int))
+    for i in range(len(line) - 1):
+        p1, p2 = line[i], line[i + 1]
+        a, b = p1
+        c, d = p2
+        cv2.line(image, (a, b), (c, d), color=color, thickness=thickness)
+
+
 def draw_contour(image, cntr, color=(255, 0, 0), thickness=1):
     cv2.drawContours(image, [cntr], 0, color, thickness)
 
@@ -122,3 +136,10 @@ def draw_bboxes_matches(image, matches, bboxes1, bboxes2, color, thickness=1):
         d = int(y2 + h2 / 2)
         draw_bboxes(image, bbox2, color=color, thickness=thickness)
         cv2.line(image, (a, b), (c, d), color=color, thickness=thickness)
+
+
+def draw_blob_analyzer(ba, disp_bgr, disp_bw):
+    draw_bboxes(disp_bgr, ba.single_bboxes, color=Colors.red)
+    draw_bboxes(disp_bgr, ba.multi_bboxes, color=Colors.orange)
+    draw_bboxes(disp_bw, ba.single_bboxes, color=Colors.red)
+    draw_bboxes(disp_bw, ba.multi_bboxes, color=Colors.orange)

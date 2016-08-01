@@ -1,24 +1,22 @@
 from __future__ import (print_function, division, absolute_import)
 
-import cv2
-import numpy as np
 from itertools import izip
 
+import cv2
+import numpy as np
+
+from scpye.improc.image_processing import enhance_contrast
 from scpye.track.assignment import hungarian_assignment
 from scpye.track.bounding_box import bboxes_assignment_cost
 from scpye.track.fruit_track import FruitTrack
-from scpye.track.optical_flow import calc_optical_flow
-from scpye.improc.image_processing import enhance_contrast
-
-from scpye.utils.drawing import (Colors, draw_bboxes, draw_optical_flows,
-                                 draw_bboxes_matches)
+from scpye.track.optical_flow import (calc_optical_flow, calc_average_flow)
+from scpye.utils.drawing import (Colors, draw_bboxes, draw_optical_flows)
 
 
 class FruitTracker(object):
     def __init__(self, min_age=3, win_size=31, max_level=3, init_flow=(40, 0),
-                 state_cov=(5, 5, 5, 5), proc_cov=(10, 4, 5, 2),
-                 flow_cov=(3, 3),
-                 bbox_cov=(1, 1)):
+                 state_cov=(5, 5, 5, 5), proc_cov=(8, 4, 4, 2),
+                 flow_cov=(2, 2), bbox_cov=(1, 1)):
         """
         :param min_age: minimum age of a tracking to be considered for counting
         """
@@ -72,10 +70,10 @@ class FruitTracker(object):
         self.disp_bgr = enhance_contrast(image)
         self.disp_bw = cv2.cvtColor(bw, cv2.COLOR_GRAY2BGR)
 
-        # VISUALIZATION: detect
+        # VISUALIZATION: new detection
         if self.vis:
-            draw_bboxes(self.disp_bgr, fruits, color=Colors.white)
-            draw_bboxes(self.disp_bw, fruits, color=Colors.white)
+            draw_bboxes(self.disp_bgr, fruits, color=Colors.blue)
+            draw_bboxes(self.disp_bw, fruits, color=Colors.blue)
 
         # Initialization
         if not self.initialized:
@@ -87,31 +85,43 @@ class FruitTracker(object):
         self.predict_tracks()
 
         # VISUALIZATION: after prediction
-        if self.vis:
-            predict_bboxes = [t.bbox for t in self.tracks]
-            draw_bboxes(self.disp_bgr, predict_bboxes, color=Colors.red)
-            draw_bboxes(self.disp_bw, predict_bboxes, color=Colors.red)
+        # if self.vis:
+        #     predict_bboxes = [t.bbox for t in self.tracks]
+        #     draw_bboxes(self.disp_bgr, predict_bboxes, color=Colors.red)
+        #     draw_bboxes(self.disp_bw, predict_bboxes, color=Colors.red)
 
         updated_tracks, lost_tracks = self.update_tracks(gray)
 
         # VISUALIZATION: after optical flow update
         if self.vis:
             updated_bboxes = [t.bbox for t in updated_tracks]
-            draw_bboxes(self.disp_bgr, updated_bboxes, color=Colors.yellow)
-            draw_bboxes(self.disp_bw, updated_bboxes, color=Colors.yellow)
+            draw_bboxes(self.disp_bgr, updated_bboxes, color=Colors.cyan)
+            draw_bboxes(self.disp_bw, updated_bboxes, color=Colors.cyan)
 
         matched_tracks, unmatched_tks = self.match_tracks(updated_tracks,
                                                           fruits)
 
         # VISUALIZATION: after hungarian assignment update
-        if self.vis:
-            matched_bboxes = [t.bbox for t in matched_tracks]
-            draw_bboxes(self.disp_bgr, matched_bboxes, color=Colors.green)
-            draw_bboxes(self.disp_bw, matched_bboxes, color=Colors.green)
+        # if self.vis:
+        #     matched_bboxes = [t.bbox for t in matched_tracks]
+        #     draw_bboxes(self.disp_bgr, matched_bboxes, color=Colors.green)
+        #     draw_bboxes(self.disp_bw, matched_bboxes, color=Colors.green)
 
         # Assemble all lost tracks and update tracks
         self.tracks = matched_tracks
         lost_tracks.extend(unmatched_tks)
+
+        # VISUALIZATION:
+        if self.vis:
+            counted_bboxes = [t.bbox for t in self.tracks if
+                              t.age > self.min_age]
+            if len(counted_bboxes):
+                draw_bboxes(self.disp_bgr, counted_bboxes, color=Colors.green)
+                draw_bboxes(self.disp_bw, counted_bboxes, color=Colors.green)
+        # if self.vis:
+        #     for track in self.tracks:
+        #         draw_line(self.disp_bgr, track.hist, color=Colors.magenta)
+        #         draw_line(self.disp_bw, track.hist, color=Colors.magenta)
 
         # Count fruits in lost tracks
         self.count_in_tracks(lost_tracks)
@@ -137,6 +147,9 @@ class FruitTracker(object):
                                              prev_pts, init_pts,
                                              self.win_size,
                                              self.max_level)
+
+        # Update init flow
+        self.init_flow = calc_average_flow(prev_pts, curr_pts, status)
 
         # VISUALIZATION: optical flow
         draw_optical_flows(self.disp_bgr, prev_pts, curr_pts, status,
@@ -196,7 +209,9 @@ class FruitTracker(object):
         Count how many fruits there are in tracks
         :param tracks: list of tracks
         """
-
         frame_count = sum([1 for t in tracks if t.age >= self.min_age])
         self.total_counts += frame_count
-        print(self.total_counts)
+        print("count: {}".format(self.total_counts))
+
+    def finish(self):
+        self.count_in_tracks(self.tracks)
