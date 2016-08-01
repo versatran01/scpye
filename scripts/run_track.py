@@ -11,15 +11,15 @@ base_dir = '/home/chao/Workspace/dataset/agriculture'
 color = 'red'
 mode = 'slow_flash'
 side = 'north'
-bag_ind = 1
+bag_ind = 3
 
 # %%
 dm = DataManager(base_dir, color=color, mode=mode, side=side)
 bm = BagManager(dm.data_dir, bag_ind)
 
-bc = BinaryCleaner(ksize=3, iters=2, min_area=5)
-ba = BlobAnalyzer()
-ft = FruitTracker()
+bc = BinaryCleaner(ksize=3, iters=2, min_area=20)
+ba = BlobAnalyzer(max_cntr_area=250)
+ft = FruitTracker(max_level=3)
 fv = FruitVisualizer(pause_time=0.1)
 
 # %%
@@ -27,6 +27,6 @@ for bgr, bw in bm.load_detect():
     bw_clean, region_props = bc.clean(bw)
     fruits = ba.analyze(bgr, region_props)
     ft.track(bgr, fruits, bw_clean)
-    fv.show(ft.disp_bgr, ft.disp_bw)
-    bm.save_video(ft.disp_bgr, ft.disp_bw)
+#    fv.show(ft.disp_bgr, ft.disp_bw)
+#    bm.save_video(ft.disp_bgr, ft.disp_bw)
 ft.finish()

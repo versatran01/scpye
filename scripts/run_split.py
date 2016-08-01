@@ -12,13 +12,13 @@ base_dir = '/home/chao/Workspace/dataset/agriculture'
 color = 'red'
 mode = 'slow_flash'
 side = 'north'
-bag_ind = 3
+bag_ind = 1
 
 # %%
 dm = DataManager(base_dir, color=color, mode=mode, side=side)
 bm = BagManager(dm.data_dir, bag_ind)
-bc = BinaryCleaner(ksize=3, iters=2, min_area=5)
-ba = BlobAnalyzer(max_cntr_area=100)
+bc = BinaryCleaner(ksize=3, iters=2, min_area=9)
+ba = BlobAnalyzer(max_cntr_area=250)
 fv = FruitVisualizer(pause_time=0.1)
 
 # %%
