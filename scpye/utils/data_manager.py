@@ -1,9 +1,6 @@
 import os
-
 import cv2
 import numpy as np
-import rosbag
-from cv_bridge import CvBridge, CvBridgeError
 from sklearn.externals import joblib
 
 from scpye.utils.exception import ImageNotFoundError
@@ -15,23 +12,17 @@ def make_binary(data):
 
 class DataManager(object):
     def __init__(self, base_dir='/home/chao/Workspace/bag', fruit='apple',
-                 color='red', mode='fast_flash', side='north', bag='rect_fixed',
-                 filename='frame{0:04d}_{1}.png', bagname='frame{0}.bag'):
+                 color='red', mode='slow_flash', side='north', train='train',
+                 label='label', model='model'):
         self.base_dir = base_dir
-        self.fruit = fruit
-        self.color = color
-        self.mode = mode
-        self.side = side
-        self.filename = filename
-        self.bagname = bagname
+        self.file_fmt = 'frame{0:04d}_{1}.png'
 
         # Directory
-        self.color_dir = os.path.join(self.base_dir, fruit, color)
-        self.data_dir = os.path.join(self.color_dir, mode, side)
-        self.train_dir = os.path.join(self.data_dir, 'train')
-        self.model_dir = os.path.join(self.data_dir, 'model')
-        self.image_dir = os.path.join(self.data_dir, 'image')
-        self.bag_dir = os.path.join(self.data_dir, bag)
+        # data_dir will be passed to BagManger
+        self.data_dir = os.path.join(self.base_dir, fruit, color, mode, side)
+        self.train_dir = os.path.join(self.data_dir, train)
+        self.label_dir = os.path.join(self.train_dir, label)
+        self.model_dir = os.path.join(self.train_dir, model)
 
     def _read_image(self, index, suffix, color=True):
         """
@@ -42,37 +33,40 @@ class DataManager(object):
         :return: image
         :rtype: numpy.ndarray
         """
-        filename = os.path.join(self.train_dir,
-                                self.filename.format(index, suffix))
+        filename = os.path.join(self.label_dir,
+                                self.file_fmt.format(index, suffix))
         if color:
             flag = cv2.IMREAD_COLOR
         else:
             flag = cv2.IMREAD_GRAYSCALE
+
         image = cv2.imread(filename, flag)
+
         if image is None:
             raise ImageNotFoundError(filename)
+
         return image
 
     def load_image(self, index):
         """
-        Load image by index
+        Load color image by index
         :param index:
-        :return:
+        :return: color image
         """
         return self._read_image(index, 'raw', color=True)
 
     def load_label(self, index):
         """
-        Load label by index
+        Load labels by index
         :param index:
-        :return:
+        :return: label in bool
         """
         neg = self._read_image(index, 'neg', color=False)
         pos = self._read_image(index, 'pos', color=False)
         label = np.dstack((neg, pos))
         return make_binary(label)
 
-    def load_image_label(self, index):
+    def load_image_and_label(self, index):
         """
         :param index: index of image
         :return: image and label
@@ -104,9 +98,9 @@ class DataManager(object):
         :param name:
         :return:
         """
-        model_pickle = os.path.join(self.model_dir, name + '.pkl')
-        model = joblib.load(model_pickle)
-        print('{0} load from {1}'.format(name, model_pickle))
+        model_pkl = os.path.join(self.model_dir, name + '.pkl')
+        model = joblib.load(model_pkl)
+        print('{0} load from {1}'.format(name, model_pkl))
         return model
 
     def load_all_models(self):
@@ -120,34 +114,12 @@ class DataManager(object):
         Load image and label in separate lists
         :param image_indices:
         """
-        # image_indices has to be a list
-        if np.isscalar(image_indices):
-            image_indices = [image_indices]
+        image_indices = np.atleast_1d(image_indices)
 
         Is, Ls = [], []
         for ind in image_indices:
-            I, L = self.load_image_label(ind)
+            I, L = self.load_image_and_label(ind)
             Is.append(I)
             Ls.append(L)
 
         return Is, Ls
-
-    def load_bag(self, index, topic='/color/image_rect_color'):
-        """
-        A generator for image
-        :param index:
-        :param topic: image message topic
-        :return:
-        """
-        bagname = os.path.join(self.bag_dir,
-                               self.bagname.format(index))
-        print('loading bag: {0}'.format(bagname))
-        bridge = CvBridge()
-        with rosbag.Bag(bagname) as bag:
-            for topic, msg, t in bag.read_messages(topic):
-                try:
-                    image = bridge.imgmsg_to_cv2(msg)
-                except CvBridgeError as e:
-                    print(e)
-                    continue
-                yield image

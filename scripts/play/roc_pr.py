@@ -55,7 +55,7 @@ clf, param_grid = create_voting_classifier()
 grid = cross_validate_classifier(Xt, yt, clf, param_grid)
 
 # %%
-I, L = drd.load_image_label(3)
+I, L = drd.load_image_and_label(3)
 
 X = img_ppl.transform(I)
 X = ftr_ppl.transform(X)

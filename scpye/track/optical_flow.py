@@ -61,3 +61,20 @@ def calc_optical_flow(gray1, gray2, points1, points2, win_size, max_level):
     # status = (status == 1) & is_inside
 
     return np.squeeze(points2), np.squeeze(status)
+
+
+def calc_average_flow(points1, points2, status):
+    """
+    Calculate average optical flow
+    :param points1:
+    :param points2:
+    :param status:
+    :return:
+    """
+    points1 = np.squeeze(np.array(points1))
+    points2 = np.squeeze(np.array(points2))
+    status = np.squeeze(np.array(status) > 0)
+    flows = points2 - points1
+    valid_flows = flows[status]
+
+    return np.mean(valid_flows, axis=0)

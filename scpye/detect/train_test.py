@@ -1,5 +1,8 @@
 from __future__ import (print_function, absolute_import, division)
 
+import numpy as np
+import matplotlib.pyplot as plt
+
 from sklearn.cross_validation import train_test_split
 from sklearn.ensemble import (RandomForestClassifier, VotingClassifier)
 from sklearn.grid_search import GridSearchCV
@@ -8,6 +11,7 @@ from sklearn.metrics import classification_report
 from sklearn.svm import SVC
 
 from scpye.utils.exception import ClassifierNotSupportedError
+from scpye.utils.drawing import imshow
 
 
 def create_single_classifier(clf_name='svc'):
@@ -20,10 +24,10 @@ def create_single_classifier(clf_name='svc'):
         params = {'C': [20, 200]}
     elif clf_name == 'lr':
         clf = LogisticRegression()
-        params = {'C': [20, 200]}
+        params = {'C': [100]}
     elif clf_name == 'rf':
         clf = RandomForestClassifier()
-        params = {'n_estimators': [20, 50]}
+        params = {'n_estimators': [30]}
     else:
         raise ClassifierNotSupportedError(clf_name)
 
@@ -101,3 +105,47 @@ def print_validation_report(X, y, clf, target_names=None):
     y_pred = clf.predict(X)
     report = classification_report(y, y_pred, target_names=target_names)
     print(report)
+
+
+def train_image_classifier(data_manager, image_indices, image_pipeline,
+                           feature_pipeline):
+    """
+    :type data_manager: DataReader
+    :param image_indices: list of indices
+    :type image_pipeline: ImagePipeline
+    :type feature_pipeline: ImagePipeline
+    :rtype: GridSearchCV
+    """
+    # Load
+    Is, Ls = data_manager.load_image_label_list(image_indices)
+    # Transform
+    Its, Lts = image_pipeline.transform(Is, Ls)
+    Xt, yt = feature_pipeline.fit_transform(Its, Lts)
+    # Fit
+    clf, param_grid = create_voting_classifier()
+    grid = cross_validate_classifier(Xt, yt, clf, param_grid)
+
+    return grid
+
+
+def test_image_classifier(data_manager, image_indices, image_pipeline,
+                          feature_pipeline, image_classifier):
+    """
+    :type data_manager: DataManager
+    :param image_indices:
+    :type image_pipeline: ImagePipeline
+    :type feature_pipeline: ImagePipeline
+    :type image_classifier: GridSearchCV
+    """
+    image_indices = np.atleast_1d(image_indices)
+
+    for ind in image_indices:
+        I, L = data_manager.load_image_and_label(ind)
+        It, Lt = image_pipeline.transform(I, L[..., 1])
+        Xt = feature_pipeline.transform(It)
+        y = image_classifier.predict(Xt)
+
+        bw = feature_pipeline.named_steps['remove_dark'].mask.copy()
+        bw[bw > 0] = y
+        bw = np.array(bw, dtype='uint8')
+        imshow(It, bw + Lt, cmap=plt.cm.viridis)

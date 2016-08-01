@@ -24,7 +24,7 @@ def cov2ellipse(P, ns=3):
 class FruitTrack(object):
     def __init__(self, bbox, init_flow, state_cov, proc_cov):
         self.bbox = bbox
-        self.age = 0
+        self.age = 1
         self.hist = []
         self.prev_pos = None
 
@@ -33,6 +33,7 @@ class FruitTrack(object):
         init_state = np.hstack((init_pos, init_flow))
 
         self.kf = KalmanFilter(x0=init_state, P0=state_cov, Q=proc_cov)
+        self.hist.append(self.pos)
 
     @property
     def pos(self):
@@ -59,9 +60,6 @@ class FruitTrack(object):
         self.kf.predict()
         self.bbox = shift_bbox(self.bbox, self.pos)
 
-        # increment age after prediction
-        self.age += 1
-
     def correct_flow(self, pos, flow_cov):
         """
         Correct location of the track from pos input
@@ -82,3 +80,7 @@ class FruitTrack(object):
         self.kf.update_pos(pos, bbox_cov)
         # Here we shift using current bbox (fixed)
         self.bbox = shift_bbox(bbox, self.pos)
+
+        # Increment age and add track to hist
+        self.age += 1
+        self.hist.append(self.pos)

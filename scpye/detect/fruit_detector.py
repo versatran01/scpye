@@ -3,6 +3,7 @@ from __future__ import (print_function, division, absolute_import)
 import numpy as np
 
 from scpye.detect.image_pipeline import ImagePipeline
+from scpye.improc.image_processing import u8_from_bw
 
 
 def get_dark_remover(feature_pipeline):
@@ -34,6 +35,8 @@ class FruitDetector(object):
 
         bw = self.ftr_ppl.named_steps['remove_dark'].mask.copy()
         bw[bw > 0] = y
+        bw = u8_from_bw(bw, val=255)
+
         return It, bw
 
     @classmethod
