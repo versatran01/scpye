@@ -7,9 +7,6 @@ from sklearn.externals import joblib
 
 from scpye.utils.exception import ImageNotFoundError
 
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
-
 
 def make_binary(data):
     return np.array(data > 0, dtype='uint8')
@@ -29,7 +26,8 @@ class DataManager(object):
         self.label_dir = os.path.join(self.train_dir, label)
         self.model_dir = os.path.join(self.train_dir, model)
 
-        logger.info("DataManger: {}".format(self.data_dir))
+        self.logger = logging.getLogger(__name__)
+        self.logger.info("DataManger: {}".format(self.data_dir))
 
     def _read_image(self, index, suffix, color=True):
         """
@@ -60,7 +58,7 @@ class DataManager(object):
         :param index:
         :return: color image
         """
-        logger.debug("Loading image {}".format(index))
+        self.logger.debug("Loading image {}".format(index))
         return self._read_image(index, 'raw', color=True)
 
     def load_label(self, index):
@@ -69,7 +67,8 @@ class DataManager(object):
         :param index:
         :return: label in bool
         """
-        logger.debug("Loading label {}".format(index))
+        self.logger.debug("Loading label {}".format(index))
+
         neg = self._read_image(index, 'neg', color=False)
         pos = self._read_image(index, 'pos', color=False)
         label = np.dstack((neg, pos))
@@ -94,7 +93,8 @@ class DataManager(object):
         """
         model_pickle = os.path.join(self.model_dir, name + '.pkl')
         joblib.dump(model, model_pickle, compress=compress)
-        logger.info('{0} saved to {1}'.format(name, model_pickle))
+
+        self.logger.info('{0} saved to {1}'.format(name, model_pickle))
 
     def save_all_models(self, img_ppl, ftr_ppl, img_clf):
         self.save_model(img_ppl, 'img_ppl')
@@ -109,7 +109,8 @@ class DataManager(object):
         """
         model_pkl = os.path.join(self.model_dir, name + '.pkl')
         model = joblib.load(model_pkl)
-        logger.info('{0} load from {1}'.format(name, model_pkl))
+
+        self.logger.info('{0} load from {1}'.format(name, model_pkl))
         return model
 
     def load_all_models(self):
