@@ -8,7 +8,7 @@ from cv_bridge import CvBridge, CvBridgeError
 
 class BagManager(object):
     def __init__(self, data_dir, index, bag='bag', detect='detect',
-                 video='video'):
+                 track='track'):
         self.data_dir = data_dir
         self.index = index
 
@@ -16,12 +16,12 @@ class BagManager(object):
         self.bgr_fmt = "bgr{0:04d}.png"
         self.bw_fmt = "bw{0:04d}.png"
         self.i_detect = 0
-        self.i_video = 0
+        self.i_track = 0
 
         self.bag_dir = os.path.join(self.data_dir, bag)
         self.detect_dir = os.path.join(self.bag_dir, detect,
                                        "frame{0}".format(index))
-        self.video_dir = os.path.join(self.bag_dir, video,
+        self.track_dir = os.path.join(self.bag_dir, track,
                                       "frame{0}".format(index))
 
     def load_bag(self, topic='/color/image_rect_color'):
@@ -68,12 +68,12 @@ class BagManager(object):
                 i += 1
                 yield bgr, bw
 
-    def save_video(self, disp_bgr, disp_bw):
-        print('saving image', self.i_video)
-        bgr_name = os.path.join(self.video_dir,
-                                self.bgr_fmt.format(self.i_video))
-        bw_name = os.path.join(self.video_dir,
-                               self.bw_fmt.format(self.i_video))
+    def save_track(self, disp_bgr, disp_bw):
+        print('saving image', self.i_track)
+        bgr_name = os.path.join(self.track_dir,
+                                self.bgr_fmt.format(self.i_track))
+        bw_name = os.path.join(self.track_dir,
+                               self.bw_fmt.format(self.i_track))
         cv2.imwrite(bgr_name, disp_bgr)
         cv2.imwrite(bw_name, disp_bw)
-        self.i_video += 1
+        self.i_track += 1

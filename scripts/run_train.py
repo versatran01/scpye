@@ -27,13 +27,13 @@ else:
 
 # %%
 # Parameters
-k = 0.9
+k = 0.5
 pmin = 27
 cspace = ['hsv']
 loc = True
 patch = True
 if color == 'red':
-    bbox = [300, 0, 600, 1440]
+    bbox = [300, 0, 600, 1500]
 else:
     bbox = [300, 240, 600, 1440]
 

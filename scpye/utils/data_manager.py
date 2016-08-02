@@ -1,9 +1,14 @@
 import os
+import logging
+
 import cv2
 import numpy as np
 from sklearn.externals import joblib
 
 from scpye.utils.exception import ImageNotFoundError
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 
 def make_binary(data):
@@ -23,6 +28,8 @@ class DataManager(object):
         self.train_dir = os.path.join(self.data_dir, train)
         self.label_dir = os.path.join(self.train_dir, label)
         self.model_dir = os.path.join(self.train_dir, model)
+
+        logger.info("DataManger: {}".format(self.data_dir))
 
     def _read_image(self, index, suffix, color=True):
         """
@@ -53,6 +60,7 @@ class DataManager(object):
         :param index:
         :return: color image
         """
+        logger.debug("Loading image {}".format(index))
         return self._read_image(index, 'raw', color=True)
 
     def load_label(self, index):
@@ -61,6 +69,7 @@ class DataManager(object):
         :param index:
         :return: label in bool
         """
+        logger.debug("Loading label {}".format(index))
         neg = self._read_image(index, 'neg', color=False)
         pos = self._read_image(index, 'pos', color=False)
         label = np.dstack((neg, pos))
@@ -85,7 +94,7 @@ class DataManager(object):
         """
         model_pickle = os.path.join(self.model_dir, name + '.pkl')
         joblib.dump(model, model_pickle, compress=compress)
-        print('{0} saved to {1}'.format(name, model_pickle))
+        logger.info('{0} saved to {1}'.format(name, model_pickle))
 
     def save_all_models(self, img_ppl, ftr_ppl, img_clf):
         self.save_model(img_ppl, 'img_ppl')
@@ -100,7 +109,7 @@ class DataManager(object):
         """
         model_pkl = os.path.join(self.model_dir, name + '.pkl')
         model = joblib.load(model_pkl)
-        print('{0} load from {1}'.format(name, model_pkl))
+        logger.info('{0} load from {1}'.format(name, model_pkl))
         return model
 
     def load_all_models(self):
