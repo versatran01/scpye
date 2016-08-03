@@ -1,18 +1,21 @@
+import logging
 from scpye.detect.fruit_detector import FruitDetector
 from scpye.utils.data_manager import DataManager
 from scpye.utils.bag_manager import BagManager
 from scpye.utils.fruit_visualizer import FruitVisualizer
 
+logging.basicConfig(level=logging.INFO)
+
 base_dir = '/home/chao/Workspace/dataset/agriculture'
 color = 'red'
-mode = 'fast_flash'
+mode = 'slow_flash'
 side = 'north'
-bag_ind = 1
+bag_ind = 4
 
 dm = DataManager(base_dir, color=color, mode=mode, side=side)
 bm = BagManager(dm.data_dir, bag_ind)
 fd = FruitDetector.from_pickle(dm)
-fv = FruitVisualizer()
+# fv = FruitVisualizer()
 
 # %%
 for image in bm.load_bag():

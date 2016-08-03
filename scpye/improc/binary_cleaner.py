@@ -30,6 +30,8 @@ class BinaryCleaner(object):
 
         region_props = analyze_contours_bw(bw_clean, min_area=self.min_area)
 
+        self.logger.debug("region props numbers: {}".format(len(region_props)))
+
         cntrs = [rp.cntr for rp in region_props]
         bw_fill = fill_bw(bw_clean, cntrs)
 

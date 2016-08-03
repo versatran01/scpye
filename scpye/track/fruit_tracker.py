@@ -1,5 +1,6 @@
 from __future__ import (print_function, division, absolute_import)
 
+import logging
 from itertools import izip
 
 import cv2
@@ -24,6 +25,7 @@ class FruitTracker(object):
         self.tracks = []
         self.min_age = min_age
         self.total_counts = 0
+        self.frame_counts = 0
 
         self.prev_gray = None
         # Optical flow parameters
@@ -37,6 +39,7 @@ class FruitTracker(object):
         self.flow_cov = np.array(flow_cov)
         self.bbox_cov = np.array(bbox_cov)
 
+        self.logger = logging.getLogger(__name__)
         # Visualization
         self.vis = True
         self.disp_bgr = None
@@ -79,10 +82,11 @@ class FruitTracker(object):
         if not self.initialized:
             self.prev_gray = gray
             self.add_new_tracks(self.tracks, fruits)
-            print('Initialization done.')
+            self.logger.info('Tracker initialized.')
             return
 
         self.predict_tracks()
+        self.logger.debug("Predicted tracks: {}".format(len(self.tracks)))
 
         # VISUALIZATION: after prediction
         # if self.vis:
@@ -91,6 +95,8 @@ class FruitTracker(object):
         #     draw_bboxes(self.disp_bw, predict_bboxes, color=Colors.red)
 
         updated_tracks, lost_tracks = self.update_tracks(gray)
+        self.logger.debug("update/lost: {0}/{1}".format(len(updated_tracks),
+                                                        len(lost_tracks)))
 
         # VISUALIZATION: after optical flow update
         if self.vis:
@@ -98,8 +104,12 @@ class FruitTracker(object):
             draw_bboxes(self.disp_bgr, updated_bboxes, color=Colors.cyan)
             draw_bboxes(self.disp_bw, updated_bboxes, color=Colors.cyan)
 
-        matched_tracks, unmatched_tks = self.match_tracks(updated_tracks,
-                                                          fruits)
+        matched_tracks, new_fruits, unmatched_tracks = self.match_tracks(
+            updated_tracks,
+            fruits)
+        self.logger.debug("matched/new/unmatched: {0}/{1}/{2}".format(
+            len(matched_tracks), len(new_fruits), len(unmatched_tracks)
+        ))
 
         # VISUALIZATION: after hungarian assignment update
         # if self.vis:
@@ -109,7 +119,10 @@ class FruitTracker(object):
 
         # Assemble all lost tracks and update tracks
         self.tracks = matched_tracks
-        lost_tracks.extend(unmatched_tks)
+        self.add_new_tracks(self.tracks, new_fruits)
+        lost_tracks.extend(unmatched_tracks)
+        self.logger.debug(
+            "tracks/lost: {0}/{1}".format(len(self.tracks), len(lost_tracks)))
 
         # VISUALIZATION:
         if self.vis:
@@ -125,6 +138,9 @@ class FruitTracker(object):
 
         # Count fruits in lost tracks
         self.count_in_tracks(lost_tracks)
+        self.logger.info(
+            "Frame/Total counts: {0}/{1}".format(self.frame_counts,
+                                                 self.total_counts))
 
     def predict_tracks(self):
         """
@@ -175,7 +191,7 @@ class FruitTracker(object):
         Match tracks to new detection
         :param tracks:
         :param fruits:
-        :return: matched_tracks, unmatched_tracks
+        :return: matched_tracks, new_fruits, unmatched_tracks
         """
         bboxes_update = np.array([t.bbox for t in tracks])
         bboxes_detect = np.array(fruits)
@@ -195,23 +211,21 @@ class FruitTracker(object):
             track.correct_bbox(fruits[i_fruit], self.bbox_cov)
             matched_tracks.append(track)
 
-        # add new tracks
+        # extract new tracks
         new_fruits = fruits[new_inds]
-        self.add_new_tracks(matched_tracks, new_fruits)
 
         # get unmatched tracks
         unmatched_tracks = [tracks[ind] for ind in lost_inds]
 
-        return matched_tracks, unmatched_tracks
+        return matched_tracks, new_fruits, unmatched_tracks
 
     def count_in_tracks(self, tracks):
         """
         Count how many fruits there are in tracks
         :param tracks: list of tracks
         """
-        frame_count = sum([1 for t in tracks if t.age >= self.min_age])
-        self.total_counts += frame_count
-        print("count: {}".format(self.total_counts))
+        self.frame_counts = sum([1 for t in tracks if t.age >= self.min_age])
+        self.total_counts += self.frame_counts
 
     def finish(self):
         self.count_in_tracks(self.tracks)

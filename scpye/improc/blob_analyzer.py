@@ -1,5 +1,7 @@
 from __future__ import (print_function, division, absolute_import)
 
+import logging
+
 import cv2
 import numpy as np
 import scipy.ndimage as ndi
@@ -30,6 +32,7 @@ class BlobAnalyzer(object):
         self.min_distance = min_distance
         self.exclude_border = exclude_border
 
+        self.logger = logging.getLogger(__name__)
         # Drawing
         self.single_bboxes = None
         self.multi_bboxes = None
@@ -46,12 +49,16 @@ class BlobAnalyzer(object):
         fruits, multi_rprops = self.extract_multi(region_props)
 
         self.single_bboxes = np.array(fruits)
+        self.logger.debug("single bboxes: {}".format(len(self.single_bboxes)))
 
         # Split them to single bbox and add to fruits
         split_fruits = self.split_multi(gray, multi_rprops)
         fruits.extend(split_fruits)
 
         self.multi_bboxes = np.array(split_fruits)
+
+        self.logger.debug("multi bboxes: {}".format(len(self.multi_bboxes)))
+        self.logger.info("fruits: {}".format(len(fruits)))
 
         return np.array(fruits)
 

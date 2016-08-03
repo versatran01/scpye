@@ -1,4 +1,5 @@
 import cv2
+import logging
 from scpye.improc.binary_cleaner import BinaryCleaner
 from scpye.improc.blob_analyzer import BlobAnalyzer
 from scpye.improc.image_processing import enhance_contrast
@@ -7,18 +8,20 @@ from scpye.utils.bag_manager import BagManager
 from scpye.utils.drawing import draw_blob_analyzer
 from scpye.utils.fruit_visualizer import FruitVisualizer
 
+logging.basicConfig(level=logging.INFO)
+
 # %%
 base_dir = '/home/chao/Workspace/dataset/agriculture'
 color = 'red'
-mode = 'fast_flash'
+mode = 'slow_flash'
 side = 'north'
 bag_ind = 1
 
 # %%
 dm = DataManager(base_dir, color=color, mode=mode, side=side)
 bm = BagManager(dm.data_dir, bag_ind)
-bc = BinaryCleaner(ksize=3, iters=2, min_area=10)
-ba = BlobAnalyzer(max_cntr_area=200)
+bc = BinaryCleaner(ksize=3, iters=2, min_area=5)
+ba = BlobAnalyzer(max_cntr_area=100)
 fv = FruitVisualizer(pause_time=0.5)
 
 # %%

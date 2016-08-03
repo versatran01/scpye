@@ -28,7 +28,6 @@ class BagManager(object):
 
         self.logger = logging.getLogger(__name__)
         self.logger.info("BagManger: {}".format(self.bag_dir))
-        self.logger.debug("test debug")
 
     def load_bag(self, topic='/color/image_rect_color'):
         """
@@ -39,25 +38,27 @@ class BagManager(object):
         bagname = os.path.join(self.bag_dir,
                                self.bag_fmt.format(self.index))
         self.logger.info('loading bag: {0}'.format(bagname))
-
         bridge = CvBridge()
         with rosbag.Bag(bagname) as bag:
             for topic, msg, t in bag.read_messages(topic):
                 try:
                     image = bridge.imgmsg_to_cv2(msg)
                 except CvBridgeError as e:
-                    print(e)
+                    self.logger.error(e.message)
                     continue
                 yield image
 
     def save_detect(self, bgr, bw):
-        self.logger.info('saving image {}', self.i_detect)
+        self.logger.info('saving image {}'.format(self.i_detect))
+
         bgr_name = os.path.join(self.detect_dir,
                                 self.bgr_fmt.format(self.i_detect))
         bw_name = os.path.join(self.detect_dir,
                                self.bw_fmt.format(self.i_detect))
+
         cv2.imwrite(bgr_name, bgr)
         cv2.imwrite(bw_name, bw)
+
         self.i_detect += 1
 
         self.logger.debug("save bgr: {}".format(bgr_name))
@@ -66,6 +67,7 @@ class BagManager(object):
     def load_detect(self):
         i = 0
         while True:
+            self.logger.info('loading image {}'.format(i))
             bgr_name = os.path.join(self.detect_dir,
                                     self.bgr_fmt.format(i))
             bw_name = os.path.join(self.detect_dir,
@@ -84,7 +86,7 @@ class BagManager(object):
                 yield bgr, bw
 
     def save_track(self, disp_bgr, disp_bw):
-        self.logger.info('saving image', self.i_track)
+        self.logger.info('saving image {}'.format(self.i_track))
 
         bgr_name = os.path.join(self.track_dir,
                                 self.bgr_fmt.format(self.i_track))
