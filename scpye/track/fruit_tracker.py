@@ -166,6 +166,7 @@ class FruitTracker(object):
 
         # Update init flow
         self.init_flow = calc_average_flow(prev_pts, curr_pts, status)
+        self.logger.debug("init flow: {}".format(self.init_flow))
 
         # VISUALIZATION: optical flow
         draw_optical_flows(self.disp_bgr, prev_pts, curr_pts, status,

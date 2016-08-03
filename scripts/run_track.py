@@ -7,7 +7,7 @@ from scpye.utils.data_manager import DataManager
 from scpye.utils.bag_manager import BagManager
 from scpye.utils.fruit_visualizer import FruitVisualizer
 
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO)
 
 # %%
 base_dir = '/home/chao/Workspace/dataset/agriculture'
