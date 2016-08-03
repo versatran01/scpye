@@ -1,3 +1,5 @@
+import logging
+
 from sklearn.preprocessing import StandardScaler
 
 from scpye.detect.feature_transformer import (CspaceTransformer, MaskLocator,
@@ -6,6 +8,8 @@ from scpye.detect.image_pipeline import ImagePipeline, FeatureUnion
 from scpye.detect.image_transformer import (ImageRotator, ImageCropper,
                                             ImageResizer, ImageSmoother,
                                             DarkRemover)
+
+logger = logging.getLogger(__name__)
 
 
 def create_image_pipeline(ccw=-1, bbox=None, k=0.5):
@@ -46,6 +50,9 @@ def create_image_features(cspace=None, loc=True, patch=True):
     if patch:
         transformer_list.append(('create_patch', PatchCreator()))
 
+    logging.debug(
+        'image features: cspace {0}, loc {1}, patch {2}'.format(cspace, loc,
+                                                                patch))
     # Unfortunately, cannot do a parallel feature extraction
     return FeatureUnion(transformer_list)
 

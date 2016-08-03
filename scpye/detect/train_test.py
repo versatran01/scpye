@@ -1,4 +1,5 @@
 from __future__ import (print_function, absolute_import, division)
+import logging
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -12,6 +13,8 @@ from sklearn.svm import SVC
 
 from scpye.utils.exception import ClassifierNotSupportedError
 from scpye.utils.drawing import imshow
+
+logger = logging.getLogger(__name__)
 
 
 def create_single_classifier(clf_name='svc'):

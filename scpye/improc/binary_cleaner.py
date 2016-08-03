@@ -1,5 +1,7 @@
 from __future__ import (print_function, division, absolute_import)
 
+import logging
+
 from scpye.improc.image_processing import (clean_bw, fill_bw, u8_from_bw)
 from scpye.improc.contour_analysis import (analyze_contours_bw)
 
@@ -14,6 +16,8 @@ class BinaryCleaner(object):
         self.ksize = ksize
         self.iters = iters
         self.min_area = min_area
+
+        self.logger = logging.getLogger(__name__)
 
     def clean(self, bw):
         """
