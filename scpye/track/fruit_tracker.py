@@ -229,3 +229,4 @@ class FruitTracker(object):
 
     def finish(self):
         self.count_in_tracks(self.tracks)
+        self.logger.info("Total counts: {}".format(self.total_counts))
