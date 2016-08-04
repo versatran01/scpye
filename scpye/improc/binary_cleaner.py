@@ -1,9 +1,9 @@
 from __future__ import (print_function, division, absolute_import)
 
 import logging
+import cv2
 
-from scpye.improc.image_processing import (clean_bw, fill_bw, u8_from_bw)
-from scpye.improc.contour_analysis import (analyze_contours_bw)
+from scpye.improc.image_processing import u8_from_bw
 
 
 class BinaryCleaner(object):
@@ -28,11 +28,49 @@ class BinaryCleaner(object):
         bw = u8_from_bw(bw, val=255)
         bw_clean = clean_bw(bw, ksize=self.ksize, iters=self.iters)
 
-        region_props = analyze_contours_bw(bw_clean, min_area=self.min_area)
+        #        region_props = analyze_contours_bw(bw_clean, min_area=self.min_area)
 
-        self.logger.debug("region props numbers: {}".format(len(region_props)))
+        #        self.logger.debug("region props numbers: {}".format(len(region_props)))
 
-        cntrs = [rp.cntr for rp in region_props]
-        bw_fill = fill_bw(bw_clean, cntrs)
+        #        cntrs = [rp.cntr for rp in region_props]
+        #        bw_fill = fill_bw(bw_clean, cntrs)
 
-        return bw_fill, region_props
+        return bw_clean
+
+
+def morph_closing(bw, ksize=3, iters=1):
+    """
+    :param bw: binary image
+    :param ksize: kernel size
+    :param iters: number of iterations
+    :return: binary image after closing
+    """
+    kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (ksize, ksize))
+    bw_closed = cv2.morphologyEx(bw, cv2.MORPH_CLOSE, kernel, iterations=iters)
+    return bw_closed
+
+
+def morph_opening(bw, ksize=3, iters=1):
+    """
+    :param bw: binary image
+    :param ksize: kernel size
+    :param iters: number of iterations
+    :return: binary image after opening
+    """
+    kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (ksize, ksize))
+    bw_opened = cv2.morphologyEx(bw, cv2.MORPH_OPEN, kernel=kernel,
+                                 iterations=iters)
+    return bw_opened
+
+
+def clean_bw(bw, ksize=3, iters=1):
+    """
+    Clean binary image by doing a opening followed by a closing
+    :param bw: binary image
+    :param ksize: kernel size
+    :param iters: number of iterations
+    :return: cleaned binary image
+    """
+    bw = morph_opening(bw, ksize=ksize, iters=iters)
+    bw = morph_closing(bw, ksize=ksize, iters=iters)
+    return bw

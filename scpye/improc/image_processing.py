@@ -15,44 +15,6 @@ def enhance_contrast(image, pmin=2.0, pmax=99.8):
     return exposure.rescale_intensity(image, in_range=(vmin, vmax))
 
 
-def morph_closing(bw, ksize=3, iters=1):
-    """
-    :param bw: binary image
-    :param ksize: kernel size
-    :param iters: number of iterations
-    :return: binary image after closing
-    """
-    kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (ksize, ksize))
-    bw_closed = cv2.morphologyEx(bw, cv2.MORPH_CLOSE, kernel, iterations=iters)
-    return bw_closed
-
-
-def morph_opening(bw, ksize=3, iters=1):
-    """
-    :param bw: binary image
-    :param ksize: kernel size
-    :param iters: number of iterations
-    :return: binary image after opening
-    """
-    kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (ksize, ksize))
-    bw_opened = cv2.morphologyEx(bw, cv2.MORPH_OPEN, kernel=kernel,
-                                 iterations=iters)
-    return bw_opened
-
-
-def clean_bw(bw, ksize=3, iters=1):
-    """
-    Clean binary image by doing a opening followed by a closing
-    :param bw: binary image
-    :param ksize: kernel size
-    :param iters: number of iterations
-    :return: cleaned binary image
-    """
-    bw = morph_opening(bw, ksize=ksize, iters=iters)
-    bw = morph_closing(bw, ksize=ksize, iters=iters)
-    return bw
-
-
 def u8_from_bw(bw, val=255):
     """
     Convert bw image from bool to uint8 if possible

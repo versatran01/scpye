@@ -3,7 +3,7 @@ from __future__ import (print_function, division, absolute_import)
 import cv2
 import numpy as np
 import matplotlib.pyplot as plt
-from itertools import izip
+from itertools import izip, izip_longest
 
 from  scpye.track.bounding_box import extract_bbox
 
@@ -34,14 +34,16 @@ def imshow(*images, **options):
     figsize = options.pop('figsize', (10, 10))
     interp = options.pop('interp', None)
     cmap = options.pop('cmap', None)
+    titles = options.pop('titles', tuple())
 
     fig = plt.figure(figsize=figsize)
     naxes = len(images)
     axarr = np.empty(naxes, dtype=object)
 
-    for i, image in enumerate(images):
+    for i, (image, title) in enumerate(izip_longest(images, titles)):
         axarr[i] = fig.add_subplot(1, naxes, i + 1)
         axarr[i].imshow(image, interpolation=interp, cmap=cmap)
+        axarr[i].set_title(title)
 
     return fig, axarr
 

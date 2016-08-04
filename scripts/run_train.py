@@ -38,9 +38,9 @@ cspace = ['hsv']
 loc = True
 patch = True
 if color == 'red':
-    bbox = [300, 0, 600, 1500]
+    bbox = [300, 0, 600, 1440]
 else:
-    bbox = [300, 240, 600, 1440]
+    bbox = [300, 220, 600, 1440]
 
 # %%
 # Train
