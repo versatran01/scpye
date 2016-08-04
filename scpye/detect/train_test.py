@@ -1,7 +1,6 @@
 from __future__ import (print_function, absolute_import, division)
 import logging
 
-from collections import namedtuple
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -12,13 +11,12 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import classification_report
 from sklearn.svm import SVC
 
+from scpye.detect.fruit_detector import FruitDetector
+from scpye.improc.image_processing import enhance_contrast, u8_from_bw
 from scpye.utils.exception import ClassifierNotSupportedError
 from scpye.utils.drawing import imshow
-from scpye.improc.image_processing import enhance_contrast, u8_from_bw
 
 logger = logging.getLogger(__name__)
-
-DetectionModel = namedtuple('DetectionModel', ('img_ppl', 'ftr_ppl', 'img_clf'))
 
 
 def create_single_classifier(clf_name='svc'):
@@ -135,34 +133,16 @@ def train_image_classifier(data_manager, image_indices, image_pipeline,
     return grid
 
 
-def test_image_classifier(data_manager, image_indices, detection_model):
+def test_fruit_detector(data_manager, image_indices, fruit_detector):
     """
     :type data_manager: DataManager
     :param image_indices:
-    :type detection_model: DetectionModel
+    :type fruit_detector: FruitDetector
     """
     image_indices = np.atleast_1d(image_indices)
 
     for ind in image_indices:
         I, L = data_manager.load_image_and_label(ind)
-        It, Lt, bw = apply_detection_model(detection_model, I, L)
+        It, Lt, bw = fruit_detector.detect_image_label(I, L)
         disp = enhance_contrast(It)
         imshow(disp, bw + Lt, cmap=plt.cm.viridis)
-
-
-def apply_detection_model(detection_model, image, label):
-    """
-    Apply detection model on image and label
-    :param image:
-    :param label:
-    :param detection_model:
-    :return:
-    """
-    It, Lt = detection_model.img_ppl.transform(image, label[..., 1])
-    Xt = detection_model.ftr_ppl.transform(It)
-    y = detection_model.img_clf.predict(Xt)
-
-    bw = detection_model.ftr_ppl.named_steps['remove_dark'].mask.copy()
-    bw[bw > 0] = y
-    bw = u8_from_bw(bw, val=1)
-    return It, Lt, bw

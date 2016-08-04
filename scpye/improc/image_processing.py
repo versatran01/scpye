@@ -22,7 +22,7 @@ def u8_from_bw(bw, val=255):
     :param val: max_val of image
     :return: greyscale image
     """
-    assert np.ndim(bw) == 2, 'Image dimension wrong'
+    assert np.ndim(bw) >= 2, 'Image dimension wrong'
     return np.array(bw > 0, dtype=np.uint8) * val
 
 

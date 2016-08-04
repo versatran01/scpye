@@ -5,7 +5,8 @@ import cv2
 import numpy as np
 from sklearn.externals import joblib
 
-from scpye.detect.train_test import DetectionModel
+from scpye.detect.fruit_detector import FruitDetector
+from scpye.improc.image_processing import u8_from_bw
 from scpye.utils.exception import ImageNotFoundError
 
 
@@ -73,7 +74,7 @@ class DataManager(object):
         neg = self._read_image(index, 'neg', color=False)
         pos = self._read_image(index, 'pos', color=False)
         label = np.dstack((neg, pos))
-        return make_binary(label)
+        return u8_from_bw(label, val=1)
 
     def load_image_and_label(self, index):
         """
@@ -84,7 +85,7 @@ class DataManager(object):
         label = self.load_label(index)
         return image, label
 
-    def save_model(self, model, name='detection_model', compress=3):
+    def save_detector(self, model, name='fruit_detector', compress=3):
         """
         Save model to model directory
         :param model:
@@ -98,22 +99,22 @@ class DataManager(object):
         self.logger.info('{0} saved to {1}'.format(name, model_pickle))
 
     def save_all(self, image_pipeline, feature_pipeline, image_classifier):
-        detection_model = DetectionModel(img_ppl=image_pipeline,
-                                         ftr_ppl=feature_pipeline,
-                                         img_clf=image_classifier)
-        self.save_model(detection_model, name='detection_model')
+        fruit_detector = FruitDetector(img_ppl=image_pipeline,
+                                       ftr_ppl=feature_pipeline,
+                                       img_clf=image_classifier)
+        self.save_detector(fruit_detector, name='fruit_detector')
 
-    def load_model(self, name='detection_model'):
+    def load_detector(self, name='fruit_detector'):
         """
-        Load model from model directory
+        Load detector from model directory
         :param name:
         :return:
         """
-        model_pkl = os.path.join(self.model_dir, name + '.pkl')
-        model = joblib.load(model_pkl)
+        detector_pickle = os.path.join(self.model_dir, name + '.pkl')
+        fruit_detector = joblib.load(detector_pickle)
 
-        self.logger.info('{0} load from {1}'.format(name, model_pkl))
-        return model
+        self.logger.info('{0} load from {1}'.format(name, detector_pickle))
+        return fruit_detector
 
     def load_image_label_list(self, image_indices):
         """

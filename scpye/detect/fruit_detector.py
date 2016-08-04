@@ -1,8 +1,5 @@
 from __future__ import (print_function, division, absolute_import)
 
-import numpy as np
-
-from scpye.detect.image_pipeline import ImagePipeline
 from scpye.improc.image_processing import u8_from_bw
 
 
@@ -11,14 +8,7 @@ def get_dark_remover(feature_pipeline):
 
 
 class FruitDetector(object):
-    fruit_dtype = [('bbox', np.int, 4), ('num', np.int, 1)]
-
     def __init__(self, img_ppl, ftr_ppl, img_clf):
-        """
-        :type img_ppl: ImagePipeline
-        :type ftr_ppl: ImagePipeline
-        :param img_clf: classifier
-        """
         self.img_ppl = img_ppl
         self.ftr_ppl = ftr_ppl
         self.img_clf = img_clf
@@ -30,21 +20,34 @@ class FruitDetector(object):
         :return: (bgr, bw)
         """
         It = self.img_ppl.transform(image)
-        Xt = self.ftr_ppl.transform(It)
+        bw = self._detect(It, bw_val=255)
+
+        return It, bw
+
+    def detect_image_label(self, image, label):
+        """
+        Detect fruit on image and transform label
+        :param image:
+        :param label:
+        :return:
+        """
+        It, Lt = self.img_ppl.transform(image, label[..., 1])
+        bw = self._detect(It, bw_val=1)
+        return It, Lt, bw
+
+    def _detect(self, image_transformed, bw_val=255):
+        Xt = self.ftr_ppl.transform(image_transformed)
         y = self.img_clf.predict(Xt)
 
         bw = self.ftr_ppl.named_steps['remove_dark'].mask.copy()
         bw[bw > 0] = y
-        bw = u8_from_bw(bw, val=255)
-
-        return It, bw
+        bw = u8_from_bw(bw, val=bw_val)
+        return bw
 
     @classmethod
     def from_pickle(cls, data_manager):
         """
         Constructor from a pickle
-        :type data_manager: DataManager
-        :rtype: FruitDetector
         """
-        img_ppl, ftr_ppl, img_clf = data_manager.load_all_models()
-        return cls(img_ppl, ftr_ppl, img_clf)
+        detector = data_manager.load_detector()
+        return cls(detector.img_ppl, detector.ftr_ppl, detector.img_clf)

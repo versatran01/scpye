@@ -1,5 +1,5 @@
 import matplotlib.pyplot as plt
-from scpye.detect.fruit_detector import FruitDetector
+from scpye.detect.train_test import DetectionModel
 from scpye.improc.binary_cleaner import BinaryCleaner
 from scpye.improc.blob_analyzer import BlobAnalyzer
 from scpye.improc.contour_analysis import analyze_contours_bw
@@ -17,12 +17,11 @@ side = 'north'
 
 # %%
 dm = DataManager(base_dir, color=color, mode=mode, side=side)
-fd = FruitDetector.from_pickle(dm)
 bc = BinaryCleaner(ksize=5, iters=1)
 
 I, L = dm.load_image_and_label(7)
-It, Lt = fd.img_ppl.transform(I, L[..., 1])
-bgr, bw = fd.detect(I)
+dp = dm.load_detector()
+
 imshow(Lt, bw, figsize=(12, 16), cmap=plt.cm.viridis)
 
 # %%
