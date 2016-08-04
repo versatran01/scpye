@@ -3,7 +3,7 @@ import numpy as np
 from skimage import exposure
 
 
-def enhance_contrast(image, pmin=2.0, pmax=99.8):
+def enhance_contrast(image, pmin=2.0, pmax=99.95):
     """
     Enhance image contrast
     :param image:
@@ -13,6 +13,20 @@ def enhance_contrast(image, pmin=2.0, pmax=99.8):
     """
     vmin, vmax = np.percentile(image, (pmin, pmax))
     return exposure.rescale_intensity(image, in_range=(vmin, vmax))
+
+
+def swap_channels(bgr):
+    b, g, r = cv2.split(bgr)
+    rgb = cv2.merge((r, g, b))
+    return rgb
+
+
+def gray_from_bgr(bgr):
+    return cv2.cvtColor(bgr, cv2.COLOR_BGR2GRAY)
+
+
+def bgr_from_gray(gray):
+    return cv2.cvtColor(gray, cv2.COLOR_GRAY2BGR)
 
 
 def u8_from_bw(bw, val=255):

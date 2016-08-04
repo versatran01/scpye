@@ -35,6 +35,7 @@ def imshow(*images, **options):
     interp = options.pop('interp', None)
     cmap = options.pop('cmap', None)
     titles = options.pop('titles', tuple())
+    hide_axes = options.pop('hide_axes', False)
 
     fig = plt.figure(figsize=figsize)
     naxes = len(images)
@@ -45,6 +46,8 @@ def imshow(*images, **options):
         axarr[i].imshow(image, interpolation=interp, cmap=cmap)
         if title is not None:
             axarr[i].set_title(title)
+        axarr[i].xaxis.set_visible(not hide_axes)
+        axarr[i].yaxis.set_visible(not hide_axes)
 
     return fig, axarr
 

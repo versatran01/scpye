@@ -25,7 +25,7 @@ class BinaryCleaner(object):
         :param bw: binary image, with 255 max
         :return:
         """
-        bw = u8_from_bw(bw, val=255)
+        bw = u8_from_bw(bw, val=1)
         bw_clean = clean_bw(bw, ksize=self.ksize, iters=self.iters)
 
         #        region_props = analyze_contours_bw(bw_clean, min_area=self.min_area)
