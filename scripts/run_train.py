@@ -24,8 +24,8 @@ do_test = True
 
 # %%
 if side == 'north':
-    train_inds = range(4) + range(8, 12)
-    test_inds = range(4, 8)
+    train_inds = range(0, 12, 3) + range(2, 12, 3)
+    test_inds = range(1, 12, 3)
 else:
     train_inds = range(12, 16)
     test_inds = range(12, 16)
@@ -53,7 +53,7 @@ if do_train:
 
     if do_save:
         logger.info('saving all models')
-        dmg.save_all_models(img_ppl, ftr_ppl, img_clf)
+        dmg.save_all(img_ppl, ftr_ppl, img_clf)
 
 # %%
 # Test
@@ -61,6 +61,6 @@ if do_test:
     import matplotlib.pyplot as plt
 
     logger.info('loading all models')
-    img_ppl, ftr_ppl, img_clf = dmg.load_all_models()
-    test_image_classifier(dmg, test_inds, img_ppl, ftr_ppl, img_clf)
+    dct_mdl = dmg.load_model()
+    test_image_classifier(dmg, test_inds, dct_mdl)
     plt.show()

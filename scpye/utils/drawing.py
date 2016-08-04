@@ -43,7 +43,8 @@ def imshow(*images, **options):
     for i, (image, title) in enumerate(izip_longest(images, titles)):
         axarr[i] = fig.add_subplot(1, naxes, i + 1)
         axarr[i].imshow(image, interpolation=interp, cmap=cmap)
-        axarr[i].set_title(title)
+        if title is not None:
+            axarr[i].set_title(title)
 
     return fig, axarr
 

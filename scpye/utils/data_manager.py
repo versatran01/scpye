@@ -5,6 +5,7 @@ import cv2
 import numpy as np
 from sklearn.externals import joblib
 
+from scpye.detect.train_test import DetectionModel
 from scpye.utils.exception import ImageNotFoundError
 
 
@@ -83,7 +84,7 @@ class DataManager(object):
         label = self.load_label(index)
         return image, label
 
-    def save_model(self, model, name, compress=3):
+    def save_model(self, model, name='detection_model', compress=3):
         """
         Save model to model directory
         :param model:
@@ -96,12 +97,13 @@ class DataManager(object):
 
         self.logger.info('{0} saved to {1}'.format(name, model_pickle))
 
-    def save_all_models(self, img_ppl, ftr_ppl, img_clf):
-        self.save_model(img_ppl, 'img_ppl')
-        self.save_model(ftr_ppl, 'ftr_ppl')
-        self.save_model(img_clf, 'img_clf')
+    def save_all(self, image_pipeline, feature_pipeline, image_classifier):
+        detection_model = DetectionModel(img_ppl=image_pipeline,
+                                         ftr_ppl=feature_pipeline,
+                                         img_clf=image_classifier)
+        self.save_model(detection_model, name='detection_model')
 
-    def load_model(self, name):
+    def load_model(self, name='detection_model'):
         """
         Load model from model directory
         :param name:
@@ -112,12 +114,6 @@ class DataManager(object):
 
         self.logger.info('{0} load from {1}'.format(name, model_pkl))
         return model
-
-    def load_all_models(self):
-        img_ppl = self.load_model('img_ppl')
-        ftr_ppl = self.load_model('ftr_ppl')
-        img_clf = self.load_model('img_clf')
-        return img_ppl, ftr_ppl, img_clf
 
     def load_image_label_list(self, image_indices):
         """

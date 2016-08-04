@@ -1,6 +1,7 @@
 from __future__ import (print_function, absolute_import, division)
 import logging
 
+from collections import namedtuple
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -13,8 +14,11 @@ from sklearn.svm import SVC
 
 from scpye.utils.exception import ClassifierNotSupportedError
 from scpye.utils.drawing import imshow
+from scpye.improc.image_processing import enhance_contrast, u8_from_bw
 
 logger = logging.getLogger(__name__)
+
+DetectionModel = namedtuple('DetectionModel', ('img_ppl', 'ftr_ppl', 'img_clf'))
 
 
 def create_single_classifier(clf_name='svc'):
@@ -24,7 +28,7 @@ def create_single_classifier(clf_name='svc'):
     """
     if clf_name == 'svc':
         clf = SVC()
-        params = {'C': [20, 200]}
+        params = {'C': [200]}
     elif clf_name == 'lr':
         clf = LogisticRegression()
         params = {'C': [100]}
@@ -131,24 +135,34 @@ def train_image_classifier(data_manager, image_indices, image_pipeline,
     return grid
 
 
-def test_image_classifier(data_manager, image_indices, image_pipeline,
-                          feature_pipeline, image_classifier):
+def test_image_classifier(data_manager, image_indices, detection_model):
     """
     :type data_manager: DataManager
     :param image_indices:
-    :type image_pipeline: ImagePipeline
-    :type feature_pipeline: ImagePipeline
-    :type image_classifier: GridSearchCV
+    :type detection_model: DetectionModel
     """
     image_indices = np.atleast_1d(image_indices)
 
     for ind in image_indices:
         I, L = data_manager.load_image_and_label(ind)
-        It, Lt = image_pipeline.transform(I, L[..., 1])
-        Xt = feature_pipeline.transform(It)
-        y = image_classifier.predict(Xt)
+        It, Lt, bw = apply_detection_model(detection_model, I, L)
+        disp = enhance_contrast(It)
+        imshow(disp, bw + Lt, cmap=plt.cm.viridis)
 
-        bw = feature_pipeline.named_steps['remove_dark'].mask.copy()
-        bw[bw > 0] = y
-        bw = np.array(bw, dtype='uint8')
-        imshow(It, bw + Lt, cmap=plt.cm.viridis)
+
+def apply_detection_model(detection_model, image, label):
+    """
+    Apply detection model on image and label
+    :param image:
+    :param label:
+    :param detection_model:
+    :return:
+    """
+    It, Lt = detection_model.img_ppl.transform(image, label[..., 1])
+    Xt = detection_model.ftr_ppl.transform(It)
+    y = detection_model.img_clf.predict(Xt)
+
+    bw = detection_model.ftr_ppl.named_steps['remove_dark'].mask.copy()
+    bw[bw > 0] = y
+    bw = u8_from_bw(bw, val=1)
+    return It, Lt, bw
