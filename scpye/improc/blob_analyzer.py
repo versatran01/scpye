@@ -3,6 +3,7 @@ from __future__ import (print_function, division, absolute_import)
 import logging
 
 import numpy as np
+import matplotlib.pyplot as plt
 import scipy.ndimage as ndi
 from skimage.feature import peak_local_max
 from skimage.morphology import watershed
@@ -14,7 +15,7 @@ from scpye.improc.image_processing import (fill_bw, scale_array, u8_from_bw,
 from scpye.improc.contour_analysis import (contour_bounding_rect,
                                            analyze_contours_bw, Blob,
                                            find_contours)
-from scpye.utils.drawing import draw_contours, Colors
+from scpye.utils.drawing import draw_contours, Colors, imshow
 
 
 def mean_blob_area(blobs):
@@ -25,7 +26,7 @@ def mean_blob_area(blobs):
 class BlobAnalyzer(object):
     def __init__(self, max_aspect=1.3, min_extent=0.62,
                  min_solidity=0.91, gauss_filter_sigma=2,
-                 max_filter_size=4, gray_edt_ratio=2, min_distance=5,
+                 max_filter_size=4, gray_edt_ratio=1.5, min_peak_distance=5,
                  exclude_border=True):
         # Parameters for extracting single blob
         self.max_aspect = max_aspect  # 1.3
@@ -37,7 +38,7 @@ class BlobAnalyzer(object):
         self.max_filter_size = max_filter_size
         self.gray_edt_ratio = gray_edt_ratio
         self.gray_max = 100
-        self.min_distance = min_distance
+        self.min_peak_distance = min_peak_distance
         self.exclude_border = exclude_border
 
         self.logger = logging.getLogger(__name__)
@@ -148,6 +149,11 @@ class BlobAnalyzer(object):
                 single_blobs.append(blob)
             else:
                 labels = watershed(-dist_max, markers, mask=gray_bbox)
+                # VIS
+                if self.vis:
+                    imshow(labels, dist_max, markers, figsize=(12, 12),
+                           interp="none", cmap=plt.cm.viridis)
+
                 each_blobs = blobs_from_labels(labels, n_peaks, blob)
                 split_blobs.extend(each_blobs)
 
@@ -169,7 +175,8 @@ class BlobAnalyzer(object):
 
         dist_max = ndi.maximum_filter(dist, size=self.max_filter_size,
                                       mode='constant')
-        local_max = peak_local_max(dist_max, min_distance=self.min_distance,
+        local_max = peak_local_max(dist_max,
+                                   min_distance=self.min_peak_distance,
                                    indices=False,
                                    exclude_border=self.exclude_border)
         markers, n_peaks = ndi.label(local_max)

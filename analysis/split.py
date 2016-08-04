@@ -22,7 +22,7 @@ bc = BinaryCleaner(ksize=5, iters=1)
 ba = BlobAnalyzer()
 
 # %%
-I, L = dm.load_image_and_label(1)
+I, L = dm.load_image_and_label(3)
 It, Lt, bw = fd.detect_image_label(I, L)
 bw = bc.clean(bw)
 
