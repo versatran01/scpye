@@ -32,7 +32,7 @@ else:
 
 # %%
 # Parameters
-k = 0.5
+k = 0.75
 pmin = 27
 cspace = ['hsv']
 loc = True

@@ -145,4 +145,4 @@ def test_fruit_detector(data_manager, image_indices, fruit_detector):
         I, L = data_manager.load_image_and_label(ind)
         It, Lt, bw = fruit_detector.detect_image_label(I, L)
         disp = enhance_contrast(It)
-        imshow(disp, bw + Lt, cmap=plt.cm.viridis)
+        imshow(disp, bw + Lt, cmap=plt.cm.viridis, figsize=(14, 17))
