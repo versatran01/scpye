@@ -8,9 +8,9 @@ import numpy as np
 http://docs.opencv.org/trunk/d3/d05/tutorial_py_table_of_contents_contours.html#gsc.tab=0
 """
 
-blob_dtype = [('bbox', np.int, 4), ('prop', np.float, 4)]
-
-RegionProp = namedtuple('RegionProp', ('blob', 'cntr'))
+prop_type = [('area', float), ('aspect', float), ('extent', float),
+             ('solidity', float)]
+Blob = namedtuple('Blob', ('bbox', 'prop', 'cntr'))
 
 
 def analyze_contours_bw(bw, min_area=4):
@@ -30,23 +30,20 @@ def analyze_contours(contours, min_area):
     """
     :param contours:
     :param min_area:
-    :return: region properties
+    :return: blobs
     """
-    region_props = []
+    blobs = []
     for cntr in contours:
-        cntr_area = contour_area(cntr)
-        if cntr_area >= min_area:
+        area = contour_area(cntr)
+        if area >= min_area:
             bbox = contour_bounding_rect(cntr)
             aspect = bounding_rect_aspect(bbox)
-            extent = contour_extent(cntr, cntr_area=cntr_area, bbox=bbox)
-            solidity = contour_solidity(cntr, cntr_area)
+            extent = contour_extent(cntr, cntr_area=area, bbox=bbox)
+            solidity = contour_solidity(cntr, cntr_area=area)
+            prop = np.array((area, aspect, extent, solidity), dtype=prop_type)
+            blobs.append(Blob(bbox=bbox, prop=prop, cntr=cntr))
 
-            # Assemble to recarray
-            blob = np.array((bbox, (cntr_area, aspect, extent, solidity)),
-                            dtype=blob_dtype)
-            region_props.append(RegionProp(blob=blob, cntr=cntr))
-
-    return region_props
+    return blobs
 
 
 def find_contours(bw):

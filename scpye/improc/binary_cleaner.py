@@ -7,15 +7,13 @@ from scpye.improc.image_processing import u8_from_bw
 
 
 class BinaryCleaner(object):
-    def __init__(self, ksize=3, iters=2, min_area=5):
+    def __init__(self, ksize=3, iters=2):
         """
         :param ksize:
         :param iters:
-        :param min_area:
         """
         self.ksize = ksize
         self.iters = iters
-        self.min_area = min_area
 
         self.logger = logging.getLogger(__name__)
 
@@ -27,13 +25,6 @@ class BinaryCleaner(object):
         """
         bw = u8_from_bw(bw, val=1)
         bw_clean = clean_bw(bw, ksize=self.ksize, iters=self.iters)
-
-        #        region_props = analyze_contours_bw(bw_clean, min_area=self.min_area)
-
-        #        self.logger.debug("region props numbers: {}".format(len(region_props)))
-
-        #        cntrs = [rp.cntr for rp in region_props]
-        #        bw_fill = fill_bw(bw_clean, cntrs)
 
         return bw_clean
 

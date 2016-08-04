@@ -5,8 +5,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 from itertools import izip, izip_longest
 
-from  scpye.track.bounding_box import extract_bbox
-
 
 class Colors:
     """
@@ -22,6 +20,7 @@ class Colors:
     purple = (160, 32, 240)
     gold = (255, 215, 0)
     white = (255, 255, 255)
+    default = red
 
 
 def imshow(*images, **options):
@@ -52,7 +51,7 @@ def imshow(*images, **options):
     return fig, axarr
 
 
-def draw_bboxes(image, bboxes, color=(255, 0, 0), thickness=1):
+def draw_bboxes(image, bboxes, color=Colors.default, thickness=1):
     bboxes = np.atleast_2d(bboxes)
     for bbox in bboxes:
         x, y, w, h = np.array(bbox, dtype=int)
@@ -60,21 +59,21 @@ def draw_bboxes(image, bboxes, color=(255, 0, 0), thickness=1):
                       thickness=thickness)
 
 
-def draw_circles(image, circles, color=(255, 0, 0), thickness=1):
+def draw_circles(image, circles, color=Colors.default, thickness=1):
     circles = np.atleast_2d(circles)
     for circle in circles:
         x, y, r = np.array(circle, dtype=int)
         cv2.circle(image, (x, y), r, color=color, thickness=thickness)
 
 
-def draw_points(image, points, color=(255, 0, 0), radius=1):
+def draw_points(image, points, color=Colors.default, radius=1):
     points = np.atleast_2d(points)
     for point in points:
         x, y = np.array(point, dtype=int)
         cv2.circle(image, (x, y), radius, color=color, thickness=-1)
 
 
-def draw_ellipses(image, ellipses, color=(255, 0, 0), thickness=1):
+def draw_ellipses(image, ellipses, color=Colors.default, thickness=1):
     ellipses = np.atleast_2d(ellipses)
     for ellipse in ellipses:
         x, y, ax1, ax2, ang = np.array(ellipse, dtype=int)
@@ -82,7 +81,7 @@ def draw_ellipses(image, ellipses, color=(255, 0, 0), thickness=1):
                     thickness=thickness)
 
 
-def draw_line(image, line, color=(255, 0, 0), thickness=1):
+def draw_line(image, line, color=Colors.default, thickness=1):
     line = np.atleast_2d(np.array(line, dtype=int))
     for i in range(len(line) - 1):
         p1, p2 = line[i], line[i + 1]
@@ -91,24 +90,31 @@ def draw_line(image, line, color=(255, 0, 0), thickness=1):
         cv2.line(image, (a, b), (c, d), color=color, thickness=thickness)
 
 
-def draw_contour(image, cntr, color=(255, 0, 0), thickness=1):
+def draw_contour(image, cntr, color=Colors.default, thickness=1):
     cv2.drawContours(image, [cntr], 0, color, thickness)
 
 
-def draw_contours(image, cntrs, color=(255, 0, 0), thickness=1):
+def draw_contours(image, cntrs, color=Colors.default, thickness=1):
     cv2.drawContours(image, cntrs, -1, color, thickness)
 
 
-def draw_text(image, text, point, color=(255, 0, 0), scale=0.5, thickness=1):
+def draw_text(image, text, point, color=Colors.default, scale=0.5, thickness=1):
     if type(text) is not str:
         text = str(int(text))
 
     x, y = np.array(point, dtype=int)
-    cv2.putText(image, text, (x, y), 0, scale, color=color,
-                thickness=thickness)
+    cv2.putText(image, text, (x, y), cv2.FONT_HERSHEY_DUPLEX, scale,
+                color=color, thickness=thickness, lineType=cv2.LINE_AA)
 
 
-def draw_optical_flows(image, points1, points2, status=None, color=(255, 0, 0),
+def draw_texts(image, texts, points, color=Colors.default, scale=0.5,
+               thickness=1):
+    for text, point in izip(texts, points):
+        draw_text(image, text, point, color=color, scale=scale,
+                  thickness=thickness)
+
+
+def draw_optical_flows(image, points1, points2, status=None, color=Colors.red,
                        thickness=1, draw_invalid=False):
     points1 = np.atleast_2d(points1)
     points2 = np.atleast_2d(points2)

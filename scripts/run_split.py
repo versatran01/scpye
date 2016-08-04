@@ -20,14 +20,14 @@ bag_ind = 1
 # %%
 dm = DataManager(base_dir, color=color, mode=mode, side=side)
 bm = BagManager(dm.data_dir, bag_ind)
-bc = BinaryCleaner(ksize=3, iters=2, min_area=5)
+bc = BinaryCleaner(ksize=3, iters=2)
 ba = BlobAnalyzer(max_cntr_area=100)
 fv = FruitVisualizer(pause_time=0.5)
 
 # %%
 for bgr, bw in bm.load_detect():
-    bw_clean, region_props = bc.clean(bw)
-    fruits = ba.analyze(bgr, region_props)
+    bw = bc.clean(bw)
+    fruits = ba.analyze(bgr, bw)
 
     disp_bgr = enhance_contrast(bgr)
     disp_bw = cv2.cvtColor(bw_clean, cv2.COLOR_GRAY2BGR)
