@@ -7,7 +7,7 @@ from scpye.improc.image_processing import u8_from_bw
 
 
 class BinaryCleaner(object):
-    def __init__(self, ksize=3, iters=2):
+    def __init__(self, ksize=5, iters=1):
         """
         :param ksize:
         :param iters:

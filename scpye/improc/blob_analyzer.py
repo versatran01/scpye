@@ -27,7 +27,7 @@ class BlobAnalyzer(object):
     def __init__(self, max_aspect=1.3, min_extent=0.62,
                  min_solidity=0.91, gauss_filter_sigma=2,
                  max_filter_size=4, gray_edt_ratio=1.5, min_peak_distance=5,
-                 exclude_border=True):
+                 exclude_border=True, vis=False):
         # Parameters for extracting single blob
         self.max_aspect = max_aspect  # 1.3
         self.min_extent = min_extent  # 0.62
@@ -44,9 +44,7 @@ class BlobAnalyzer(object):
         self.logger = logging.getLogger(__name__)
 
         # Drawing
-        self.single_bboxes = None
-        self.multi_bboxes = None
-        self.vis = True
+        self.vis = vis
         self.disp_bw = None
         self.disp_bgr = None
 
@@ -64,29 +62,39 @@ class BlobAnalyzer(object):
 
         if self.vis:
             self.disp_bw = bgr_from_gray(bw_fill)
-            self.disp_bgr = enhance_contrast(bgr)
-
-        self.logger.debug("region props numbers: {}".format(len(blobs)))
+            good_bgr = enhance_contrast(bgr)
+            self.disp_bgr = bgr_from_gray(gray_from_bgr(good_bgr))
+            self.disp_bgr[bw > 0] = good_bgr[bw > 0]
 
         # Get single bboxes (fruits)
         single_blobs, multi_blobs = self.extract_single(blobs)
 
         if self.vis:
             single_cntrs = [blob.cntr for blob in single_blobs]
-            draw_contours(self.disp_bgr, single_cntrs, thickness=2)
+            draw_contours(self.disp_bgr, single_cntrs, thickness=2,
+                          color=Colors.blue)
 
         # Split them to single bbox and add to fruits
         more_single_blobs, split_blobs = self.split_multi(multi_blobs, gray)
 
         if self.vis:
             more_single_cntrs = [blob.cntr for blob in more_single_blobs]
-            draw_contours(self.disp_bgr, more_single_cntrs, color=Colors.yellow,
+            draw_contours(self.disp_bgr, more_single_cntrs, color=Colors.cyan,
                           thickness=2)
             split_cntrs = [blob.cntr for blob in split_blobs]
             draw_contours(self.disp_bgr, split_cntrs, color=Colors.green,
                           thickness=2)
 
-        return None, bw_fill
+        self.logger.debug(
+            "single/more/split: {}/{}/{}".format(len(single_blobs),
+                                                 len(more_single_blobs),
+                                                 len(split_blobs)))
+
+        split_blobs.extend(single_blobs)
+        split_blobs.extend(more_single_blobs)
+        fruits = np.array([blob.bbox for blob in split_blobs])
+
+        return fruits, bw_fill
 
     def is_single_blob(self, blob, mean_area):
         """

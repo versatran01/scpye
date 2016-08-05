@@ -16,7 +16,7 @@ bag_ind = 1
 dm = DataManager(base_dir, color=color, mode=mode, side=side)
 bm = BagManager(dm.data_dir, bag_ind)
 fd = FruitDetector.from_pickle(dm)
-# fv = FruitVisualizer()
+fv = FruitVisualizer()
 
 # %%
 for image in bm.load_bag():
