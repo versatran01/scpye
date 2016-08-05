@@ -20,17 +20,17 @@ bag_ind = 1
 # %%
 dm = DataManager(base_dir, color=color, mode=mode, side=side)
 bm = BagManager(dm.data_dir, bag_ind)
-bc = BinaryCleaner(ksize=3, iters=2)
-ba = BlobAnalyzer(max_cntr_area=100)
+bc = BinaryCleaner(ksize=5, iters=1)
+ba = BlobAnalyzer()
 fv = FruitVisualizer(pause_time=0.5)
 
 # %%
 for bgr, bw in bm.load_detect():
     bw = bc.clean(bw)
-    fruits = ba.analyze(bgr, bw)
+    fruits, bw = ba.analyze(bgr, bw)
 
     disp_bgr = enhance_contrast(bgr)
-    disp_bw = cv2.cvtColor(bw_clean, cv2.COLOR_GRAY2BGR)
+    disp_bw = cv2.cvtColor(bw, cv2.COLOR_GRAY2BGR)
 
     draw_blob_analyzer(ba, disp_bgr, disp_bw)
 

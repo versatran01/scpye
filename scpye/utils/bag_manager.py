@@ -5,6 +5,7 @@ import logging
 
 import cv2
 import rosbag
+import numpy as np
 from cv_bridge import CvBridge, CvBridgeError
 
 
@@ -17,6 +18,8 @@ class BagManager(object):
         self.bag_fmt = "frame{0}.bag"
         self.bgr_fmt = "bgr{0:04d}.png"
         self.bw_fmt = "bw{0:04d}.png"
+        self.disp_fmt = "disp{0:04d}.png"
+
         self.i_detect = 0
         self.i_track = 0
 
@@ -85,7 +88,7 @@ class BagManager(object):
                 i += 1
                 yield bgr, bw
 
-    def save_track(self, disp_bgr, disp_bw):
+    def save_track(self, disp_bgr, disp_bw, save_disp=False):
         self.logger.info('saving image {}'.format(self.i_track))
 
         bgr_name = os.path.join(self.track_dir,
@@ -94,4 +97,14 @@ class BagManager(object):
                                self.bw_fmt.format(self.i_track))
         cv2.imwrite(bgr_name, disp_bgr)
         cv2.imwrite(bw_name, disp_bw)
+
+        if save_disp:
+            disp_name = os.path.join(self.track_dir,
+                                     self.disp_fmt.format(self.i_track))
+            h, w, _ = np.shape(disp_bgr)
+            disp = np.ones((h, w * 2 + 50, 3), np.uint8) * 50
+            disp[:, :w, :] = disp_bgr
+            disp[:, w + 50:, :] = disp_bw
+            cv2.imwrite(disp_name, disp)
+
         self.i_track += 1

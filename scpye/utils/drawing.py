@@ -56,7 +56,7 @@ def draw_bboxes(image, bboxes, color=Colors.default, thickness=1):
     for bbox in bboxes:
         x, y, w, h = np.array(bbox, dtype=int)
         cv2.rectangle(image, (x, y), (x + w, y + h), color=color,
-                      thickness=thickness)
+                      thickness=thickness, lineType=cv2.LINE_AA)
 
 
 def draw_circles(image, circles, color=Colors.default, thickness=1):
@@ -114,8 +114,8 @@ def draw_texts(image, texts, points, color=Colors.default, scale=0.5,
                   thickness=thickness)
 
 
-def draw_optical_flows(image, points1, points2, status=None, color=Colors.red,
-                       thickness=1, draw_invalid=False):
+def draw_optical_flows(image, points1, points2, status=None, radius=1,
+                       color=Colors.red, thickness=1, draw_invalid=False):
     points1 = np.atleast_2d(points1)
     points2 = np.atleast_2d(points2)
 
@@ -127,8 +127,9 @@ def draw_optical_flows(image, points1, points2, status=None, color=Colors.red,
             a, b = np.array(pt1.ravel(), int)
             c, d = np.array(pt2.ravel(), int)
 
-            cv2.line(image, (a, b), (c, d), color=color, thickness=thickness)
-            cv2.circle(image, (c, d), 1, color=color, thickness=-1)
+            cv2.line(image, (a, b), (c, d), color=color, thickness=thickness,
+                     lineType=cv2.LINE_AA)
+            cv2.circle(image, (c, d), radius, color=color, thickness=-1)
 
 
 def draw_bboxes_matches(image, matches, bboxes1, bboxes2, color, thickness=1):

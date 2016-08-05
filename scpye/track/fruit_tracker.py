@@ -11,7 +11,8 @@ from scpye.track.assignment import hungarian_assignment
 from scpye.track.bounding_box import bboxes_assignment_cost
 from scpye.track.fruit_track import FruitTrack
 from scpye.track.optical_flow import (calc_optical_flow, calc_average_flow)
-from scpye.utils.drawing import (Colors, draw_bboxes, draw_optical_flows)
+from scpye.utils.drawing import (Colors, draw_bboxes, draw_optical_flows,
+                                 draw_text)
 
 
 class FruitTracker(object):
@@ -74,9 +75,9 @@ class FruitTracker(object):
         self.disp_bw = cv2.cvtColor(bw, cv2.COLOR_GRAY2BGR)
 
         # VISUALIZATION: new detection
-        if self.vis:
-            draw_bboxes(self.disp_bgr, fruits, color=Colors.blue)
-            draw_bboxes(self.disp_bw, fruits, color=Colors.blue)
+        # if self.vis:
+        #     draw_bboxes(self.disp_bgr, fruits, color=Colors.blue)
+        #     draw_bboxes(self.disp_bw, fruits, color=Colors.blue)
 
         # Initialization
         if not self.initialized:
@@ -99,10 +100,10 @@ class FruitTracker(object):
                                                         len(lost_tracks)))
 
         # VISUALIZATION: after optical flow update
-        if self.vis:
-            updated_bboxes = [t.bbox for t in updated_tracks]
-            draw_bboxes(self.disp_bgr, updated_bboxes, color=Colors.cyan)
-            draw_bboxes(self.disp_bw, updated_bboxes, color=Colors.cyan)
+        # if self.vis:
+        #     updated_bboxes = [t.bbox for t in updated_tracks]
+        #     draw_bboxes(self.disp_bgr, updated_bboxes, color=Colors.cyan)
+        #     draw_bboxes(self.disp_bw, updated_bboxes, color=Colors.cyan)
 
         matched_tracks, new_fruits, unmatched_tracks = self.match_tracks(
             updated_tracks,
@@ -127,10 +128,25 @@ class FruitTracker(object):
         # VISUALIZATION:
         if self.vis:
             counted_bboxes = [t.bbox for t in self.tracks if
-                              t.age > self.min_age]
+                              t.age >= self.min_age]
+            tracked_bboxes = [t.bbox for t in self.tracks if
+                              1 < t.age <= self.min_age]
+            new_bboxes = [t.bbox for t in self.tracks if t.age == 1]
             if len(counted_bboxes):
-                draw_bboxes(self.disp_bgr, counted_bboxes, color=Colors.green)
-                draw_bboxes(self.disp_bw, counted_bboxes, color=Colors.green)
+                draw_bboxes(self.disp_bgr, counted_bboxes, color=Colors.green,
+                            thickness=2)
+                draw_bboxes(self.disp_bw, counted_bboxes, color=Colors.green,
+                            thickness=2)
+            if len(tracked_bboxes):
+                draw_bboxes(self.disp_bgr, tracked_bboxes, color=Colors.yellow,
+                            thickness=2)
+                draw_bboxes(self.disp_bw, tracked_bboxes, color=Colors.yellow,
+                            thickness=2)
+            if len(new_bboxes):
+                draw_bboxes(self.disp_bgr, new_bboxes, color=Colors.red,
+                            thickness=2)
+                draw_bboxes(self.disp_bw, new_bboxes, color=Colors.red,
+                            thickness=2)
         # if self.vis:
         #     for track in self.tracks:
         #         draw_line(self.disp_bgr, track.hist, color=Colors.magenta)
@@ -141,6 +157,12 @@ class FruitTracker(object):
         self.logger.info(
             "Frame/Total counts: {0}/{1}".format(self.frame_counts,
                                                  self.total_counts))
+        if self.vis:
+            h, w = np.shape(bw)
+            draw_text(self.disp_bgr, self.total_counts, (10, h - 10), scale=1.5,
+                      color=Colors.cyan)
+            draw_text(self.disp_bw, self.total_counts, (10, h - 10), scale=1.5,
+                      color=Colors.cyan)
 
     def predict_tracks(self):
         """
@@ -170,9 +192,9 @@ class FruitTracker(object):
 
         # VISUALIZATION: optical flow
         draw_optical_flows(self.disp_bgr, prev_pts, curr_pts, status,
-                           color=Colors.magenta)
+                           radius=2, color=Colors.magenta)
         draw_optical_flows(self.disp_bw, prev_pts, curr_pts, status,
-                           color=Colors.magenta)
+                           radius=2, color=Colors.magenta)
 
         # Remove lost tracks
         updated_tracks, lost_tracks = [], []
