@@ -12,10 +12,11 @@ logger = logging.getLogger(__name__)
 # %%
 # DataManager
 base_dir = '/home/chao/Workspace/dataset/agriculture'
+fruit = 'apple'
 color = 'red'
 mode = 'slow_flash'
 side = 'north'
-dm = DataManager(base_dir, color=color, mode=mode, side=side)
+dm = DataManager(base_dir, fruit=fruit, color=color, mode=mode, side=side)
 
 # %%
 do_train = True
