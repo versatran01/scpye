@@ -3,7 +3,7 @@ import logging
 from sklearn.preprocessing import StandardScaler
 
 from scpye.detect.feature_transformer import (CspaceTransformer, MaskLocator,
-                                              PatchCreator)
+                                              PatchCreator, GradientTransformer)
 from scpye.detect.image_pipeline import ImagePipeline, FeatureUnion
 from scpye.detect.image_transformer import (ImageRotator, ImageCropper,
                                             ImageResizer, ImageSmoother,
@@ -30,12 +30,13 @@ def create_image_pipeline(ccw=-1, bbox=None, k=0.5):
     return img_ppl
 
 
-def create_image_features(cspace=None, loc=True, patch=True):
+def create_image_features(cspace=None, loc=True, patch=True, grad=True):
     """
     Factory function for making a feature union
     :param cspace: features - colorspace
     :param loc: features - pixel location
     :param patch: features - patch around pixel
+    :param grad: features - pixel gradient
     :return: feature union
     :rtype: FeatureUnion
     """
@@ -50,14 +51,20 @@ def create_image_features(cspace=None, loc=True, patch=True):
     if patch:
         transformer_list.append(('create_patch', PatchCreator()))
 
+    if grad:
+        transformer_list.append(('gradient_magnitude', GradientTransformer()))
+
     logging.debug(
-        'image features: cspace {0}, loc {1}, patch {2}'.format(cspace, loc,
-                                                                patch))
+        'image features: cspace {0}, loc {1}, patch {2}, grad{3}'.format(cspace,
+                                                                         loc,
+                                                                         patch,
+                                                                         grad))
     # Unfortunately, cannot do a parallel feature extraction
     return FeatureUnion(transformer_list)
 
 
-def create_feature_pipeline(pmin=25, cspace=None, loc=True, patch=True):
+def create_feature_pipeline(pmin=25, cspace=None, loc=True, patch=True,
+                            grad=True):
     """
     Create a feature pipeline to generate features from
     :param pmin: minimum greyscale value
@@ -66,7 +73,7 @@ def create_feature_pipeline(pmin=25, cspace=None, loc=True, patch=True):
     :param patch: extract patch around pixels
     :rtype: ImagePipeline
     """
-    features = create_image_features(cspace, loc, patch)
+    features = create_image_features(cspace, loc, patch, grad)
 
     ftr_ppl = ImagePipeline([('remove_dark', DarkRemover(pmin)),
                              ('features', features),

@@ -18,7 +18,7 @@ dm = DataManager(base_dir, color=color, mode=mode, side=side)
 fd = FruitDetector.from_pickle(dm)
 bc = BinaryCleaner(ksize=5, iters=1)
 
-I, L = dm.load_image_and_label(1)
+I, L = dm.load_image_and_label(8)
 It, Lt, bw = fd.detect_image_label(I, L)
 # Clean binary mask here
 bw = bc.clean(bw)

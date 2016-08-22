@@ -38,6 +38,7 @@ pmin = 27
 cspace = ['hsv']
 loc = True
 patch = True
+grad = True
 if color == 'red':
     bbox = [300, 0, 600, 1440]
 else:
@@ -49,7 +50,7 @@ if do_train:
     logger.info('start training')
     img_ppl = create_image_pipeline(bbox=bbox, k=k)
     ftr_ppl = create_feature_pipeline(pmin=pmin, cspace=cspace, loc=loc,
-                                      patch=patch)
+                                      patch=patch, grad=grad)
     img_clf = train_image_classifier(dm, train_inds, img_ppl, ftr_ppl)
 
     if do_save:

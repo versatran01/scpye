@@ -112,6 +112,34 @@ class MaskLocator(FeatureTransformer):
         return Xt
 
 
+class GradientTransformer(FeatureTransformer):
+    def __init__(self):
+        pass
+
+    @staticmethod
+    def gradient_magnitude(image):
+        image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+        Ix = cv2.Scharr(image, cv2.CV_64F, 1, 0)
+        Iy = cv2.Scharr(image, cv2.CV_64F, 0, 1)
+        mag, ang = cv2.cartToPolar(Ix, Iy)
+        return mag
+
+    def _transform_mask(self, X):
+        mag = self.gradient_magnitude(X.data)
+        Xt = mag[X.mask]
+        Xt = np.reshape(Xt, (-1, 1))
+        return Xt
+
+    def _transform_labels(self, X):
+        neg, pos = split_label(X.mask)
+        mag = self.gradient_magnitude(X.data)
+        mag_neg = mag[neg]
+        mag_pos = mag[pos]
+        Xt = np.hstack((mag_neg, mag_pos))
+        Xt = np.reshape(Xt, (-1, 1))
+        return Xt
+
+
 class PatchCreator(FeatureTransformer):
     def __init__(self, border=1):
         self.border = border
