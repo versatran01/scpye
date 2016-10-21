@@ -95,3 +95,4 @@ ENV/
 
 # Images
 *.png
+.spyproject/
