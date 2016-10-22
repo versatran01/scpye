@@ -28,7 +28,7 @@ for bgr, bw in tqdm(bm.load_detect()):
     bw = bc.clean(bw)
     fruits, bw = ba.analyze(bgr, bw)
     ft.track(bgr, fruits, bw)
-#    fv.show(ft.disp_bgr, ft.disp_bw)
-    bm.save_track(ft.disp_bgr, ft.disp_bw, save_disp=True)
+    fv.show(ft.disp_bgr, ft.disp_bw)
+    # bm.save_track(ft.disp_bgr, ft.disp_bw, save_disp=True)
 
 ft.finish()
