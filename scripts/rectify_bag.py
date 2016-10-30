@@ -33,7 +33,6 @@ image_name_fmt = 'image_rect_{0:05}.png'
 bridge = CvBridge()
 cam_model = PinholeCameraModel()
 
-skip = 10
 with rosbag.Bag(bag_file) as bag:
     for topic, msg, t in tqdm(bag.read_messages()):
         # first initialize camera model
@@ -43,8 +42,6 @@ with rosbag.Bag(bag_file) as bag:
         
         # after camera model initialized, read image
         if cam_model.K is not None and topic == image_topic:
-            if msg.header.seq % skip != 0:
-                continue
             image = bridge.imgmsg_to_cv2(msg, 'bgr8')
             image_rect = np.empty_like(image)
             cam_model.rectifyImage(image, image_rect)
