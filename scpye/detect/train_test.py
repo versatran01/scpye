@@ -112,7 +112,7 @@ def print_validation_report(X, y, clf, target_names=None):
     print(report)
 
 
-def train_image_classifier(Is, Ls, img_ppl, ftr_ppl):
+def train_fruit_detector(Is, Ls, img_ppl, ftr_ppl):
     """
     :param Ls: List of color images
     :param Is: List of binary labels
@@ -127,19 +127,17 @@ def train_image_classifier(Is, Ls, img_ppl, ftr_ppl):
     clf, param_grid = create_voting_classifier()
     grid = cross_validate_classifier(Xt, yt, clf, param_grid)
 
-    return grid
+    return FruitDetector(img_ppl, ftr_ppl, grid)
 
 
-def test_fruit_detector(data_manager, image_indices, fruit_detector):
+def test_fruit_detector(Is, Ls, fd):
     """
     :type data_manager: DataManager
     :param image_indices:
     :type fruit_detector: FruitDetector
     """
-    image_indices = np.atleast_1d(image_indices)
 
-    for ind in image_indices:
-        I, L = data_manager.load_image_and_label(ind)
-        It, Lt, bw = fruit_detector.detect_image_label(I, L)
+    for I, L in zip(Is, Ls):
+        It, Lt, bw = fd.detect_image_label(I, L)
         disp = enhance_contrast(It)
         imshow(disp, bw + Lt, cmap=plt.cm.viridis, figsize=(14, 17))

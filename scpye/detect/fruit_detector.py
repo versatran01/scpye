@@ -31,7 +31,7 @@ class FruitDetector(object):
         :param label:
         :return:
         """
-        It, Lt = self.img_ppl.transform(image, label[..., 1])
+        It, Lt = self.img_ppl.transform(image, label)
         bw = self._detect(It, bw_val=1)
         return It, Lt, bw
 
