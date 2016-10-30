@@ -1,7 +1,7 @@
 import logging
 from tqdm import tqdm
 from scpye.detect.fruit_detector import FruitDetector
-from scpye.utils.data_manager import DataManager
+from scpye.utils.image_dataset import DataManager
 from scpye.utils.bag_manager import BagManager
 from scpye.utils.fruit_visualizer import FruitVisualizer
 

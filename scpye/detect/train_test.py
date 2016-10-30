@@ -112,20 +112,17 @@ def print_validation_report(X, y, clf, target_names=None):
     print(report)
 
 
-def train_image_classifier(data_manager, image_indices, image_pipeline,
-                           feature_pipeline):
+def train_image_classifier(Is, Ls, img_ppl, ftr_ppl):
     """
-    :type data_manager: DataReader
-    :param image_indices: list of indices
-    :type image_pipeline: ImagePipeline
-    :type feature_pipeline: ImagePipeline
+    :param Ls: List of color images
+    :param Is: List of binary labels
+    :type img_ppl: ImagePipeline
+    :type ftr_ppl: ImagePipeline
     :rtype: GridSearchCV
     """
-    # Load
-    Is, Ls = data_manager.load_image_label_list(image_indices)
     # Transform
-    Its, Lts = image_pipeline.transform(Is, Ls)
-    Xt, yt = feature_pipeline.fit_transform(Its, Lts)
+    Its, Lts = img_ppl.transform(Is, Ls)
+    Xt, yt = ftr_ppl.fit_transform(Its, Lts)
     # Fit
     clf, param_grid = create_voting_classifier()
     grid = cross_validate_classifier(Xt, yt, clf, param_grid)

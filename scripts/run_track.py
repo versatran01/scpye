@@ -3,7 +3,7 @@ from tqdm import tqdm
 from scpye.improc.binary_cleaner import BinaryCleaner
 from scpye.improc.blob_analyzer import BlobAnalyzer
 from scpye.track.fruit_tracker import FruitTracker
-from scpye.utils.data_manager import DataManager
+from scpye.utils.image_dataset import DataManager
 from scpye.utils.bag_manager import BagManager
 from scpye.utils.fruit_visualizer import FruitVisualizer
 

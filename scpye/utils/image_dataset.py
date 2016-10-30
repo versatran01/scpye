@@ -1,5 +1,6 @@
 import os
 import logging
+import re
 
 import cv2
 import numpy as np
@@ -10,8 +11,54 @@ from scpye.improc.image_processing import u8_from_bw
 from scpye.utils.exception import ImageNotFoundError
 
 
-def make_binary(data):
-    return np.array(data > 0, dtype='uint8')
+class ImageDataset(object):
+    def __init__(self, data_dir, image_name, image_ext='png'):
+        self.data_dir = data_dir
+        self.image_name = image_name
+        self.image_ext = image_ext
+
+    def _load_image(self, index, prefix, color=True):
+        file_fmt = '{}_{}.png'
+        file_name = file_fmt.format(prefix, index)
+        file_name_full = os.path.join(self.data_dir, file_name)
+        flag = cv2.IMREAD_COLOR if color else cv2.IMREAD_GRAYSCALE
+
+        image = cv2.imread(file_name_full, flag)
+
+        if image is None:
+            raise ImageNotFoundError(file_name_full)
+
+        return image
+
+
+class TrainingSet(ImageDataset):
+    def __init__(self, data_dir, image_name, label_name):
+        super(TrainingSet, self).__init__(data_dir, image_name)
+        self.label_name = label_name
+        self.index_list = []
+
+        regex = re.compile(r'\d+')
+        file_list = os.listdir(self.data_dir)
+        for file_name in sorted(file_list):
+            if self.image_name in file_name and file_name.endswith(
+                    self.image_ext):
+                self.index_list.append(regex.search(file_name).group(0))
+
+    def load_image(self, index):
+        return self._load_image(index, self.image_name)
+
+    def load_label(self, index):
+        return self._load_image(index, self.label_name, color=False)
+
+    def load_image_label_list(self):
+        if len(self.index_list) == 0:
+            raise ValueError('Empty index list')
+
+        Is, Ls = [], []
+        for index in self.index_list:
+            Is.append(self.load_image(index))
+            Ls.append(u8_from_bw(self.load_label(index), val=1))
+        return Is, Ls
 
 
 class DataManager(object):

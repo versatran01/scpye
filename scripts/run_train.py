@@ -4,14 +4,14 @@ from scpye.detect.pipeline_factory import (create_image_pipeline,
                                            create_feature_pipeline)
 from scpye.detect.train_test import (train_image_classifier,
                                      test_fruit_detector)
-from scpye.utils.data_manager import DataManager
+from scpye.utils.image_dataset import DataManager
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # %%
 # DataManager
-base_dir = '/home/chao/Workspace/dataset/agriculture'
+base_dir = '/home/chao/Workspace/dataset/apple_2016/result'
 fruit = 'apple'
 color = 'red'
 mode = 'slow_flash'

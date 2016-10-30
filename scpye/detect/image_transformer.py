@@ -178,7 +178,8 @@ class DarkRemover(ImageTransformer):
         return MaskedData(data=X, mask=self.mask)
 
     def _transform_Xy(self, X, y=None):
-        neg, pos = split_label(y)
+        pos = y > 0
+        neg = ~y
         neg_mask = self.mask & neg
         pos_mask = self.mask & pos
 

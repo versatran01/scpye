@@ -4,7 +4,7 @@ import cv2
 import numpy as np
 from sklearn.feature_extraction.image import extract_patches_2d
 
-from scpye.detect.image_transformer import (ImageTransformer, split_label)
+from scpye.detect.image_transformer import ImageTransformer, split_label
 from scpye.utils.exception import FeatureNotSupportedError
 
 
@@ -79,7 +79,7 @@ class CspaceTransformer(FeatureTransformer):
 
     def _transform_labels(self, X):
         bgr, mask = X.data, X.mask
-        neg, pos = split_label(mask)
+        neg, pos = split_label(X.mask)
         Xt_neg = self.cspace_transform(bgr[neg])
         Xt_pos = self.cspace_transform(bgr[pos])
         Xt = np.vstack((Xt_neg, Xt_pos))
@@ -131,8 +131,8 @@ class GradientTransformer(FeatureTransformer):
         return Xt
 
     def _transform_labels(self, X):
-        neg, pos = split_label(X.mask)
         mag = self.gradient_magnitude(X.data)
+        neg, pos = split_label(X.mask)
         mag_neg = mag[neg]
         mag_pos = mag[pos]
         Xt = np.hstack((mag_neg, mag_pos))

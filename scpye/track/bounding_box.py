@@ -22,6 +22,9 @@ def extract_bbox(image, bbox, copy=False):
     :param copy: whether to return a copy or reference
     :return: region of image
     """
+    if bbox is None:
+        return np.array(image, copy=copy)
+
     x, y, w, h = bbox
     if copy:
         return np.array(image[y:y + h, x:x + w, ...], copy=True)

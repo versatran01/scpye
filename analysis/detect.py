@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 from scpye.detect.fruit_detector import FruitDetector
 from scpye.improc.binary_cleaner import BinaryCleaner
-from scpye.utils.data_manager import DataManager
+from scpye.utils.image_dataset import DataManager
 from scpye.utils.drawing import imshow
 from scpye.improc.image_processing import (enhance_contrast, gray_from_bgr,
                                            bgr_from_gray, swap_channels)
