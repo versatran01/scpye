@@ -39,7 +39,7 @@ def create_single_classifier(clf_name='svc'):
     return clf, params
 
 
-def create_voting_classifier(voting='hard', classifiers=('svc', 'lr', 'rf')):
+def create_voting_classifier(voting='hard', classifiers=('lr', 'rf')):
     """
     Creates a voting classifier
     :param voting: hard or soft, hard is much faster

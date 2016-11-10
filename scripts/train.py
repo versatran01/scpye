@@ -11,7 +11,7 @@ image_name = 'image_rect_color'
 label_name = 'image_rect_label'
 ts = TrainingSet(data_dir, image_name, label_name)
 Is, Ls = ts.load_image_label_list()
-n = 6
+n = 2
 
 # %%
 # Parameters
@@ -19,7 +19,7 @@ k = 0.2
 pmin = 27
 cspace = ['hsv']
 loc = True
-patch = True
+patch = False
 grad = True
 bbox = None
 
