@@ -1,6 +1,7 @@
 from __future__ import (print_function, division, absolute_import)
 
 from scpye.improc.image_processing import u8_from_bw
+import joblib
 
 
 def get_dark_remover(feature_pipeline):
@@ -31,7 +32,7 @@ class FruitDetector(object):
         :param label:
         :return:
         """
-        It, Lt = self.img_ppl.transform(image, label[..., 1])
+        It, Lt = self.img_ppl.transform(image, label)
         bw = self._detect(It, bw_val=1)
         return It, Lt, bw
 
@@ -45,9 +46,12 @@ class FruitDetector(object):
         return bw
 
     @classmethod
-    def from_pickle(cls, data_manager):
+    def from_pickle(cls, path):
         """
         Constructor from a pickle
         """
-        detector = data_manager.load_detector()
-        return cls(detector.img_ppl, detector.ftr_ppl, detector.img_clf)
+        fd = joblib.load(path)
+        return cls(fd.img_ppl, fd.ftr_ppl, fd.img_clf)
+
+    def to_pickle(self, path):
+        joblib.dump(self, path)

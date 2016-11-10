@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 from __future__ import (print_function, absolute_import, division)
-import logging
 import os
 import rosbag
 import cv2
@@ -28,7 +27,7 @@ print(image_dir)
 camera_topic = '/color'
 image_topic = camera_topic + '/image_raw'
 cinfo_topic = camera_topic + '/camera_info'
-image_name_fmt = 'image_rect_{0:05}.png'
+image_name_fmt = 'image_rect_color_{0:05}.png'
 
 bridge = CvBridge()
 cam_model = PinholeCameraModel()
@@ -39,7 +38,7 @@ with rosbag.Bag(bag_file) as bag:
         if cam_model.K is None and topic == cinfo_topic:
             cam_model.fromCameraInfo(msg)
             print('camera model initialized')
-        
+
         # after camera model initialized, read image
         if cam_model.K is not None and topic == image_topic:
             image = bridge.imgmsg_to_cv2(msg, 'bgr8')
@@ -48,4 +47,3 @@ with rosbag.Bag(bag_file) as bag:
             image_name = image_name_fmt.format(msg.header.seq)
             image_file = os.path.join(image_dir, image_name)
             cv2.imwrite(image_file, image_rect)
-            

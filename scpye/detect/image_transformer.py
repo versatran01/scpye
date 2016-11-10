@@ -167,6 +167,7 @@ class DarkRemover(ImageTransformer):
         """
         assert 0 <= pmin < 255, "pmin should be in [0, 255)"
         self.v_min = pmin
+        self.ksize = 5
 
         self.mask = None
 
@@ -178,13 +179,29 @@ class DarkRemover(ImageTransformer):
         return MaskedData(data=X, mask=self.mask)
 
     def _transform_Xy(self, X, y=None):
+        # Dilate y
+        kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,
+                                           (self.ksize, self.ksize))
+        y_dilated = cv2.morphologyEx(y, cv2.MORPH_CLOSE, kernel)
         pos = y > 0
-        neg = ~y
+        neg = ~(y_dilated > 0)
         neg_mask = self.mask & neg
         pos_mask = self.mask & pos
 
-        y_neg = np.zeros(np.count_nonzero(neg_mask))
-        y_pos = np.ones(np.count_nonzero(pos_mask))
+        sum_neg = np.count_nonzero(neg_mask)
+        sum_pos = np.count_nonzero(pos_mask)
+
+        # Sub sample negative labels
+        n = int(sum_neg / (1.5 * sum_pos))
+        if n > 0:
+            sub_mask = np.zeros_like(neg_mask)
+            sub_mask[::n] = True
+            neg_mask &= sub_mask
+
+        sum_neg = np.count_nonzero(neg_mask)
+
+        y_neg = np.zeros(sum_neg)
+        y_pos = np.ones(sum_pos)
 
         labels = np.dstack((neg_mask, pos_mask))
         yt = np.hstack((y_neg, y_pos))
