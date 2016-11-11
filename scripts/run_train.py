@@ -1,20 +1,14 @@
 # -*- coding: utf-8 -*-
-from scpye.utils.image_dataset import TrainingSet
+from scpye.utils.image_dataset import ImageDataset
 from scpye.detect.pipeline_factory import (create_image_pipeline,
                                            create_feature_pipeline)
 from scpye.detect.train_test import (train_fruit_detector,
                                      test_fruit_detector)
-import os
 
 # %%
-data_dir = '/home/chao/Workspace/dataset/apple_2016/result'
-train_dir = os.path.join(data_dir, 'train')
-model_dir = os.path.join(data_dir, 'model')
-model_name = os.path.join(model_dir, 'red.pkl')
-image_name = 'image_rect_color'
-label_name = 'image_rect_label'
-ts = TrainingSet(train_dir, image_name, label_name)
-Is, Ls = ts.load_image_label_list()
+data_dir = '/home/chao/Workspace/dataset/apple_2016/result/apple_v0_mid_density_led_2016-08-24-23-32-50'
+ds = ImageDataset(data_dir)
+Is, Ls = ds.load_train()
 n = 6
 
 # %%
@@ -43,7 +37,7 @@ if do_train:
 # %%
 # Save
 if do_save:
-    fd.to_pickle(model_name)
+    ds.save_model(fd)
 
 # %%
 # Test

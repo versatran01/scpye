@@ -1,26 +1,22 @@
 import logging
-from tqdm import tqdm
+import os
 from scpye.detect.fruit_detector import FruitDetector
-from scpye.utils.image_dataset import DataManager
-from scpye.utils.bag_manager import BagManager
+from scpye.utils.image_dataset import ImageDataset
 from scpye.utils.fruit_visualizer import FruitVisualizer
 
 logging.basicConfig(level=logging.INFO)
 
-base_dir = '/home/chao/Workspace/dataset/agriculture'
-color = 'red'
-mode = 'slow_flash'
-side = 'north'
-bag_ind = 4
+data_dir = '/home/chao/Workspace/dataset/apple_2016/result/apple_v0_mid_density_led_2016-08-24-23-32-50'
+ds = ImageDataset(data_dir)
 
 # %%
-dm = DataManager(base_dir, color=color, mode=mode, side=side)
-bm = BagManager(dm.data_dir, bag_ind)
-fd = FruitDetector.from_pickle(dm)
+fd = ds.load_model()
 fv = FruitVisualizer()
 
 # %%
-for image in tqdm(bm.load_bag()):
+for index in range(1087, 1483, 10):
+    image = ds.load_image(index)
     bgr, bw = fd.detect(image)
 #    fv.show(bgr, bw)
-    bm.save_detect(bgr, bw)
+    ds.save_detect(index, bgr, bw)
+    break
