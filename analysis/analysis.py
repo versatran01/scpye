@@ -88,16 +88,20 @@ def generate_datapoints(min_thresh=0, max_thresh=1, step_thresh=0.01):
         IU_positive = np.sum(
             np.logical_and(np.uint8(thresholded_score > threshold),
                            label == 1)) / (
-                      np.float64(np.sum(label == 1)) + np.sum(np.logical_and(
-                          np.uint8(thresholded_score > threshold), label == 0)))
+                          np.float64(np.sum(label == 1)) + np.sum(
+                              np.logical_and(
+                                  np.uint8(thresholded_score > threshold),
+                                  label == 0)))
         IU_negative = np.sum(
             np.logical_and(np.uint8(thresholded_score < threshold),
                            label == 0)) / (
-                      np.float64(np.sum(label == 0)) + np.sum(np.logical_and(
-                          np.uint8(thresholded_score < threshold), label == 1)))
+                          np.float64(np.sum(label == 0)) + np.sum(
+                              np.logical_and(
+                                  np.uint8(thresholded_score < threshold),
+                                  label == 1)))
         mean_IU = (IU_positive + IU_negative) / 2
         frequency_IU = ((np.float64(np.sum(label == 1)) * IU_positive) + (
-        np.float64(np.sum(label == 0)) * IU_negative)) / total_pixels
+            np.float64(np.sum(label == 0)) * IU_negative)) / total_pixels
 
         datapoints.append(
             [threshold, false_positive, true_positive, false_negative,

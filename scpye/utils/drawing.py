@@ -52,6 +52,9 @@ def imshow(*images, **options):
 
 
 def draw_bboxes(image, bboxes, color=Colors.default, thickness=1):
+    if np.size(bboxes) == 0:
+        return
+
     bboxes = np.atleast_2d(bboxes)
     for bbox in bboxes:
         x, y, w, h = np.array(bbox, dtype=int)
@@ -60,6 +63,9 @@ def draw_bboxes(image, bboxes, color=Colors.default, thickness=1):
 
 
 def draw_circles(image, circles, color=Colors.default, thickness=1):
+    if np.size(circles) == 0:
+        return
+
     circles = np.atleast_2d(circles)
     for circle in circles:
         x, y, r = np.array(circle, dtype=int)
@@ -67,6 +73,9 @@ def draw_circles(image, circles, color=Colors.default, thickness=1):
 
 
 def draw_points(image, points, color=Colors.default, radius=1):
+    if np.size(points) == 0:
+        return
+
     points = np.atleast_2d(points)
     for point in points:
         x, y = np.array(point, dtype=int)
@@ -74,6 +83,9 @@ def draw_points(image, points, color=Colors.default, radius=1):
 
 
 def draw_ellipses(image, ellipses, color=Colors.default, thickness=1):
+    if np.size(ellipses) == 0:
+        return
+
     ellipses = np.atleast_2d(ellipses)
     for ellipse in ellipses:
         x, y, ax1, ax2, ang = np.array(ellipse, dtype=int)
@@ -81,10 +93,13 @@ def draw_ellipses(image, ellipses, color=Colors.default, thickness=1):
                     thickness=thickness)
 
 
-def draw_line(image, line, color=Colors.default, thickness=1):
-    line = np.atleast_2d(np.array(line, dtype=int))
-    for i in range(len(line) - 1):
-        p1, p2 = line[i], line[i + 1]
+def draw_lines(image, lines, color=Colors.default, thickness=1):
+    if np.size(lines) == 0:
+        return
+
+    lines = np.atleast_2d(np.array(lines, dtype=int))
+    for i in range(len(lines) - 1):
+        p1, p2 = lines[i], lines[i + 1]
         a, b = p1
         c, d = p2
         cv2.line(image, (a, b), (c, d), color=color, thickness=thickness)
@@ -116,6 +131,9 @@ def draw_texts(image, texts, points, color=Colors.default, scale=0.5,
 
 def draw_optical_flows(image, points1, points2, status=None, radius=1,
                        color=Colors.red, thickness=1, draw_invalid=False):
+    if np.size(points1) == 0 or np.size(points2) == 0:
+        return
+
     points1 = np.atleast_2d(points1)
     points2 = np.atleast_2d(points2)
 

@@ -21,6 +21,8 @@ class ImageDataset(object):
         self.image_fmt = '{0}_{1:05d}.{2}'
         self.detect_color_name = 'detect_color'
         self.detect_label_name = 'detect_label'
+        self.track_color_name = 'track_color'
+        self.track_label_name = 'track_label'
 
     def _save_image(self, image_dir, index, prefix, image):
         image_name = self.image_fmt.format(prefix, index, self.image_ext)
@@ -98,5 +100,15 @@ class ImageDataset(object):
         :param bw:
         :return:
         """
-        self._save_image(self.detect_dir, index, 'detect_color', bgr)
-        self._save_image(self.detect_dir, index, 'detect_label', bw)
+        self._save_image(self.detect_dir, index, self.detect_color_name, bgr)
+        self._save_image(self.detect_dir, index, self.detect_label_name, bw)
+
+    def save_track(self, index, bgr, bw):
+        """
+        :param index:
+        :param bgr:
+        :param bw:
+        :return:
+        """
+        self._save_image(self.track_dir, index, self.track_color_name, bgr)
+        self._save_image(self.track_dir, index, self.track_label_name, bw)

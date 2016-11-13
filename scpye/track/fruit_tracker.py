@@ -95,7 +95,7 @@ class FruitTracker(object):
         #     draw_bboxes(self.disp_bgr, predict_bboxes, color=Colors.red)
         #     draw_bboxes(self.disp_bw, predict_bboxes, color=Colors.red)
 
-        updated_tracks, lost_tracks = self.update_tracks(gray)
+        updated_tracks, lost_tracks = self.update_tracks(gray, self.tracks)
         self.logger.debug("update/lost: {0}/{1}".format(len(updated_tracks),
                                                         len(lost_tracks)))
 
@@ -171,15 +171,20 @@ class FruitTracker(object):
         for track in self.tracks:
             track.predict()
 
-    def update_tracks(self, gray):
+    def update_tracks(self, gray, tracks):
         """
         Update tracks' position in Kalman filter via KLT
         :param gray: greyscale image
+        :param tracks:
         :return: updated tracks, lost_tracks
         """
+        # No op when no tracks
+        if len(tracks) == 0:
+            return [], []
+
         # Get points in previous image and points in current image
-        prev_pts = [t.prev_pos for t in self.tracks]
-        init_pts = [t.pos for t in self.tracks]
+        prev_pts = [t.prev_pos for t in tracks]
+        init_pts = [t.pos for t in tracks]
 
         curr_pts, status = calc_optical_flow(self.prev_gray, gray,
                                              prev_pts, init_pts,
@@ -219,8 +224,18 @@ class FruitTracker(object):
         bboxes_update = np.array([t.bbox for t in tracks])
         bboxes_detect = np.array(fruits)
 
-        cost = bboxes_assignment_cost(bboxes_update, bboxes_detect)
-        match_inds, lost_inds, new_inds = hungarian_assignment(cost)
+        # handle cases when tracks or fruits is empty
+        if np.size(bboxes_update) != 0 and np.size(bboxes_detect) != 0:
+            cost = bboxes_assignment_cost(bboxes_update, bboxes_detect)
+            match_inds, lost_inds, new_inds = hungarian_assignment(cost)
+        elif np.size(bboxes_update) == 0 and np.size(bboxes_detect) != 0:
+            match_inds = []
+            lost_inds = []
+            new_inds = np.arange(len(bboxes_detect))
+        else:
+            match_inds = []
+            lost_inds = np.arange(len(bboxes_update))
+            new_inds = []
 
         # VISUALIZATION: hungarian assignment
         # draw_bboxes_matches(self.disp_bgr, match_inds, bboxes_update,
@@ -235,7 +250,10 @@ class FruitTracker(object):
             matched_tracks.append(track)
 
         # extract new tracks
-        new_fruits = fruits[new_inds]
+        if len(new_inds) == 0:
+            new_fruits = []
+        else:
+            new_fruits = fruits[new_inds]
 
         # get unmatched tracks
         unmatched_tracks = [tracks[ind] for ind in lost_inds]
