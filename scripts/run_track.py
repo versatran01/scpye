@@ -3,28 +3,25 @@ from tqdm import tqdm
 from scpye.improc.binary_cleaner import BinaryCleaner
 from scpye.improc.blob_analyzer import BlobAnalyzer
 from scpye.track.fruit_tracker import FruitTracker
-from scpye.utils.image_dataset import DataManager
-from scpye.utils.bag_manager import BagManager
+from scpye.utils.image_dataset import ImageDataset
 from scpye.utils.fruit_visualizer import FruitVisualizer
 
 # %%
-base_dir = '/home/chao/Workspace/dataset/agriculture'
-color = 'red'
-mode = 'slow_flash'
-side = 'north'
-bag_ind = 1
+data_dir = '/home/chao/Workspace/dataset/apple_2016/result/' \
+           'apple_v0_mid_density_led_2016-08-24-23-32-50'
+ds = ImageDataset(data_dir)
+
 
 # %%
-dm = DataManager(base_dir, color=color, mode=mode, side=side)
-bm = BagManager(dm.data_dir, bag_ind)
-
+fd = ds.load_model()
 bc = BinaryCleaner(ksize=5, iters=1)
 ba = BlobAnalyzer()
 ft = FruitTracker()
 fv = FruitVisualizer(pause_time=0.1)
 
 # %%
-for bgr, bw in tqdm(bm.load_detect()):
+for index in range(1087, 1483, 2):
+    bgr, bw = ds.load_detect(index)
     bw = bc.clean(bw)
     fruits, bw = ba.analyze(bgr, bw)
     ft.track(bgr, fruits, bw)

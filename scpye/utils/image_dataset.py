@@ -19,6 +19,8 @@ class ImageDataset(object):
         self.label_name = 'image_rect_label'
         self.image_ext = 'png'
         self.image_fmt = '{0}_{1:05d}.{2}'
+        self.detect_color_name = 'detect_color'
+        self.detect_label_name = 'detect_label'
 
     def _save_image(self, image_dir, index, prefix, image):
         image_name = self.image_fmt.format(prefix, index, self.image_ext)
@@ -47,6 +49,12 @@ class ImageDataset(object):
         label = self._load_image(self.train_dir, index, self.label_name,
                                  color=False)
         return u8_from_bw(label, val=1)
+
+    def load_detect(self, index):
+        color = self._load_image(self.detect_dir, index, self.detect_color_name)
+        label = self._load_image(self.detect_dir, index, self.detect_label_name,
+                                 color=False)
+        return color, label
 
     def load_train(self):
         index_list = []
