@@ -44,6 +44,10 @@ class FruitTrack(object):
         return self.kf.x[2:].copy()
 
     @property
+    def invalid(self):
+        return np.any(np.isnan(self.kf.x))
+
+    @property
     def pos_cov(self):
         return self.kf.P[:2, :2].copy()
 

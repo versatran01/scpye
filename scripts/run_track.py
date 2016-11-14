@@ -19,12 +19,14 @@ ft = FruitTracker()
 fv = FruitVisualizer(pause_time=0.1)
 
 # %%
-for index in range(1087, 1483, 2):
+for index in range(1483, 1567, 2):
     bgr, bw = ds.load_detect(index)
     bw = bc.clean(bw)
     fruits, bw = ba.analyze(bgr, bw)
     ft.track(bgr, fruits, bw)
     fv.show(ft.disp_bgr, ft.disp_bw)
-    ds.save_track(index, ft.disp_bgr, ft.disp_bw)
+    # ds.save_track(index, ft.disp_bgr, ft.disp_bw)
+    print(index)
 
 ft.finish()
+print('final count', ft.total_counts)

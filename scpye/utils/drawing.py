@@ -139,6 +139,8 @@ def draw_optical_flows(image, points1, points2, status=None, radius=1,
 
     if status is None:
         status = np.ones(len(points1))
+    else:
+        status = np.atleast_1d(status)
 
     for pt1, pt2, st in izip(points1, points2, status):
         if st or draw_invalid:

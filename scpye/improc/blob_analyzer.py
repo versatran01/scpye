@@ -205,7 +205,10 @@ def blobs_from_labels(labels, n_peaks, blob):
     for i in range(n_peaks):
         label_i1 = u8_from_bw(labels == i + 1)  # 0 is background
         local_bbox = contour_bounding_rect(label_i1)
-        local_cntr = find_contours(label_i1)[0]
+        local_cntrs = find_contours(label_i1)
+        if len(local_cntrs) == 0:
+            continue
+        local_cntr = local_cntrs[0]
         # shift bbox from local to global
         local_bbox[:2] += blob.bbox[:2]
         local_cntr += blob.bbox[:2]

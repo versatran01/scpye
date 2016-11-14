@@ -86,8 +86,11 @@ class FruitTracker(object):
             self.logger.info('Tracker initialized.')
             return
 
-        self.predict_tracks()
-        self.logger.debug("Predicted tracks: {}".format(len(self.tracks)))
+        tracks = [t for t in self.tracks]
+        # print(len(self.tracks) - len(tracks))
+
+        self.predict_tracks(tracks)
+        self.logger.debug("Predicted tracks: {}".format(len(tracks)))
 
         # VISUALIZATION: after prediction
         # if self.vis:
@@ -95,7 +98,7 @@ class FruitTracker(object):
         #     draw_bboxes(self.disp_bgr, predict_bboxes, color=Colors.red)
         #     draw_bboxes(self.disp_bw, predict_bboxes, color=Colors.red)
 
-        updated_tracks, lost_tracks = self.update_tracks(gray, self.tracks)
+        updated_tracks, lost_tracks = self.update_tracks(gray, tracks)
         self.logger.debug("update/lost: {0}/{1}".format(len(updated_tracks),
                                                         len(lost_tracks)))
 
@@ -121,6 +124,7 @@ class FruitTracker(object):
         # Assemble all lost tracks and update tracks
         self.tracks = matched_tracks
         self.add_new_tracks(self.tracks, new_fruits)
+
         lost_tracks.extend(unmatched_tracks)
         self.logger.debug(
             "tracks/lost: {0}/{1}".format(len(self.tracks), len(lost_tracks)))
@@ -164,11 +168,11 @@ class FruitTracker(object):
             draw_text(self.disp_bw, self.total_counts, (10, h - 10), scale=1.5,
                       color=Colors.cyan)
 
-    def predict_tracks(self):
+    def predict_tracks(self, tracks):
         """
         Predict tracks in Kalman filter
         """
-        for track in self.tracks:
+        for track in tracks:
             track.predict()
 
     def update_tracks(self, gray, tracks):
@@ -190,9 +194,11 @@ class FruitTracker(object):
                                              prev_pts, init_pts,
                                              self.win_size,
                                              self.max_level)
+        status = np.atleast_1d(status)
 
         # Update init flow
-        self.init_flow = calc_average_flow(prev_pts, curr_pts, status)
+        if np.sum(status) > 0:
+            self.init_flow = calc_average_flow(prev_pts, curr_pts, status)
         self.logger.debug("init flow: {}".format(self.init_flow))
 
         # VISUALIZATION: optical flow
@@ -229,12 +235,19 @@ class FruitTracker(object):
             cost = bboxes_assignment_cost(bboxes_update, bboxes_detect)
             match_inds, lost_inds, new_inds = hungarian_assignment(cost)
         elif np.size(bboxes_update) == 0 and np.size(bboxes_detect) != 0:
+            print('no tracks, new detect')
             match_inds = []
             lost_inds = []
             new_inds = np.arange(len(bboxes_detect))
-        else:
+        elif np.size(bboxes_update) != 0 and np.size(bboxes_detect) == 0:
+            print('non detect, with tracks')
             match_inds = []
             lost_inds = np.arange(len(bboxes_update))
+            new_inds = []
+        else:
+            print('both are zero')
+            match_inds = []
+            lost_inds = []
             new_inds = []
 
         # VISUALIZATION: hungarian assignment

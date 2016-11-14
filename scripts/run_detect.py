@@ -13,7 +13,7 @@ fd = ds.load_model()
 fv = FruitVisualizer()
 
 # %%
-for index in range(1087, 1483, 2):
+for index in range(1483, 1564, 2):
     image = ds.load_image(index)
     bgr, bw = fd.detect(image)
     fv.show(bgr, bw)
