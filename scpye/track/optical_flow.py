@@ -71,9 +71,9 @@ def calc_average_flow(points1, points2, status):
     :param status:
     :return:
     """
-    points1 = np.squeeze(np.array(points1))
-    points2 = np.squeeze(np.array(points2))
-    status = np.squeeze(np.array(status) > 0)
+    points1 = np.atleast_2d(np.squeeze(np.array(points1)))
+    points2 = np.atleast_2d(np.squeeze(np.array(points2)))
+    status = np.atleast_1d(np.squeeze(np.array(status) > 0))
     flows = points2 - points1
     valid_flows = flows[status]
 

@@ -11,7 +11,10 @@ from cv_bridge import CvBridge
 # %%
 data_dir = '/home/chao/Workspace/dataset/apple_2016'
 bag_dir = os.path.join(data_dir, 'bag')
-bag_name = 'apple_v0_mid_density_led_2016-08-24-23-32-50.bag'
+# bag_name = 'apple_v0_mid_density_led_2016-08-24-23-32-50.bag'
+# bag_name = 'apple_v0_mid_density_led_2016-08-24-23-36-06.bag'
+#bag_name = 'apple_v0_high_density_led_2016-08-25-23-38-10.bag'
+bag_name = 'apple_v0_high_density_led_calib_2016-08-25-23-42-47.bag'
 bag_file = os.path.join(bag_dir, bag_name)
 result_dir = os.path.join(data_dir, 'result')
 image_dir_name = os.path.splitext(bag_name)[0]
@@ -31,6 +34,7 @@ image_name_fmt = 'image_rect_color_{0:05}.png'
 
 bridge = CvBridge()
 cam_model = PinholeCameraModel()
+
 
 with rosbag.Bag(bag_file) as bag:
     for topic, msg, t in tqdm(bag.read_messages()):

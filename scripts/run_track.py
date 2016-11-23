@@ -8,7 +8,9 @@ from scpye.utils.fruit_visualizer import FruitVisualizer
 
 # %%
 data_dir = '/home/chao/Workspace/dataset/apple_2016/result/' \
-           'apple_v0_mid_density_led_2016-08-24-23-32-50'
+           'apple_v0_high_density_led_2016-08-25-23-38-10'
+# data_dir = '/home/chao/Workspace/dataset/apple_2016/result/' \
+#           'apple_v0_mid_density_led_2016-08-24-23-36-06'
 ds = ImageDataset(data_dir)
 
 # %%
@@ -19,13 +21,13 @@ ft = FruitTracker()
 fv = FruitVisualizer(pause_time=0.1)
 
 # %%
-for index in range(1483, 1567, 2):
+for index in range(1009, 1400, 2):
     bgr, bw = ds.load_detect(index)
     bw = bc.clean(bw)
     fruits, bw = ba.analyze(bgr, bw)
     ft.track(bgr, fruits, bw)
-    fv.show(ft.disp_bgr, ft.disp_bw)
-    # ds.save_track(index, ft.disp_bgr, ft.disp_bw)
+#    fv.show(ft.disp_bgr, ft.disp_bw)
+    ds.save_track(index, ft.disp_bgr, ft.disp_bw)
     print(index)
 
 ft.finish()

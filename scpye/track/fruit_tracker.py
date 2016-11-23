@@ -172,6 +172,8 @@ class FruitTracker(object):
         """
         Predict tracks in Kalman filter
         """
+        if np.size(tracks) == 0:
+            return
         for track in tracks:
             track.predict()
 

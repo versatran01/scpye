@@ -26,20 +26,20 @@ def create_single_classifier(clf_name='svc'):
     """
     if clf_name == 'svc':
         clf = SVC()
-        params = {'C': [200]}
+        params = {'C': [1]}
     elif clf_name == 'lr':
         clf = LogisticRegression()
-        params = {'C': [1, 10, 100]}
+        params = {'C': [1]}
     elif clf_name == 'rf':
         clf = RandomForestClassifier()
-        params = {'n_estimators': [10, 30, 50]}
+        params = {'n_estimators': [30]}
     else:
         raise ClassifierNotSupportedError(clf_name)
 
     return clf, params
 
 
-def create_voting_classifier(voting='hard', classifiers=('lr', 'rf')):
+def create_voting_classifier(voting='hard', classifiers=('svc', 'lr', 'rf')):
     """
     Creates a voting classifier
     :param voting: hard or soft, hard is much faster
