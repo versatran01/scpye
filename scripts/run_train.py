@@ -4,18 +4,20 @@ from scpye.detect.pipeline_factory import (create_image_pipeline,
                                            create_feature_pipeline)
 from scpye.detect.train_test import (train_fruit_detector,
                                      test_fruit_detector)
-
+import os
 # %%
-#data_dir = '/home/chao/Workspace/dataset/apple_2016/result/apple_v0_mid_density_led_2016-08-24-23-32-50'
-data_dir = '/home/chao/Workspace/dataset/apple_2016/result/'\
-           'apple_v0_high_density_led_2016-08-25-23-38-10'
+base_dir = '/home/chao/Workspace/dataset/apple_2016/result'
+#data_name = 'apple_v0_mid_density_led_2016-08-24-23-32-50'
+#data_name = 'apple_v0_high_density_led_2016-08-25-23-38-10'
+data_name = 'apple_v0_low_density_led_2016-08-23-23-36-16'
+data_dir = os.path.join(base_dir, data_name)
 ds = ImageDataset(data_dir)
 Is, Ls = ds.load_train()
-n = 5
+n = 9
 
 # %%
 # Parameters
-k = 0.25
+k = 0.4
 pmin = 27
 cspace = ['hsv']
 loc = True
@@ -26,7 +28,7 @@ bbox = [300, 0, 1000, 2400]
 # %%
 do_train = True
 do_save = True
-do_test = True
+do_test = False
 
 # %%
 # Train

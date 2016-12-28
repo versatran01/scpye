@@ -9,12 +9,16 @@ from image_geometry.cameramodels import PinholeCameraModel
 from cv_bridge import CvBridge
 
 # %%
-data_dir = '/home/chao/Workspace/dataset/apple_2016'
+data_dir = '/home/chao/Workspace/dataset/mango_2016'
 bag_dir = os.path.join(data_dir, 'bag')
 # bag_name = 'apple_v0_mid_density_led_2016-08-24-23-32-50.bag'
 # bag_name = 'apple_v0_mid_density_led_2016-08-24-23-36-06.bag'
 #bag_name = 'apple_v0_high_density_led_2016-08-25-23-38-10.bag'
-bag_name = 'apple_v0_high_density_led_calib_2016-08-25-23-42-47.bag'
+#bag_name = 'apple_v0_low_density_led_2016-08-23-23-36-16.bag'
+#bag_name = 'apple_v0_high_density_led_2016-08-25-23-44-49.bag'
+#bag_name = 'apple_v0_low_density_led_2016-08-23-23-41-11.bag'
+#bag_name = 'mango_v0_2016-09-23-19-24-15.bag'
+bag_name = 'mango_v0_2016-09-23-19-27-50.bag'
 bag_file = os.path.join(bag_dir, bag_name)
 result_dir = os.path.join(data_dir, 'result')
 image_dir_name = os.path.splitext(bag_name)[0]
@@ -46,8 +50,9 @@ with rosbag.Bag(bag_file) as bag:
         # after camera model initialized, read image
         if cam_model.K is not None and topic == image_topic:
             image = bridge.imgmsg_to_cv2(msg, 'bgr8')
-            image_rect = np.empty_like(image)
-            cam_model.rectifyImage(image, image_rect)
+#            image_rect = np.empty_like(image)
+#            cam_model.rectifyImage(image, image_rect)
+            image_rect = image
             image_name = image_name_fmt.format(msg.header.seq)
             image_file = os.path.join(image_dir, image_name)
             cv2.imwrite(image_file, image_rect)
