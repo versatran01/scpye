@@ -27,6 +27,7 @@ class FruitTracker(object):
         self.min_age = min_age
         self.total_counts = 0
         self.frame_counts = 0
+        self.count_hist = []
 
         self.prev_gray = None
         # Optical flow parameters
@@ -282,6 +283,7 @@ class FruitTracker(object):
         """
         self.frame_counts = sum([1 for t in tracks if t.age >= self.min_age])
         self.total_counts += self.frame_counts
+        self.count_hist.append(self.total_counts)
 
     def finish(self):
         self.count_in_tracks(self.tracks)
